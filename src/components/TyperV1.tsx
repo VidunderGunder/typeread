@@ -7,6 +7,8 @@ import { cn } from "@/styles/utils";
 import { words as mostCommonWords } from "@/constants";
 import { useFocusTrap } from "@mantine/hooks";
 import { Commands } from "./Command";
+import { amountAtom, amounts } from "@/jotai";
+import { useAtom } from "jotai";
 
 export type TyperProps = {
 	//
@@ -18,11 +20,9 @@ type Character = {
 	changed?: number;
 };
 
-const amounts = [10, 25, 50, 100] as const;
-
 export function Typer({ className, ...props }: TyperProps) {
 	const [chars, setChars] = useState<Character[]>([]);
-	const [amount, setAmount] = useState<(typeof amounts)[number]>(25);
+	const [amount, setAmount] = useAtom(amountAtom);
 
 	const isEmpty = chars.length === 0;
 
@@ -67,47 +67,54 @@ export function Typer({ className, ...props }: TyperProps) {
 
 	return (
 		<div
-			ref={focusTrapRef}
-			// biome-ignore lint/a11y/noAutofocus: <explanation>
-			autoFocus
-			// biome-ignore lint/a11y/noNoninteractiveTabindex: <explanation>
-			tabIndex={0}
-			onKeyDown={(e) => {
-				if (finished) return;
-
-				if (e.key === "Backspace") {
-					if (currentIndex === 0) return;
-					setChars((prev) => {
-						const newChars = [...prev];
-						const prevIndex = currentIndex - 1;
-						newChars[prevIndex] = {
-							char: chars[prevIndex].char,
-							typed: "",
-						};
-						return newChars;
-					});
-					return;
-				}
-
-				if (e.key.length === 1) {
-					setChars((prev) => {
-						const newChars = [...prev];
-						newChars[currentIndex] = {
-							char: chars[currentIndex].char,
-							typed: e.key,
-							changed: Date.now(),
-						};
-						return newChars;
-					});
-					return;
-				}
-			}}
 			className={cn(
 				"flex size-full select-none flex-col items-center justify-center gap-4 bg-[#232834] text-white focus-visible:outline-none focus-visible:ring-0",
 				className,
 			)}
 			{...props}
 		>
+			<input
+				ref={focusTrapRef}
+				type="text"
+				onBlur={(e) => {
+					e.currentTarget.focus();
+				}}
+				// biome-ignore lint/a11y/noAutofocus: <explanation>
+				autoFocus
+				tabIndex={0}
+				className="size-0 opacity-0"
+				value={""}
+				onKeyDown={(e) => {
+					if (finished) return;
+
+					if (e.key === "Backspace") {
+						if (currentIndex === 0) return;
+						setChars((prev) => {
+							const newChars = [...prev];
+							const prevIndex = currentIndex - 1;
+							newChars[prevIndex] = {
+								char: chars[prevIndex].char,
+								typed: "",
+							};
+							return newChars;
+						});
+						return;
+					}
+
+					if (e.key.length === 1) {
+						setChars((prev) => {
+							const newChars = [...prev];
+							newChars[currentIndex] = {
+								char: chars[currentIndex].char,
+								typed: e.key,
+								changed: Date.now(),
+							};
+							return newChars;
+						});
+						return;
+					}
+				}}
+			/>
 			<div className="flex gap-5">
 				<div className="rounded-xl bg-black/20 p-1">
 					<div className="flex">
