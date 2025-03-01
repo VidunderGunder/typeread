@@ -1,3 +1,7 @@
+/**
+ * AI Slop implementation to get ideas (primarily a feel for what not to do)
+ */
+
 import { useEffect, useRef, useState, type ComponentProps } from "react";
 import { cn } from "@/styles/utils";
 
@@ -41,6 +45,7 @@ export function Typer({ className, ...props }: TyperProps) {
 		return text.split("").map((char, index) => {
 			return (
 				<span
+					// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
 					key={index}
 					className={cn(
 						"px-1",
@@ -72,6 +77,7 @@ export function Typer({ className, ...props }: TyperProps) {
 	return (
 		<div
 			ref={containerRef}
+			// biome-ignore lint/a11y/noNoninteractiveTabindex: <explanation>
 			tabIndex={0}
 			onKeyDown={handleKeyDown}
 			className={cn(
