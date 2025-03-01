@@ -1,6 +1,6 @@
-# React + Vite + Bun + Tailwind + Biome
+# Typer
 
-Personal starter for experiments
+![screenshot](./assets/screenshot.png)
 
 ```
 bun i
