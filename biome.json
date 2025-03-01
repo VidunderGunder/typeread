@@ -52,6 +52,9 @@
 			"style": {
 				"noUnusedTemplateLiteral": {
 					"level": "off"
+				},
+				"useTemplate": {
+					"level": "off"
 				}
 			},
 			"correctness": {

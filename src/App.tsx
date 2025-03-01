@@ -1,4 +1,4 @@
-import { Typer } from "./components/Typer";
+import { Typer } from "./components/TyperV1";
 
 function App() {
 	return (

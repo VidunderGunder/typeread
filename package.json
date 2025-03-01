@@ -1,5 +1,5 @@
 {
-	"name": "react-vite-bun-tailwind-biome",
+	"name": "typer",
 	"private": true,
 	"version": "0.0.0",
 	"type": "module",
@@ -10,8 +10,10 @@
 		"preview": "vite preview"
 	},
 	"dependencies": {
+		"@mantine/hooks": "^7.17.1",
 		"@tailwindcss/vite": "^4.0.9",
 		"clsx": "^2.1.1",
+		"jotai": "^2.12.1",
 		"path": "^0.12.7",
 		"react": "^19.0.0",
 		"react-dom": "^19.0.0",

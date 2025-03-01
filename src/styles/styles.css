@@ -1,45 +1,47 @@
-* {
-  -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-  -moz-box-sizing: border-box; /* Firefox, other Gecko */
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
+@layer base {
+  * {
+    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box; /* Firefox, other Gecko */
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+  }
 
-html {
-  font-size: 14px;
-}
+  html {
+    font-size: 14px;
+  }
 
-/* Select bug fix https://github.com/shadcn-ui/ui/issues/4227#issuecomment-2406833730 */
-html body[data-scroll-locked] {
-  overflow: visible !important;
-  margin-right: 0 !important;
-}
+  /* Select bug fix https://github.com/shadcn-ui/ui/issues/4227#issuecomment-2406833730 */
+  html body[data-scroll-locked] {
+    overflow: visible !important;
+    margin-right: 0 !important;
+  }
 
-html,
-body,
-#root {
-  /* Remove height if you want real html scroll */
-  height: 100%;
-  width: 100%;
-  min-width: 100%;
-  min-height: 100%;
-  max-width: 100vw;
-}
+  html,
+  body,
+  #root {
+    /* Remove height if you want real html scroll */
+    height: 100%;
+    width: 100%;
+    min-width: 100%;
+    min-height: 100%;
+    max-width: 100vw;
+  }
 
-html {
-  height: 100%;
-}
+  html {
+    height: 100%;
+  }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
 
-button {
-  user-select: none;
-}
+  button {
+    user-select: none;
+  }
 
-input[type="file"]::-webkit-file-upload-button {
-  cursor: inherit;
+  input[type="file"]::-webkit-file-upload-button {
+    cursor: inherit;
+  }
 }
