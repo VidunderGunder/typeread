@@ -1,7 +1,3 @@
-/**
- * First draft to get a feel for it myself
- */
-
 import { useCallback, useEffect, useState, type ComponentProps } from "react";
 import { cn } from "@/styles/utils";
 import { words as mostCommonWords } from "@/utils/constants";
