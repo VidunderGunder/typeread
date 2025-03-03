@@ -25,7 +25,16 @@ export function Char({
 	const isIncorrectSpace = char.char !== " " && char.typed === " ";
 
 	return (
-		<span className={cn("relative", className)} {...props}>
+		<span
+			className={cn(
+				"relative",
+				// isCorrect
+				// 	? "drop-shadow-[1px_2px_0px_rgba(0,0,0,0.3)]"
+				// 	: "drop-shadow-[1px_2px_0px_rgba(0,0,0,0.15)]",
+				className,
+			)}
+			{...props}
+		>
 			<span
 				className={cn(
 					"text-[#4c5874]",

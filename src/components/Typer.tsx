@@ -31,9 +31,10 @@ export function Typer({ className, ...props }: TyperProps) {
 	const isEmpty = chars.length === 0;
 
 	const init = useCallback(
-		function init(words = amount) {
+		function init(length = amount) {
 			setChars(
-				getRandomWords(words)
+				[...problemWords, ...getRandomWords(length - problemWords.length)]
+					.join(" ")
 					.split("")
 					.map((e) => ({
 						char: e,
@@ -43,7 +44,7 @@ export function Typer({ className, ...props }: TyperProps) {
 			setMisses(0);
 			setProblemWords([]);
 		},
-		[amount],
+		[amount, problemWords, problemWords.length],
 	);
 
 	useEffect(() => {
@@ -236,6 +237,20 @@ export function Typer({ className, ...props }: TyperProps) {
 }
 
 function getRandomWords(length = 25) {
+	const words = [];
+
+	for (let i = 0; i < length; i++) {
+		words.push(
+			mostCommonWords[
+				Math.max(0, Math.floor(Math.random() * mostCommonWords.length - 1))
+			],
+		);
+	}
+
+	return words;
+}
+
+function getRandomString(length = 25) {
 	let str = "";
 
 	for (let i = 0; i < length; i++) {
