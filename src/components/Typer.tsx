@@ -212,7 +212,7 @@ export function Typer({ className, ...props }: TyperProps) {
 												className="relative flex cursor-pointer gap-2 text-center not-disabled:hover:text-white"
 												onClick={practice}
 											>
-												{i < 10 && (
+												{i < 9 && (
 													<Command
 														keyboard_key={"Digit" + (i + 1)}
 														handler={(e) => {
