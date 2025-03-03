@@ -25,7 +25,8 @@ export function Typer({ className, ...props }: TyperProps) {
 	const [amount, setAmount] = useAtom(amountAtom);
 
 	const str = chars.map((char) => char.char).join("");
-	const actualAmount = str.split(" ").length;
+	const words = str.split(" ");
+	const actualAmount = words.length;
 	const isisCorrectAmount = actualAmount === amount;
 
 	const isEmpty = chars.length === 0;
@@ -173,10 +174,31 @@ export function Typer({ className, ...props }: TyperProps) {
 				/>
 			</div>
 			<div className="max-w-[70dvw] font-bold text-xl">
-				{chars.map((char, i) => {
+				{splitIntoGroups(chars).map((group, groupIndex) => {
+					if (group.type === "space") {
+						const charIndex = group.indices[0];
+						const char = chars[charIndex];
+						return (
+							<span key={["space", groupIndex].join("-")}>
+								<Char char={char} isCurrent={currentIndex === charIndex} />
+							</span>
+						);
+					}
 					return (
-						<span key={[...Object.values(char), i].join("-")}>
-							<Char char={char} isCurrent={currentIndex === i} />
+						<span
+							key={["word", groupIndex].join("-")}
+							className="whitespace-nowrap"
+						>
+							{group.indices.map((charIndex) => {
+								const char = chars[charIndex];
+								return (
+									<Char
+										key={charIndex}
+										char={char}
+										isCurrent={currentIndex === charIndex}
+									/>
+								);
+							})}
 						</span>
 					);
 				})}
@@ -250,15 +272,31 @@ function getRandomWords(length = 25) {
 	return words;
 }
 
-function getRandomString(length = 25) {
-	let str = "";
+function splitIntoGroups(chars: Character[]) {
+	const groups: Array<{ type: "word" | "space"; indices: number[] }> = [];
+	let currentGroupIndices: number[] = [];
+	let currentGroupType: "word" | "space" | null = null;
 
-	for (let i = 0; i < length; i++) {
-		str +=
-			mostCommonWords[
-				Math.max(0, Math.floor(Math.random() * mostCommonWords.length - 1))
-			] + " ";
+	for (let i = 0; i < chars.length; i++) {
+		const char = chars[i];
+		if (char.char === " ") {
+			if (currentGroupType === "word") {
+				groups.push({ type: "word", indices: currentGroupIndices });
+				currentGroupIndices = [];
+				currentGroupType = null;
+			}
+			groups.push({ type: "space", indices: [i] });
+		} else {
+			if (currentGroupType !== "word") {
+				currentGroupType = "word";
+			}
+			currentGroupIndices.push(i);
+		}
 	}
 
-	return str.trimEnd();
+	if (currentGroupIndices.length > 0 && currentGroupType === "word") {
+		groups.push({ type: "word", indices: currentGroupIndices });
+	}
+
+	return groups;
 }
