@@ -4,11 +4,13 @@
 
 import { useCallback, useEffect, useState, type ComponentProps } from "react";
 import { cn } from "@/styles/utils";
-import { words as mostCommonWords } from "@/constants";
+import { words as mostCommonWords } from "@/utils/constants";
 import { useFocusTrap } from "@mantine/hooks";
-import { Commands } from "./Command";
+import { Command, Commands } from "./Command";
 import { amountAtom, amounts } from "@/jotai";
 import { useAtom } from "jotai";
+import { Char } from "./Char";
+import { getWordAtIndex } from "@/utils/string";
 
 export type TyperProps = {
 	//
@@ -22,7 +24,13 @@ type Character = {
 
 export function Typer({ className, ...props }: TyperProps) {
 	const [chars, setChars] = useState<Character[]>([]);
+	const [misses, setMisses] = useState(0);
+	const [problemWords, setProblemWords] = useState<string[]>([]);
 	const [amount, setAmount] = useAtom(amountAtom);
+
+	const str = chars.map((char) => char.char).join("");
+	const actualAmount = str.split(" ").length;
+	const isisCorrectAmount = actualAmount === amount;
 
 	const isEmpty = chars.length === 0;
 
@@ -36,15 +44,19 @@ export function Typer({ className, ...props }: TyperProps) {
 						typed: "",
 					})),
 			);
+			setMisses(0);
+			setProblemWords([]);
 		},
 		[amount],
 	);
 
 	useEffect(() => {
-		if (isEmpty) init();
-	}, [isEmpty, init]);
+		if (isEmpty || !isisCorrectAmount) init();
+	}, [isEmpty, isisCorrectAmount, init]);
 
 	const currentIndex = chars.findIndex((char) => char.typed === "");
+
+	console.log(currentIndex);
 
 	const finished = !chars.some((e) => e.typed.length === 0);
 
@@ -68,7 +80,7 @@ export function Typer({ className, ...props }: TyperProps) {
 	return (
 		<div
 			className={cn(
-				"flex size-full select-none flex-col items-center justify-center gap-4 bg-[#232834] text-white focus-visible:outline-none focus-visible:ring-0",
+				"flex size-full select-none flex-col items-center justify-center gap-10 bg-[#232834] text-white focus-visible:outline-none focus-visible:ring-0",
 				className,
 			)}
 			{...props}
@@ -83,7 +95,10 @@ export function Typer({ className, ...props }: TyperProps) {
 				autoFocus
 				tabIndex={0}
 				className="size-0 opacity-0"
-				value={""}
+				// value={chars.map((e) => e.typed)}
+				// onChange={e => {
+				// 	const value = e.currentTarget.value;
+				// }}
 				onKeyDown={(e) => {
 					if (finished) return;
 
@@ -102,15 +117,21 @@ export function Typer({ className, ...props }: TyperProps) {
 					}
 
 					if (e.key.length === 1) {
-						setChars((prev) => {
-							const newChars = [...prev];
-							newChars[currentIndex] = {
-								char: chars[currentIndex].char,
-								typed: e.key,
-								changed: Date.now(),
-							};
-							return newChars;
-						});
+						const newChars = [...chars];
+						const newChar = {
+							char: chars[currentIndex].char,
+							typed: e.key,
+							changed: Date.now(),
+						};
+						newChars[currentIndex] = newChar;
+						if (newChar.typed.length > 0 && newChar.typed !== newChar.char) {
+							setMisses((prev) => prev + 1);
+							const word = getWordAtIndex(str, currentIndex);
+							if (!problemWords.includes(word)) {
+								setProblemWords((prev) => [...prev, word]);
+							}
+						}
+						setChars(newChars);
 						return;
 					}
 				}}
@@ -156,30 +177,61 @@ export function Typer({ className, ...props }: TyperProps) {
 			</div>
 			<div className="max-w-[70dvw] font-bold text-xl">
 				{chars.map((char, i) => {
-					const isTyped = char.typed.length > 0;
-					const isCorrect = char.char === char.typed;
-					const isCurrent = currentIndex === i;
-					const isIncorrectSpace = char.char !== " " && char.typed === " ";
-
 					return (
-						<span
-							key={[...Object.values(char), i].join("-")}
-							className={cn(
-								isCorrect ? "text-[#cbcdb6]" : "text-[#bc2030]",
-								(!isTyped || isIncorrectSpace) && "text-[#4c5874]",
-								isCurrent && "underline",
-							)}
-						>
-							{char.typed !== "" && !isIncorrectSpace ? char.typed : char.char}
+						<span key={[...Object.values(char), i].join("-")}>
+							<Char char={char} isCurrent={currentIndex === i} />
 						</span>
 					);
 				})}
 			</div>
 			{finished && (
-				<div className="flex flex-col items-center gap-5 font-bold text-[#4c5874]">
+				<div className="flex max-w-[300px] flex-col items-center gap-5 font-bold text-[#4c5874]">
 					<div>
 						<div>{wpm} WPM</div>
 						<div>{accuracy}% Accuracy</div>
+						<div>{misses} Misses</div>
+						{problemWords.length > 0 && (
+							<div className="mt-5 flex flex-col">
+								Problematic words:{" "}
+								<div className="inline-flex flex-wrap gap-3">
+									{problemWords.map((word, i) => {
+										function practice() {
+											setChars(
+												Array.from({ length: amount })
+													.map(() => word)
+													.join(" ")
+													.split("")
+													.map((e) => ({
+														char: e,
+														typed: "",
+													})),
+											);
+											setMisses(0);
+											setProblemWords([]);
+										}
+										return (
+											<button
+												type="button"
+												key={word}
+												className="relative flex cursor-pointer gap-2 text-center not-disabled:hover:text-white"
+												onClick={practice}
+											>
+												{i < 10 && (
+													<Command
+														keyboard_key={"Digit" + (i + 1)}
+														handler={(e) => {
+															e.preventDefault();
+															practice();
+														}}
+													/>
+												)}
+												{word}
+											</button>
+										);
+									})}
+								</div>
+							</div>
+						)}
 					</div>
 				</div>
 			)}
@@ -192,8 +244,9 @@ function getRandomWords(length = 25) {
 
 	for (let i = 0; i < length; i++) {
 		str +=
-			mostCommonWords[Math.floor(Math.random() * mostCommonWords.length - 1)] +
-			" ";
+			mostCommonWords[
+				Math.max(0, Math.floor(Math.random() * mostCommonWords.length - 1))
+			] + " ";
 	}
 
 	return str.trimEnd();

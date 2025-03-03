@@ -54,14 +54,14 @@ export type CommandType = Hotkey & {
 
 export type CommandProps = {
 	//
-} & CommandType &
+} & Partial<CommandType> &
 	Omit<ComponentProps<"div">, "label" | "children">;
 
 export function Command({
 	disabled = false,
 	className,
-	modifiers,
-	keyboard_key,
+	modifiers = [],
+	keyboard_key = "",
 	handler,
 	label,
 	...props
