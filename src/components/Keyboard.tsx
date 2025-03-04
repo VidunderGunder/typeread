@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { ComponentProps } from "react";
 import { cn } from "@/styles/utils";
 import type { KeyboardKey, Modifier } from "@/types/keyboard";
+import { Sparkle } from "./particles/Sparkle";
 
 export type KeyboardBaseProps = {
 	isModifier?: boolean;
@@ -206,9 +207,14 @@ export function Keyboard({
 	return (
 		<KeyboardBase
 			isModifier={isModifier}
-			className={cn(pressed ? "border-gray-300 bg-gray-300" : "", className)}
+			className={cn(
+				"relative",
+				pressed ? "border-gray-300 bg-gray-300" : "",
+				className,
+			)}
 			{...props}
 		>
+			{!pressed && <Sparkle className="-top-2 absolute" />}
 			{label}
 		</KeyboardBase>
 	);

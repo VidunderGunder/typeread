@@ -1,4 +1,4 @@
-import type { ComponentProps } from "react";
+import { memo, type ComponentProps } from "react";
 import { cn } from "@/styles/utils";
 import { Sparkle } from "./particles/Sparkle";
 
@@ -9,32 +9,24 @@ export type Character = {
 };
 
 export type CharProps = {
-	char: Character;
 	isCurrent: boolean;
-} & ComponentProps<"span">;
+} & Character &
+	ComponentProps<"span">;
 
-export function Char({
+export const Char = memo(function Char({
 	children,
 	className,
 	char,
+	typed,
 	isCurrent = false,
 	...props
 }: CharProps) {
-	const isTyped = char.typed.length > 0;
-	const isCorrect = char.char === char.typed;
-	const isIncorrectSpace = char.char !== " " && char.typed === " ";
+	const isTyped = typed.length > 0;
+	const isCorrect = char === typed;
+	const isIncorrectSpace = char !== " " && typed === " ";
 
 	return (
-		<span
-			className={cn(
-				"relative",
-				// isCorrect
-				// 	? "drop-shadow-[1px_2px_0px_rgba(0,0,0,0.3)]"
-				// 	: "drop-shadow-[1px_2px_0px_rgba(0,0,0,0.15)]",
-				className,
-			)}
-			{...props}
-		>
+		<span className={cn("relative", className)} {...props}>
 			<span
 				className={cn(
 					"text-[#4c5874]",
@@ -42,20 +34,20 @@ export function Char({
 					isCurrent && "underline",
 				)}
 			>
-				{char.char}
+				{char}
 			</span>
 			{isTyped && !isCorrect && (
 				<span className="pointer-events-none absolute inset-0 flex size-full items-center justify-center text-[#bc2030]">
 					<span className="-rotate-6 relative top-2">
-						{isIncorrectSpace ? "␣" : char.typed}
+						{isIncorrectSpace ? "␣" : typed}
 					</span>
 				</span>
 			)}
 			<span className="pointer-events-none absolute inset-0 size-full">
-				{char.typed.length > 0 && char.typed !== " " && (
+				{typed.length > 0 && typed !== " " && (
 					<Sparkle className={cn("-top-1", !isCorrect && "bg-red-400")} />
 				)}
 			</span>
 		</span>
 	);
-}
+});
