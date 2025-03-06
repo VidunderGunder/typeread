@@ -57,7 +57,7 @@ export function useInit() {
 
 	function practice(word: string) {
 		setChars(
-			Array.from({ length: amount })
+			Array.from({ length: 10 })
 				.map(() => word)
 				.join(" ")
 				.split("")
