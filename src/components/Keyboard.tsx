@@ -210,12 +210,16 @@ export function Keyboard({
 			className={cn(
 				"relative",
 				pressed ? "border-gray-300 bg-gray-300" : "",
+				"flex items-center justify-center",
+				"font-black",
 				className,
 			)}
 			{...props}
 		>
-			{!pressed && <Sparkle className="-top-2 absolute" />}
-			{label}
+			<span>
+				{!pressed && <Sparkle className="-top-2 absolute" />}
+				{label}
+			</span>
 		</KeyboardBase>
 	);
 }

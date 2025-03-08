@@ -1,8 +1,9 @@
-import { atomWithStorage } from "jotai/utils";
+import { atomWithReset, atomWithStorage, useResetAtom } from "jotai/utils";
 import type { Character } from "./types";
 import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
 import { getRandomWords } from "./utils/string";
 import { useCallback } from "react";
+import { modeMap } from "./utils/constants";
 
 // ASCII Text Generator:
 // https://patorjk.com/software/taag/#p=display&f=Elite&t=Hello%20World
@@ -22,19 +23,46 @@ export type Amount = (typeof amounts)[number];
 export const amountAtom = atomWithStorage<Amount>("amount", 25);
 
 export const charsAtom = atom<Character[]>([]);
-export const missesAtom = atom<number>(0);
-export const problemWordsAtom = atom<string[]>([]);
+export const missesAtom = atomWithReset<number>(0);
+export const problemWordsAtom = atomWithReset<string[]>([]);
+
+export const modes = ["words", "code"] as const;
+export type Mode = (typeof modes)[number];
+export const modeAtom = atomWithStorage<Mode>("mode", "words");
 
 export function useInit() {
 	const setChars = useSetAtom(charsAtom);
-	const setMisses = useSetAtom(missesAtom);
-	const [problemWords, setProblemWords] = useAtom(problemWordsAtom);
+	const resetMisses = useResetAtom(missesAtom);
+	const resetProblemWords = useResetAtom(problemWordsAtom);
 	const amount = useAtomValue(amountAtom);
+	const mode = useAtomValue(modeAtom);
 
 	const init = useCallback(
-		function init(length = amount) {
+		function init(
+			{
+				amount: a,
+				mode: m,
+				problemWords = [],
+			}: {
+				amount?: number;
+				mode?: Mode;
+				problemWords?: string[];
+			} = {
+				amount,
+				mode,
+			},
+		) {
+			console.log("init", { a, m, problemWords });
+			a ??= amount;
+			m ??= mode;
 			setChars(
-				[...problemWords, ...getRandomWords(length - problemWords.length)]
+				[
+					...problemWords,
+					...getRandomWords({
+						length: a - problemWords.length,
+						words: modeMap[m],
+					}),
+				]
 					.join(" ")
 					.split("")
 					.map((e) => ({
@@ -42,33 +70,43 @@ export function useInit() {
 						typed: "",
 					})),
 			);
-			setMisses(0);
-			setProblemWords([]);
+			resetMisses();
+			resetProblemWords();
 		},
-		[
-			amount,
-			problemWords,
-			problemWords.length,
-			setChars,
-			setMisses,
-			setProblemWords,
-		],
+		[amount, setChars, resetMisses, resetProblemWords, mode],
 	);
 
-	function practice(word: string) {
-		setChars(
-			Array.from({ length: 10 })
-				.map(() => word)
-				.join(" ")
-				.split("")
-				.map((e) => ({
-					char: e,
+	const practice = useCallback(
+		function practice(word: string) {
+			setChars(
+				Array.from({ length: 5 })
+					.map(() => word)
+					.join(" ")
+					.split("")
+					.map((e) => ({
+						char: e,
+						typed: "",
+					})),
+			);
+			resetMisses();
+			resetProblemWords();
+		},
+		[setChars, resetMisses, resetProblemWords],
+	);
+
+	const retry = useCallback(
+		function retry() {
+			setChars((chars) =>
+				chars.map((char) => ({
+					...char,
 					typed: "",
 				})),
-		);
-		setMisses(0);
-		setProblemWords([]);
-	}
+			);
+			resetMisses();
+			resetProblemWords();
+		},
+		[setChars, resetMisses, resetProblemWords],
+	);
 
-	return { init, practice };
+	return { init, practice, retry };
 }

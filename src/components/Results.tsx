@@ -1,12 +1,6 @@
-import { useEffect, type ComponentProps } from "react";
+import type { ComponentProps } from "react";
 import { cn } from "@/styles/utils";
-import {
-	amountAtom,
-	charsAtom,
-	missesAtom,
-	problemWordsAtom,
-	useInit,
-} from "@/jotai";
+import { charsAtom, missesAtom, problemWordsAtom, useInit } from "@/jotai";
 import { useAtomValue } from "jotai";
 import { Command } from "./Command";
 import { motion } from "motion/react";
@@ -20,20 +14,8 @@ export function Results({ className, ...props }: ResultsProps) {
 	const chars = useAtomValue(charsAtom);
 	const misses = useAtomValue(missesAtom);
 	const problemWords = useAtomValue(problemWordsAtom);
-	const amount = useAtomValue(amountAtom);
 
-	const { practice, init } = useInit();
-
-	const str = chars.map((char) => char.char).join("");
-	const words = str.split(" ");
-	const actualAmount = words.length;
-	const isCorrectAmount = actualAmount === amount;
-
-	const isEmpty = chars.length === 0;
-
-	useEffect(() => {
-		if (isEmpty || !isCorrectAmount) init();
-	}, [isEmpty, isCorrectAmount, init]);
+	const { practice, retry } = useInit();
 
 	const finished = !chars.some((e) => e.typed.length === 0);
 
@@ -89,42 +71,57 @@ export function Results({ className, ...props }: ResultsProps) {
 							}
 				}
 			>
-				<div className="flex flex-col items-center">
-					<div>
-						<div>{wpm} WPM</div>
-						<div>{accuracy}% Accuracy</div>
-						<div>{misses} Misses</div>
-					</div>
-				</div>
-				{problemWords.length > 0 && (
-					<div className="mt-5 flex flex-col items-center">
-						<div className="text-center font-normal italic">
-							Press a number to practice problematic words:
+				{finished && (
+					<>
+						<div className="flex flex-col items-center gap-4">
+							<div>
+								<div>{wpm} WPM</div>
+								<div>{accuracy}% Accuracy</div>
+								<div>{misses} Misses</div>
+							</div>
+							<div className="flex items-center">
+								<Command
+									keyboard_key={"KeyR"}
+									modifiers={["Meta"]}
+									label="Retry"
+									handler={(e) => {
+										e.preventDefault();
+										retry();
+									}}
+								/>
+							</div>
 						</div>
-						<div className="inline-flex flex-wrap gap-3 pt-5">
-							{problemWords.map((word, i) => {
-								return (
-									<button
-										type="button"
-										key={word}
-										className="relative flex cursor-pointer gap-2 text-center not-disabled:hover:text-white"
-										onClick={() => practice(word)}
-									>
-										{i < 9 && (
-											<Command
-												keyboard_key={"Digit" + (i + 1)}
-												handler={(e) => {
-													e.preventDefault();
-													practice(word);
-												}}
-											/>
-										)}
-										{word}
-									</button>
-								);
-							})}
-						</div>
-					</div>
+						{problemWords.length > 0 && (
+							<div className="mt-5 flex flex-col items-center">
+								<div className="text-center font-normal italic">
+									Press a number to practice problematic words:
+								</div>
+								<div className="inline-flex flex-wrap gap-3 pt-5">
+									{problemWords.map((word, i) => {
+										return (
+											<button
+												type="button"
+												key={word}
+												className="relative flex cursor-pointer gap-2 text-center not-disabled:hover:text-white"
+												onClick={() => practice(word)}
+											>
+												{i < 9 && (
+													<Command
+														keyboard_key={"Digit" + (i + 1)}
+														handler={(e) => {
+															e.preventDefault();
+															practice(word);
+														}}
+													/>
+												)}
+												{word}
+											</button>
+										);
+									})}
+								</div>
+							</div>
+						)}
+					</>
 				)}
 			</motion.div>
 		</div>

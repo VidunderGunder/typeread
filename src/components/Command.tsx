@@ -46,7 +46,7 @@ export function isEqualHotkey(a: Hotkey, b: Hotkey): boolean {
 	return true;
 }
 
-export type CommandType = Hotkey & {
+export type CommandType = Partial<Hotkey> & {
 	label: ReactNode;
 	disabled?: boolean;
 	handler?: (event: KeyboardEvent) => void;
@@ -138,6 +138,7 @@ export function Command({
 			className={cn(
 				"flex items-center gap-1.5",
 				irrelevant ? "opacity-20" : "opacity-100",
+
 				className,
 			)}
 			{...props}
@@ -154,7 +155,9 @@ export function Command({
 					/>
 				)}
 			</div>
-			{label && <div className="text-sm text-white/75">{label}</div>}
+			{label && (
+				<div className="font-semibold text-sm text-white/75">{label}</div>
+			)}
 		</div>
 	);
 }
@@ -177,7 +180,9 @@ export function Commands({ commands, className, ...props }: CommandsProps) {
 	return (
 		<div className={cn("flex items-center gap-3", className)} {...props}>
 			{commands.map((command, i) => {
-				const key = [...command.modifiers, command.keyboard_key].join("-");
+				const key = [...(command.modifiers ?? []), command.keyboard_key].join(
+					"-",
+				);
 				return (
 					<Fragment key={key}>
 						{i > 0 && <CommandSeparator />}

@@ -1,5 +1,5 @@
 import type { Character } from "@/types";
-import { words as mostCommonWords } from "@/utils/constants";
+import { WORDS } from "@/utils/constants";
 
 export function getWordAtIndex(str: string, index: number) {
 	let startOfWord = 0;
@@ -39,18 +39,16 @@ export function getWordAtIndex(str: string, index: number) {
 	return word;
 }
 
-export function getRandomWords(length = 25) {
-	const words = [];
+export function getRandomWords(
+	{ length, words } = { length: 25, words: WORDS },
+) {
+	const rand = [];
 
 	for (let i = 0; i < length; i++) {
-		words.push(
-			mostCommonWords[
-				Math.max(0, Math.floor(Math.random() * mostCommonWords.length - 1))
-			],
-		);
+		rand.push(words[Math.max(0, Math.floor(Math.random() * words.length - 1))]);
 	}
 
-	return words;
+	return rand;
 }
 
 export function splitIntoGroups(chars: Character[]) {

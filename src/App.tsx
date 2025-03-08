@@ -1,8 +1,16 @@
 import { Toolbar } from "@/components/Toolbar";
 import { Typer } from "@/components/Typer";
 import { Results } from "@/components/Results";
+import { useEffect } from "react";
+import { useInit } from "./jotai";
 
 export function App() {
+	const { init } = useInit();
+
+	useEffect(() => {
+		init();
+	}, [init]);
+
 	return (
 		<div className="flex size-full select-none flex-col items-center justify-center gap-10 bg-[#232834] text-white focus-visible:outline-none focus-visible:ring-0">
 			<div className="flex size-full flex-col items-center py-10">

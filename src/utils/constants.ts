@@ -1,4 +1,6 @@
-export const words = [
+import type { Mode } from "@/jotai";
+
+export const WORDS = [
 	"the",
 	"of",
 	"and",
@@ -101,17 +103,58 @@ export const words = [
 	"part",
 ];
 
-export const code = [
+export const CODE = [
 	"~/.zshrc",
 	"cd ..",
 	"cd ../..",
 	"mkdir",
 	"import",
-	"{  }",
+	"{}",
+	"[]",
+	"@@",
 	"from",
 	"...rest",
 	"{...props}",
 	"<div />",
 	"<div>",
 	"</div>",
+	"<span />",
+	"<span>",
+	"</span>",
+	"<label />",
+	"<label>",
+	"</label>",
+	"apps/next",
+	"bun",
+	"dev",
+	"run",
+	"start",
+	"build",
+	"test",
+	"lint",
+	">=",
+	"<=",
+	"==",
+	"===",
+	"!==",
+	"const",
+	"let",
+	"var",
+	"function",
+	"return",
+	"if",
+	"else",
+	"() => {}",
+	"() =>",
+	"()",
+	"{}",
+	"[]",
+	"([])",
+	"??",
+	"?.()",
 ];
+
+export const modeMap = {
+	words: WORDS,
+	code: CODE,
+} as const satisfies Record<Mode, string[]>;
