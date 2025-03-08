@@ -57,7 +57,7 @@ export function Typer({ className, ...props }: TyperProps) {
 							newChars[prevIndex] = newChar;
 							return newChars;
 						});
-						setWpm(0);
+						// setWpm(0);
 
 						return;
 					}

@@ -86,7 +86,9 @@ export function Toolbar({ className, ...props }: ToolbarProps) {
 						label: "New",
 						handler(event) {
 							event.preventDefault();
-							init();
+							init({
+								problemWords,
+							});
 						},
 					},
 				]}

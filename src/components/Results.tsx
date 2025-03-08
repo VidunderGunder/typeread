@@ -48,7 +48,7 @@ export function Results({ className, ...props }: ResultsProps) {
 	return (
 		<div
 			className={cn(
-				"flex max-w-[300px] flex-col items-center gap-5 font-bold text-[#4c5874]",
+				"flex max-w-[400px] flex-col items-center gap-5 font-bold text-[#4c5874]",
 				className,
 			)}
 			{...props}
@@ -85,9 +85,11 @@ export function Results({ className, ...props }: ResultsProps) {
 				{finished && (
 					<>
 						<div className="flex flex-col items-center gap-4">
-							<div>
+							<div className="flex gap-4">
 								<div>{wpm} WPM</div>
+								<div>•</div>
 								<div>{accuracy}% Accuracy</div>
+								<div>•</div>
 								<div>{misses} Misses</div>
 							</div>
 							<div className="flex items-center">
