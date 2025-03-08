@@ -389,6 +389,23 @@ export const WORDS = [
 	"hinge",
 	"unhinged",
 	"whelmed",
+	"one",
+	"dawg",
+	"dog",
+	"bonk",
+	"jail",
+	"aries",
+	"taurus",
+	"gemini",
+	"cancer",
+	"leo",
+	"virgo",
+	"libra",
+	"scorpo",
+	"sagittarius",
+	"capricorn",
+	"aquarius",
+	"pisces",
 ];
 
 export const CODE = [
@@ -440,6 +457,9 @@ export const CODE = [
 	"([])",
 	"??",
 	"?.()",
+	"class",
+	"className",
+	"={",
 ];
 
 export const modeMap = {
