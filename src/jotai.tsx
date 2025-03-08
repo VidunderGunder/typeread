@@ -1,6 +1,6 @@
 import { atomWithReset, atomWithStorage, useResetAtom } from "jotai/utils";
 import type { Character } from "./types";
-import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
+import { atom, useAtomValue, useSetAtom } from "jotai";
 import { getRandomWords } from "./utils/string";
 import { useCallback } from "react";
 import { modeMap } from "./utils/constants";
@@ -22,6 +22,7 @@ export const amounts = [10, 25, 50, 100] as const;
 export type Amount = (typeof amounts)[number];
 export const amountAtom = atomWithStorage<Amount>("amount", 25);
 
+export const wpmAtom = atomWithReset<number>(0);
 export const charsAtom = atom<Character[]>([]);
 export const missesAtom = atomWithReset<number>(0);
 export const problemWordsAtom = atomWithReset<string[]>([]);
@@ -34,6 +35,7 @@ export function useInit() {
 	const setChars = useSetAtom(charsAtom);
 	const resetMisses = useResetAtom(missesAtom);
 	const resetProblemWords = useResetAtom(problemWordsAtom);
+	const resetWpm = useResetAtom(wpmAtom);
 	const amount = useAtomValue(amountAtom);
 	const mode = useAtomValue(modeAtom);
 
@@ -52,7 +54,6 @@ export function useInit() {
 				mode,
 			},
 		) {
-			console.log("init", { a, m, problemWords });
 			a ??= amount;
 			m ??= mode;
 			setChars(
@@ -72,8 +73,9 @@ export function useInit() {
 			);
 			resetMisses();
 			resetProblemWords();
+			resetWpm();
 		},
-		[amount, setChars, resetMisses, resetProblemWords, mode],
+		[amount, setChars, resetMisses, resetProblemWords, mode, resetWpm],
 	);
 
 	const practice = useCallback(
@@ -90,8 +92,9 @@ export function useInit() {
 			);
 			resetMisses();
 			resetProblemWords();
+			resetWpm();
 		},
-		[setChars, resetMisses, resetProblemWords],
+		[setChars, resetMisses, resetProblemWords, resetWpm],
 	);
 
 	const retry = useCallback(
@@ -104,8 +107,9 @@ export function useInit() {
 			);
 			resetMisses();
 			resetProblemWords();
+			resetWpm();
 		},
-		[setChars, resetMisses, resetProblemWords],
+		[setChars, resetMisses, resetProblemWords, resetWpm],
 	);
 
 	return { init, practice, retry };

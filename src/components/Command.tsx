@@ -108,9 +108,6 @@ export function Command({
 				isSafeHotkeyKey(keyboard_key)
 			: typeof keyboard_key === "string";
 
-	if (keyboard_key === "Comma")
-		console.log("Comma is likely valid: ", isLikelyValidHotkey);
-
 	const hotkeyItems: HotkeyItem[] =
 		!disabled && handler && isLikelyValidHotkey
 			? [

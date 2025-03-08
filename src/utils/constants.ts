@@ -88,7 +88,6 @@ export const WORDS = [
 	"history",
 	"home",
 	"how",
-	"i",
 	"if",
 	"image",
 	"in",
@@ -406,6 +405,7 @@ export const WORDS = [
 	"capricorn",
 	"aquarius",
 	"pisces",
+	"peg",
 ];
 
 export const CODE = [
@@ -460,6 +460,7 @@ export const CODE = [
 	"class",
 	"className",
 	"={",
+	"@iconify/react",
 ];
 
 export const modeMap = {

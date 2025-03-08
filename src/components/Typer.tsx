@@ -2,9 +2,10 @@ import type { ComponentProps } from "react";
 import { cn } from "@/styles/utils";
 import { getWordAtIndex, splitIntoGroups } from "@/utils/string";
 import { Char } from "./Char";
-import { charsAtom, missesAtom, problemWordsAtom } from "@/jotai";
+import { charsAtom, missesAtom, problemWordsAtom, wpmAtom } from "@/jotai";
 import { useAtom, useSetAtom } from "jotai";
 import { useFocusTrap } from "@mantine/hooks";
+import { getWpm } from "@/utils/wpm";
 
 export type TyperProps = {
 	//
@@ -14,6 +15,7 @@ export function Typer({ className, ...props }: TyperProps) {
 	const [chars, setChars] = useAtom(charsAtom);
 	const focusTrapRef = useFocusTrap();
 	const setMisses = useSetAtom(missesAtom);
+	const setWpm = useSetAtom(wpmAtom);
 	const [problemWords, setProblemWords] = useAtom(problemWordsAtom);
 
 	const currentIndex = chars.findIndex((char) => char.typed === "");
@@ -44,15 +46,19 @@ export function Typer({ className, ...props }: TyperProps) {
 
 					if (e.key === "Backspace") {
 						if (currentIndex === 0) return;
+						const prevIndex = currentIndex - 1;
+						const newChar = {
+							char: chars[prevIndex].char,
+							typed: "",
+						};
+
 						setChars((prev) => {
 							const newChars = [...prev];
-							const prevIndex = currentIndex - 1;
-							newChars[prevIndex] = {
-								char: chars[prevIndex].char,
-								typed: "",
-							};
+							newChars[prevIndex] = newChar;
 							return newChars;
 						});
+						setWpm(0);
+
 						return;
 					}
 
@@ -63,6 +69,7 @@ export function Typer({ className, ...props }: TyperProps) {
 							typed: e.key,
 							changed: Date.now(),
 						};
+
 						newChars[currentIndex] = newChar;
 						if (newChar.typed.length > 0 && newChar.typed !== newChar.char) {
 							setMisses((prev) => prev + 1);
@@ -71,7 +78,14 @@ export function Typer({ className, ...props }: TyperProps) {
 								setProblemWords((prev) => [...prev, word]);
 							}
 						}
+
 						setChars(newChars);
+						setWpm(
+							getWpm({
+								chars: newChars,
+								cursorIndex: currentIndex,
+							}),
+						);
 						return;
 					}
 				}}

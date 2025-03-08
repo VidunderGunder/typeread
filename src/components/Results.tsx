@@ -1,7 +1,13 @@
-import type { ComponentProps } from "react";
+import { useEffect, type ComponentProps } from "react";
 import { cn } from "@/styles/utils";
-import { charsAtom, missesAtom, problemWordsAtom, useInit } from "@/jotai";
-import { useAtomValue } from "jotai";
+import {
+	charsAtom,
+	missesAtom,
+	problemWordsAtom,
+	useInit,
+	wpmAtom,
+} from "@/jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { Command } from "./Command";
 import { motion } from "motion/react";
 import { Sparkles } from "./particles/Sparkle";
@@ -14,6 +20,7 @@ export function Results({ className, ...props }: ResultsProps) {
 	const chars = useAtomValue(charsAtom);
 	const misses = useAtomValue(missesAtom);
 	const problemWords = useAtomValue(problemWordsAtom);
+	const [uiWpm, setUiWpm] = useAtom(wpmAtom);
 
 	const { practice, retry } = useInit();
 
@@ -33,6 +40,10 @@ export function Results({ className, ...props }: ResultsProps) {
 		}
 		accuracy = Math.round((correct / chars.length) * 100);
 	}
+
+	useEffect(() => {
+		if (finished && uiWpm !== 0) setUiWpm(0);
+	}, [finished, uiWpm, setUiWpm]);
 
 	return (
 		<div
