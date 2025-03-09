@@ -18,6 +18,8 @@ export function BookTitle({ className, ...props }: BookTitleProps) {
 	const chapters = useAtomValue(bookChaptersAtom);
 	const chapterTitle = useAtomValue(bookChapterTitleAtom);
 
+	// TODO: Display current chapter
+
 	console.log({
 		chapters,
 		chapterTitle,
