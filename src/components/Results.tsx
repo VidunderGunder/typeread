@@ -1,13 +1,15 @@
 import { useEffect, type ComponentProps } from "react";
 import { cn } from "@/styles/utils";
 import {
+	bookIndexAtom,
 	charsAtom,
 	missesAtom,
+	modeAtom,
 	problemWordsAtom,
 	useInit,
 	wpmAtom,
 } from "@/jotai";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { Command } from "./Command";
 import { motion } from "motion/react";
 import { Sparkles } from "./particles/Sparkle";
@@ -21,6 +23,10 @@ export function Results({ className, ...props }: ResultsProps) {
 	const misses = useAtomValue(missesAtom);
 	const problemWords = useAtomValue(problemWordsAtom);
 	const [uiWpm, setUiWpm] = useAtom(wpmAtom);
+	const setBookIndex = useSetAtom(bookIndexAtom);
+	const mode = useAtomValue(modeAtom);
+
+	// setBookIndex(50 * 3);
 
 	const { practice, retry } = useInit();
 
@@ -42,8 +48,19 @@ export function Results({ className, ...props }: ResultsProps) {
 	}
 
 	useEffect(() => {
-		if (finished && uiWpm !== 0) setUiWpm(0);
-	}, [finished, uiWpm, setUiWpm]);
+		if (finished) {
+			if (uiWpm !== 0) {
+				// On finished
+				setUiWpm(0);
+				if (mode === "book") {
+					setBookIndex((prev) => {
+						console.log(prev, chars.length, prev + chars.length);
+						return prev + chars.length;
+					});
+				}
+			}
+		}
+	}, [finished, uiWpm, setUiWpm, mode, setBookIndex, chars.length]);
 
 	return (
 		<div

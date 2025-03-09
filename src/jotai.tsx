@@ -27,9 +27,16 @@ export const charsAtom = atom<Character[]>([]);
 export const missesAtom = atomWithReset<number>(0);
 export const problemWordsAtom = atomWithReset<string[]>([]);
 
-export const modes = ["words", "code"] as const;
+export const bookTextAtom = atomWithStorage<string>("book", "");
+export const bookIndexAtom = atomWithStorage<number>("book-index", 0);
+export const bookCoverAtom = atomWithStorage<string>("book-cover", "");
+export const bookTitleAtom = atomWithStorage<string>("book-cover", "");
+
+export const modes = ["words", "code", "book"] as const;
 export type Mode = (typeof modes)[number];
 export const modeAtom = atomWithStorage<Mode>("mode", "words");
+
+let words: string[] = [];
 
 export function useInit() {
 	const setChars = useSetAtom(charsAtom);
@@ -38,6 +45,8 @@ export function useInit() {
 	const resetWpm = useResetAtom(wpmAtom);
 	const amount = useAtomValue(amountAtom);
 	const mode = useAtomValue(modeAtom);
+	const bookIndex = useAtomValue(bookIndexAtom);
+	const bookText = useAtomValue(bookTextAtom);
 
 	const init = useCallback(
 		function init(
@@ -45,10 +54,12 @@ export function useInit() {
 				amount: a,
 				mode: m,
 				problemWords = [],
+				direction,
 			}: {
 				amount?: number;
 				mode?: Mode;
 				problemWords?: string[];
+				direction?: "back" | "stay" | "next";
 			} = {
 				amount,
 				mode,
@@ -56,26 +67,72 @@ export function useInit() {
 		) {
 			a ??= amount;
 			m ??= mode;
-			setChars(
-				[
-					...problemWords,
-					...getRandomWords({
-						length: a - problemWords.length,
-						words: modeMap[m],
-					}),
-				]
-					.join(" ")
-					.split("")
-					.map((e) => ({
-						char: e,
-						typed: "",
-					})),
-			);
+			direction ??= "stay";
+
+			if (m === "book") {
+				const indicies = {
+					back:
+						direction === "back"
+							? getBackIndex({
+									text: bookText,
+									currentIndex: bookIndex,
+								})
+							: 0,
+					stay: bookIndex,
+					next:
+						direction === "next"
+							? getNextIndex({
+									text: bookText,
+									currentIndex: bookIndex,
+								})
+							: 0,
+				} satisfies Record<typeof direction, number>;
+
+				const index = indicies[direction];
+
+				words = bookText.substring(index).split(/[ ,]+/);
+				const _ = words.slice(0, a);
+
+				setChars(
+					_.join(" ")
+						.trim()
+						.split("")
+						.map((e) => ({
+							char: e,
+							typed: "",
+						})),
+				);
+			} else {
+				setChars(
+					[
+						...problemWords,
+						...getRandomWords({
+							length: a - problemWords.length,
+							words: modeMap[m],
+						}),
+					]
+						.join(" ")
+						.split("")
+						.map((e) => ({
+							char: e,
+							typed: "",
+						})),
+				);
+			}
 			resetMisses();
 			resetProblemWords();
 			resetWpm();
 		},
-		[amount, setChars, resetMisses, resetProblemWords, mode, resetWpm],
+		[
+			amount,
+			setChars,
+			resetMisses,
+			resetProblemWords,
+			mode,
+			resetWpm,
+			bookIndex,
+			bookText,
+		],
 	);
 
 	const practice = useCallback(
@@ -113,4 +170,26 @@ export function useInit() {
 	);
 
 	return { init, practice, retry };
+}
+
+function getBackIndex({
+	text,
+	currentIndex,
+}: {
+	text: string;
+	currentIndex: number;
+}): number {
+	// TODO
+	return 0;
+}
+
+function getNextIndex({
+	text,
+	currentIndex,
+}: {
+	text: string;
+	currentIndex: number;
+}): number {
+	// TODO
+	return 0;
 }

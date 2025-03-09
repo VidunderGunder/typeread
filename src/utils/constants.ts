@@ -466,4 +466,5 @@ export const CODE = [
 export const modeMap = {
 	words: WORDS,
 	code: CODE,
+	book: [],
 } as const satisfies Record<Mode, string[]>;

@@ -1,6 +1,6 @@
 import type { ComponentProps } from "react";
 import { cn } from "@/styles/utils";
-import { Commands } from "./Command";
+import { Commands, type CommandType } from "./Command";
 import { useAtom, useAtomValue } from "jotai";
 import {
 	amountAtom,
@@ -80,18 +80,35 @@ export function Toolbar({ className, ...props }: ToolbarProps) {
 				</div>
 			</div>
 			<Commands
-				commands={[
-					{
-						keyboard_key: "Enter",
-						label: "New",
-						handler(event) {
-							event.preventDefault();
-							init({
-								problemWords,
-							});
+				commands={(
+					[
+						{
+							keyboard_key: "Enter",
+							label: "Next",
+							handler(event) {
+								event.preventDefault();
+								if (mode === "book") {
+									init();
+									return;
+								}
+								init({
+									problemWords,
+								});
+							},
 						},
-					},
-				]}
+						mode === "book"
+							? {
+									keyboard_key: "KeyZ",
+									modifiers: ["Meta"],
+									label: "Previous",
+									disabled: mode !== "book",
+									handler(event) {
+										event.preventDefault();
+									},
+								}
+							: null,
+					] satisfies (CommandType | null)[]
+				).filter(Boolean)}
 			/>
 		</div>
 	);
