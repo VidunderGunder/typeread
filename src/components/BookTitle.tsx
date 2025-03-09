@@ -1,12 +1,8 @@
 import type { ComponentProps } from "react";
 import { cn } from "@/styles/utils";
 import { useAtomValue } from "jotai";
-import {
-	bookChaptersAtom,
-	bookChapterTitleAtom,
-	bookTitleAtom,
-	modeAtom,
-} from "@/jotai";
+import { bookIndexAtom, bookTextAtom, bookTitleAtom, modeAtom } from "@/jotai";
+import { motion } from "motion/react";
 
 export type BookTitleProps = {
 	//
@@ -15,8 +11,10 @@ export type BookTitleProps = {
 export function BookTitle({ className, ...props }: BookTitleProps) {
 	const bookTitle = useAtomValue(bookTitleAtom);
 	const mode = useAtomValue(modeAtom);
-	const chapters = useAtomValue(bookChaptersAtom);
-	const chapterTitle = useAtomValue(bookChapterTitleAtom);
+	const bookIndex = useAtomValue(bookIndexAtom);
+	const bookText = useAtomValue(bookTextAtom);
+
+	const progress = ((100 * bookIndex) / (bookText.length + 1)).toFixed(2);
 
 	// TODO: Display current chapter
 
@@ -30,12 +28,27 @@ export function BookTitle({ className, ...props }: BookTitleProps) {
 	return (
 		<div
 			className={cn(
-				"absolute top-[min(max(100px,10dvh),125px)] flex gap-4 font-black text-3xl",
+				"flex w-[500px] max-w-full flex-col items-center gap-1",
 				className,
 			)}
 			{...props}
 		>
-			📖<span className="text-white opacity-100">{bookTitle}</span>
+			<div className={"flex gap-4 font-black text-xl"}>
+				<span className="text-white/100">{bookTitle}</span>
+			</div>
+			<motion.div className="full relative flex h-[18px] w-full items-center justify-center overflow-clip rounded-full bg-black/20">
+				<motion.div className="absolute text-sm text-white/90">
+					{progress}%
+				</motion.div>
+				<div className="flex h-full w-full justify-start">
+					<motion.div
+						className="h-full bg-green-600"
+						animate={{
+							width: `${progress}%`,
+						}}
+					/>
+				</div>
+			</motion.div>
 		</div>
 	);
 }

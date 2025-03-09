@@ -1,15 +1,7 @@
 import type { ComponentProps } from "react";
 import { cn } from "@/styles/utils";
-import { Commands, type CommandType } from "./Command";
-import { useAtom, useAtomValue } from "jotai";
-import {
-	amountAtom,
-	amounts,
-	modeAtom,
-	modes,
-	problemWordsAtom,
-	useInit,
-} from "@/jotai";
+import { useAtom } from "jotai";
+import { amountAtom, amounts, modeAtom, modes } from "@/jotai";
 
 export type ToolbarProps = {
 	//
@@ -18,8 +10,6 @@ export type ToolbarProps = {
 export function Toolbar({ className, ...props }: ToolbarProps) {
 	const [amount, setAmount] = useAtom(amountAtom);
 	const [mode, setMode] = useAtom(modeAtom);
-	const problemWords = useAtomValue(problemWordsAtom);
-	const { init } = useInit();
 
 	return (
 		<div className={cn("flex gap-5", className)} {...props}>
@@ -79,42 +69,6 @@ export function Toolbar({ className, ...props }: ToolbarProps) {
 					})}
 				</div>
 			</div>
-			<Commands
-				commands={(
-					[
-						{
-							keyboard_key: "Enter",
-							label: "Next",
-							handler(event) {
-								event.preventDefault();
-								if (mode === "book") {
-									init({
-										direction: "next",
-									});
-									return;
-								}
-								init({
-									problemWords,
-								});
-							},
-						},
-						mode === "book"
-							? {
-									keyboard_key: "KeyZ",
-									modifiers: ["Meta"],
-									label: "Previous",
-									disabled: mode !== "book",
-									handler(event) {
-										event.preventDefault();
-										init({
-											direction: "back",
-										});
-									},
-								}
-							: null,
-					] satisfies (CommandType | null)[]
-				).filter(Boolean)}
-			/>
 		</div>
 	);
 }

@@ -95,7 +95,7 @@ export function WPM({ className, ...props }: WPMProps) {
 								duration: 1,
 							}}
 						>
-							<Icon icon="noto:party-popper" className="size-[100px]" />
+							<Icon icon="noto:party-popper" className="size-[64px]" />
 						</motion.div>
 					</motion.div>
 				)}

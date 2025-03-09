@@ -1,42 +1,40 @@
-import { useRef, type ComponentProps } from "react";
+import { useRef, useState, type ComponentProps } from "react";
 import { cn } from "@/styles/utils";
 import ePub from "epubjs";
 import type Section from "epubjs/types/section";
-import { useAtom, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
 	bookTextAtom,
 	bookCoverAtom,
 	bookIndexAtom,
 	bookTitleAtom,
 	bookChaptersAtom,
+	modeAtom,
 } from "@/jotai";
+import { AnimatePresence, motion } from "motion/react";
 
-export type UploadProps = {
-	//
-} & Omit<ComponentProps<"div">, "children">;
+export type UploadProps = {} & Omit<
+	ComponentProps<typeof motion.div>,
+	"children"
+>;
 
 export function Upload({ className, ...props }: UploadProps) {
 	const fileInputRef = useRef<HTMLInputElement>(null);
+	const [isDrag, setIsDrag] = useState(false);
 	const [text, setText] = useAtom(bookTextAtom);
 	const setIndex = useSetAtom(bookIndexAtom);
 	const setCover = useSetAtom(bookCoverAtom);
 	const setTitle = useSetAtom(bookTitleAtom);
 	const setBookChapters = useSetAtom(bookChaptersAtom);
+	const mode = useAtomValue(modeAtom);
 
-	async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-		const file = e.target.files?.[0];
-		if (!file) return;
-
+	async function processFile(file: File) {
 		const buffer = await file.arrayBuffer();
-
 		const book = ePub(buffer);
 		await book.ready;
 
 		const sectionPromises: Promise<string>[] = [];
-
 		let chapterTitles: string[] = [];
-
-		// TODO: Get chapter titles
 
 		book.spine.each((section: Section) => {
 			const sectionPromise = (async () => {
@@ -51,7 +49,6 @@ export function Upload({ className, ...props }: UploadProps) {
 					.replace(/[“”«»]/g, '"')
 					.replace(/[‘’]/g, "'");
 			})();
-
 			sectionPromises.push(sectionPromise);
 		});
 
@@ -59,30 +56,93 @@ export function Upload({ className, ...props }: UploadProps) {
 		const chapters = content.filter((text, i) => {
 			const hasText = !!text;
 			if (!hasText) {
-				// TODO: Remove chapterTitle
+				// TODO: Remove corresponding chapterTitle
 				chapterTitles = chapterTitles.filter((_, j) => j !== i);
 			}
 			return hasText;
 		});
 		const newText = chapters.join(" ");
 
-		// const coverUrl = await book.coverUrl(); // Returns something like `blob:http://localhost:5173/7a100ac7-205a-48b0-8b2e-ff9dda4e267a`
-
 		setBookChapters({});
 		setText(newText);
 		setIndex(0);
+		// const coverUrl = await book.coverUrl();
 		// setCover(coverUrl ?? "");
 		setTitle(book.packaging.metadata.title ?? file.name);
 	}
 
+	async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+		const file = e.target.files?.[0];
+		if (!file) return;
+		await processFile(file);
+	}
+
+	async function handleDrop(e: React.DragEvent<HTMLDivElement>) {
+		e.preventDefault();
+		e.stopPropagation();
+		setIsDrag(false);
+		if (e.dataTransfer.files?.[0]) {
+			await processFile(e.dataTransfer.files[0]);
+		}
+	}
+
+	function handleDrag(e: React.DragEvent<HTMLDivElement>) {
+		e.preventDefault();
+		e.stopPropagation();
+		if (e.type === "dragenter" || e.type === "dragover") {
+			setIsDrag(true);
+		} else if (e.type === "dragleave") {
+			setIsDrag(false);
+		}
+	}
+
+	function handleClick() {
+		fileInputRef.current?.click();
+	}
+
 	return (
-		<div className={cn("", className)} {...props}>
-			<input
-				ref={fileInputRef}
-				type="file"
-				accept=".epub"
-				onChange={handleFileChange}
-			/>
-		</div>
+		<AnimatePresence>
+			{mode === "book" && (
+				<motion.div
+					className={cn(
+						"relative cursor-pointer rounded-lg border-2 border-dashed px-6 py-4 transition-colors duration-200",
+						isDrag
+							? "border-slate-100/30 bg-slate-900/10"
+							: "border-gray-300/20 bg-black/10",
+						isDrag ? "text-gray-300" : "text-gray-600",
+						className,
+					)}
+					initial={{
+						scale: 0,
+					}}
+					animate={{
+						scale: 1,
+					}}
+					exit={{
+						scale: 0,
+					}}
+					onDragEnter={handleDrag}
+					onDragOver={handleDrag}
+					onDragLeave={handleDrag}
+					onDrop={handleDrop}
+					onClick={handleClick}
+					{...props}
+				>
+					<div className="absolute inset-0 size-full bg-[#20242e]" />
+					<input
+						ref={fileInputRef}
+						type="file"
+						accept=".epub"
+						className="hidden"
+						onChange={handleFileChange}
+					/>
+					<div className={cn("relative z-0 text-center")}>
+						Drop an EPUB file, or
+						<div />
+						click to replace book
+					</div>
+				</motion.div>
+			)}
+		</AnimatePresence>
 	);
 }

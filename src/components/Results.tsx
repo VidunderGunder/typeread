@@ -53,7 +53,7 @@ export function Results({ className, ...props }: ResultsProps) {
 	return (
 		<div
 			className={cn(
-				"flex max-w-[400px] flex-col items-center gap-5 font-bold text-[#4c5874]",
+				"flex max-w-[700px] flex-col items-center gap-5 font-bold text-[#4c5874]",
 				className,
 			)}
 			{...props}
@@ -89,38 +89,27 @@ export function Results({ className, ...props }: ResultsProps) {
 			>
 				{finished && (
 					<>
-						<div className="flex flex-col items-center gap-4">
-							<div className="flex gap-4">
+						<div className="flex items-center justify-center gap-3">
+							<div className="flex gap-2">
 								<div>{wpm} WPM</div>
 								<div>•</div>
 								<div>{accuracy}% Accuracy</div>
 								<div>•</div>
 								<div>{misses} Misses</div>
 							</div>
-							<div className="flex items-center">
-								<Command
-									keyboard_key={"KeyR"}
-									modifiers={["Meta"]}
-									label="Retry"
-									handler={(e) => {
-										e.preventDefault();
-										retry();
-									}}
-								/>
-							</div>
 						</div>
 						{problemWords.length > 0 && (
-							<div className="mt-5 flex flex-col items-center">
+							<div className="mt-3 flex flex-col items-center">
 								<div className="text-center font-normal italic">
-									Press a number to practice problematic words:
+									Press a number to practice:
 								</div>
-								<div className="inline-flex flex-wrap gap-3 pt-5">
+								<div className="inline-flex flex-wrap gap-x-1.5 gap-y-1 pt-2">
 									{problemWords.map((word, i) => {
 										return (
 											<button
 												type="button"
 												key={word}
-												className="relative flex cursor-pointer gap-2 text-center not-disabled:hover:text-white"
+												className="relative flex cursor-pointer gap-1 rounded-lg bg-black/10 px-2 py-1 pl-1 text-center text-sm not-disabled:hover:text-white"
 												onClick={() => practice(word)}
 											>
 												{i < 9 && (
@@ -130,6 +119,7 @@ export function Results({ className, ...props }: ResultsProps) {
 															e.preventDefault();
 															practice(word);
 														}}
+														className="scale-85"
 													/>
 												)}
 												{word}
