@@ -20,10 +20,10 @@ export function BookTitle({ className, ...props }: BookTitleProps) {
 
 	// TODO: Display current chapter
 
-	console.log({
-		chapters,
-		chapterTitle,
-	});
+	// console.log({
+	// 	chapters,
+	// 	chapterTitle,
+	// });
 
 	if (mode !== "book") return null;
 
