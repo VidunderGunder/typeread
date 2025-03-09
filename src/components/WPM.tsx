@@ -1,7 +1,7 @@
-import { useCallback, useEffect, type ComponentProps } from "react";
+import type { ComponentProps } from "react";
 import { cn } from "@/styles/utils";
 import { charsAtom, wpmAtom } from "@/jotai";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtomValue } from "jotai";
 import { AnimatePresence, motion } from "motion/react";
 import { Icon } from "@iconify/react";
 
@@ -10,9 +10,10 @@ export type WPMProps = {
 } & Omit<ComponentProps<"div">, "children">;
 
 const showCount: boolean = false;
+const showIndicator: boolean = false;
 
 export function WPM({ className, ...props }: WPMProps) {
-	const [wpm, setWpm] = useAtom(wpmAtom);
+	const wpm = useAtomValue(wpmAtom);
 	const level: 0 | 1 | 2 | 3 = wpm > 100 ? 3 : wpm > 75 ? 2 : wpm > 50 ? 1 : 0;
 	const factor = level / 3;
 	const chars = useAtomValue(charsAtom);
@@ -27,7 +28,7 @@ export function WPM({ className, ...props }: WPMProps) {
 			{...props}
 		>
 			<AnimatePresence>
-				{!finished && level >= 1 && (
+				{showIndicator && !finished && level >= 1 && (
 					<motion.div
 						className="absolute size-max"
 						initial={{ scale: 0, opacity: 1 }}

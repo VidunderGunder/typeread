@@ -47,7 +47,8 @@ export function Upload({ className, ...props }: UploadProps) {
 		const content = await Promise.all(sectionPromises);
 		const chapters = content.filter((text) => text);
 		const newText = chapters.join(" ");
-		const cleanText = newText.replaceAll(/\s/g, " ");
+
+		const cleanText = newText.replace(/\s+/g, " ").replace(/['‘’“”«»]/g, '"');
 
 		// const coverUrl = await book.coverUrl(); // Returns something like `blob:http://localhost:5173/7a100ac7-205a-48b0-8b2e-ff9dda4e267a`
 

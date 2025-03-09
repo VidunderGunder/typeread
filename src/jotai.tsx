@@ -69,8 +69,6 @@ export function useInit() {
 			m ??= mode;
 			direction ??= "stay";
 
-			console.log("The thing");
-
 			if (m === "book") {
 				const indicies = {
 					back:
@@ -96,7 +94,7 @@ export function useInit() {
 
 				if (direction !== "stay") setBookIndex(index);
 
-				words = bookText.substring(index).split(/[ ,]+/);
+				words = bookText.substring(index).split(/[ ]+/);
 				const _ = words.slice(0, a);
 
 				setChars(
