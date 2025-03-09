@@ -8,6 +8,7 @@ import {
 	bookCoverAtom,
 	bookIndexAtom,
 	bookTitleAtom,
+	bookChaptersAtom,
 } from "@/jotai";
 
 export type UploadProps = {
@@ -20,6 +21,7 @@ export function Upload({ className, ...props }: UploadProps) {
 	const setIndex = useSetAtom(bookIndexAtom);
 	const setCover = useSetAtom(bookCoverAtom);
 	const setTitle = useSetAtom(bookTitleAtom);
+	const setBookChapters = useSetAtom(bookChaptersAtom);
 
 	async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
 		const file = e.target.files?.[0];
@@ -32,27 +34,42 @@ export function Upload({ className, ...props }: UploadProps) {
 
 		const sectionPromises: Promise<string>[] = [];
 
+		let chapterTitles: string[] = [];
+
+		// TODO: Get chapter titles
+
 		book.spine.each((section: Section) => {
 			const sectionPromise = (async () => {
 				const chapter = await book.load(section.href);
 				if (!(chapter instanceof Document) || !chapter.body?.textContent) {
 					return "";
 				}
-				return chapter.body.textContent.trim();
+				chapterTitles.push(chapter.title || "No Chapter Title");
+				return chapter.body.textContent
+					.trim()
+					.replace(/\s+/g, " ")
+					.replace(/[“”«»]/g, '"')
+					.replace(/[‘’]/g, "'");
 			})();
 
 			sectionPromises.push(sectionPromise);
 		});
 
 		const content = await Promise.all(sectionPromises);
-		const chapters = content.filter((text) => text);
+		const chapters = content.filter((text, i) => {
+			const hasText = !!text;
+			if (!hasText) {
+				// TODO: Remove chapterTitle
+				chapterTitles = chapterTitles.filter((_, j) => j !== i);
+			}
+			return hasText;
+		});
 		const newText = chapters.join(" ");
-
-		const cleanText = newText.replace(/\s+/g, " ").replace(/['‘’“”«»]/g, '"');
 
 		// const coverUrl = await book.coverUrl(); // Returns something like `blob:http://localhost:5173/7a100ac7-205a-48b0-8b2e-ff9dda4e267a`
 
-		setText(cleanText);
+		setBookChapters({});
+		setText(newText);
 		setIndex(0);
 		// setCover(coverUrl ?? "");
 		setTitle(book.packaging.metadata.title ?? file.name);
