@@ -88,7 +88,9 @@ export function Toolbar({ className, ...props }: ToolbarProps) {
 							handler(event) {
 								event.preventDefault();
 								if (mode === "book") {
-									init();
+									init({
+										direction: "next",
+									});
 									return;
 								}
 								init({
@@ -104,6 +106,9 @@ export function Toolbar({ className, ...props }: ToolbarProps) {
 									disabled: mode !== "book",
 									handler(event) {
 										event.preventDefault();
+										init({
+											direction: "back",
+										});
 									},
 								}
 							: null,

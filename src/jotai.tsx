@@ -1,6 +1,6 @@
 import { atomWithReset, atomWithStorage, useResetAtom } from "jotai/utils";
 import type { Character } from "./types";
-import { atom, useAtomValue, useSetAtom } from "jotai";
+import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
 import { getRandomWords } from "./utils/string";
 import { useCallback } from "react";
 import { modeMap } from "./utils/constants";
@@ -45,7 +45,7 @@ export function useInit() {
 	const resetWpm = useResetAtom(wpmAtom);
 	const amount = useAtomValue(amountAtom);
 	const mode = useAtomValue(modeAtom);
-	const bookIndex = useAtomValue(bookIndexAtom);
+	const [bookIndex, setBookIndex] = useAtom(bookIndexAtom);
 	const bookText = useAtomValue(bookTextAtom);
 
 	const init = useCallback(
@@ -69,6 +69,8 @@ export function useInit() {
 			m ??= mode;
 			direction ??= "stay";
 
+			console.log("The thing");
+
 			if (m === "book") {
 				const indicies = {
 					back:
@@ -76,6 +78,7 @@ export function useInit() {
 							? getBackIndex({
 									text: bookText,
 									currentIndex: bookIndex,
+									chunk: a,
 								})
 							: 0,
 					stay: bookIndex,
@@ -84,11 +87,14 @@ export function useInit() {
 							? getNextIndex({
 									text: bookText,
 									currentIndex: bookIndex,
+									chunk: a,
 								})
 							: 0,
 				} satisfies Record<typeof direction, number>;
 
 				const index = indicies[direction];
+
+				if (direction !== "stay") setBookIndex(index);
 
 				words = bookText.substring(index).split(/[ ,]+/);
 				const _ = words.slice(0, a);
@@ -132,6 +138,7 @@ export function useInit() {
 			resetWpm,
 			bookIndex,
 			bookText,
+			setBookIndex,
 		],
 	);
 
@@ -169,27 +176,105 @@ export function useInit() {
 		[setChars, resetMisses, resetProblemWords, resetWpm],
 	);
 
-	return { init, practice, retry };
+	const incrementBook = useCallback(() => {
+		init({
+			amount,
+			direction: "next",
+			mode: "book",
+		});
+	}, [amount, init]);
+	const decrementBook = useCallback(() => {
+		init({
+			amount,
+			direction: "next",
+			mode: "book",
+		});
+	}, [amount, init]);
+
+	return {
+		init,
+		practice,
+		retry,
+		incrementBook,
+		decrementBook,
+	};
 }
 
-function getBackIndex({
+export function getBackIndex({
 	text,
 	currentIndex,
+	chunk,
 }: {
 	text: string;
 	currentIndex: number;
+	chunk: number;
 }): number {
-	// TODO
-	return 0;
+	// If at the very start, nothing to go back.
+	if (currentIndex <= 0) return 0;
+
+	let index = currentIndex;
+
+	// If we are in the middle of a word, backtrack to its start.
+	while (index > 0 && text[index - 1] !== " " && text[index - 1] !== ",") {
+		index--;
+	}
+
+	let wordsCount = 0;
+	// Move backwards by CHUNK_SIZE words.
+	while (index > 0 && wordsCount < chunk) {
+		// Skip any separator characters (space or comma)
+		while (index > 0 && (text[index - 1] === " " || text[index - 1] === ",")) {
+			index--;
+		}
+		// Now skip backwards through one word.
+		while (index > 0 && text[index - 1] !== " " && text[index - 1] !== ",") {
+			index--;
+		}
+		wordsCount++;
+	}
+	return index;
 }
 
-function getNextIndex({
+export function getNextIndex({
 	text,
 	currentIndex,
+	chunk,
 }: {
 	text: string;
 	currentIndex: number;
+	chunk: number;
 }): number {
-	// TODO
-	return 0;
+	// If already at (or past) the end of text, return text length.
+	if (currentIndex >= text.length) return text.length;
+
+	let index = currentIndex;
+
+	// If currently in the middle of a word, move forward to its end.
+	while (index < text.length && text[index] !== " " && text[index] !== ",") {
+		index++;
+	}
+
+	// Skip any subsequent separator characters.
+	while (index < text.length && (text[index] === " " || text[index] === ",")) {
+		index++;
+	}
+
+	// Count the first word that we have just finished.
+	let wordsCount = 1;
+	// Now move forward by CHUNK_SIZE - 1 additional words.
+	while (index < text.length && wordsCount < chunk) {
+		// Skip over the next word.
+		while (index < text.length && text[index] !== " " && text[index] !== ",") {
+			index++;
+		}
+		wordsCount++;
+		// Skip any separators between words.
+		while (
+			index < text.length &&
+			(text[index] === " " || text[index] === ",")
+		) {
+			index++;
+		}
+	}
+	return index;
 }
