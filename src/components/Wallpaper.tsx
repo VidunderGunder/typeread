@@ -115,7 +115,7 @@ export function WallpaperSelect({
 						setWallpaper(key);
 					}}
 					className={cn(
-						"relative h-10 w-10 cursor-pointer overflow-hidden rounded transition-all duration-200 focus:outline-none",
+						"relative size-10 cursor-pointer overflow-hidden rounded transition-all duration-200 focus:outline-none",
 						wallpaper === key
 							? "ring-2 ring-white/75"
 							: "opacity-75 hover:opacity-100",

@@ -17,6 +17,7 @@ export function Hotkeys({ className, ...props }: HotkeysProps) {
 	return (
 		<div className={cn("", className)} {...props}>
 			<Commands
+				vertical
 				commands={(
 					[
 						mode === "book"

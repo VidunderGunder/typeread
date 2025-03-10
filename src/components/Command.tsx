@@ -161,28 +161,51 @@ export function Command({
 
 export function CommandSeparator({
 	className,
+	vertical = false,
 	...props
-}: ComponentProps<"div">) {
+}: ComponentProps<"div"> & {
+	vertical?: boolean;
+}) {
 	return (
 		<div
-			className={cn("h-[1.1rem] w-[1px] bg-white/50", className)}
+			className={cn(
+				vertical
+					? "h-[1px] w-[1.1rem] bg-white/50"
+					: "h-[1.1rem] w-[1px] bg-white/50",
+				className,
+			)}
 			{...props}
 		/>
 	);
 }
 
-export type CommandsProps = { commands: CommandType[] } & ComponentProps<"div">;
+export type CommandsProps = {
+	commands: CommandType[];
+	vertical?: boolean;
+} & ComponentProps<"div">;
 
-export function Commands({ commands, className, ...props }: CommandsProps) {
+export function Commands({
+	commands,
+	vertical = false,
+	className,
+	...props
+}: CommandsProps) {
 	return (
-		<div className={cn("flex items-center gap-3", className)} {...props}>
+		<div
+			className={cn(
+				"flex",
+				vertical ? "flex-col gap-2" : "items-center gap-3",
+				className,
+			)}
+			{...props}
+		>
 			{commands.map((command, i) => {
 				const key = [...(command.modifiers ?? []), command.keyboard_key].join(
 					"-",
 				);
 				return (
 					<Fragment key={key}>
-						{i > 0 && <CommandSeparator />}
+						{!vertical && i > 0 && <CommandSeparator />}
 						<Command {...command} />
 					</Fragment>
 				);

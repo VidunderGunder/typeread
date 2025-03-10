@@ -38,7 +38,7 @@ export function App() {
 						<Results />
 					</div>
 				</div>
-				<UploadAfter className="absolute bottom-4 left-4" />
+				<UploadAfter className="absolute bottom-18" />
 				<Hotkeys className="absolute right-5 bottom-5" />
 				<WallpaperSelect className="absolute bottom-4" />
 			</div>
