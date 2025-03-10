@@ -2,11 +2,13 @@ import { Toolbar } from "@/components/Toolbar";
 import { Typer } from "@/components/Typer";
 import { Results } from "@/components/Results";
 import { useEffect } from "react";
-import { useInit } from "./jotai";
-import { WPM } from "./components/WPM";
-import { Upload } from "./components/Upload";
-import { BookTitle } from "./components/BookTitle";
-import { Hotkeys } from "./components/Hotkeys";
+import { useInit } from "@/jotai";
+import { WPM } from "@/components/WPM";
+import { Upload } from "@/components/Upload";
+import { BookTitle } from "@/components/BookTitle";
+import { Hotkeys } from "@/components/Hotkeys";
+import { cn } from "@/styles/utils";
+import { Wallpaper, WallpaperTyperBackdrop } from "@/components/Wallpaper";
 
 export function App() {
 	const { init } = useInit();
@@ -17,13 +19,24 @@ export function App() {
 
 	return (
 		<>
-			<div className="relative flex size-full select-none flex-col items-center justify-center gap-10 bg-[#232834] text-white focus-visible:outline-none focus-visible:ring-0">
+			<div className="absolute size-full bg-[#13161c]" />
+			<Wallpaper />
+			<div
+				className={cn(
+					"relative flex size-full select-none flex-col items-center justify-center gap-10 text-white focus-visible:outline-none focus-visible:ring-0",
+					"backdrop-blur",
+				)}
+			>
 				<div className="z-0 flex size-full flex-col items-center py-5">
 					<Toolbar className="z-0" />
 					<BookTitle className="absolute top-[min(max(75px,10dvh),90px)]" />
-					<div className="relative top-6 z-10 flex flex-1 flex-col items-center justify-center gap-10">
+					<div className="z-10 flex flex-1 flex-col items-center justify-center gap-10">
 						<WPM />
-						<Typer />
+						<div>
+							<WallpaperTyperBackdrop>
+								<Typer />
+							</WallpaperTyperBackdrop>
+						</div>
 						<Results />
 					</div>
 				</div>

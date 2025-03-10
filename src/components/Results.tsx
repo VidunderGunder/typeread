@@ -22,9 +22,7 @@ export function Results({ className, ...props }: ResultsProps) {
 	const problemWords = useAtomValue(problemWordsAtom);
 	const [uiWpm, setUiWpm] = useAtom(wpmAtom);
 
-	// setBookIndex(50 * 3);
-
-	const { practice, retry } = useInit();
+	const { practice } = useInit();
 
 	const finished = !chars.some((e) => e.typed.length === 0);
 
@@ -53,7 +51,7 @@ export function Results({ className, ...props }: ResultsProps) {
 	return (
 		<div
 			className={cn(
-				"flex max-w-[700px] flex-col items-center gap-5 font-bold text-[#4c5874]",
+				"flex max-w-[700px] flex-col items-center gap-5 font-bold text-[#a2aeca]",
 				className,
 			)}
 			{...props}
@@ -109,7 +107,7 @@ export function Results({ className, ...props }: ResultsProps) {
 											<button
 												type="button"
 												key={word}
-												className="relative flex cursor-pointer gap-1 rounded-lg bg-black/10 px-2 py-1 pl-1 text-center text-sm not-disabled:hover:text-white"
+												className="relative flex cursor-pointer gap-1 rounded-lg bg-black/40 px-2 py-1 pl-1 text-center text-sm not-disabled:hover:text-white"
 												onClick={() => practice(word)}
 											>
 												{i < 9 && (

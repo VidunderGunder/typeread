@@ -105,11 +105,10 @@ export function Upload({ className, ...props }: UploadProps) {
 			{mode === "book" && (
 				<motion.div
 					className={cn(
-						"relative cursor-pointer rounded-lg border-2 border-dashed px-6 py-4 transition-colors duration-200",
-						isDrag
-							? "border-slate-100/30 bg-slate-900/10"
-							: "border-gray-300/20 bg-black/10",
-						isDrag ? "text-gray-300" : "text-gray-600",
+						"relative cursor-pointer rounded-lg px-6 py-4 transition-colors duration-200",
+						isDrag ? "text-gray-200" : "text-[#545f79]",
+						"border-2 border-dashed",
+						isDrag ? "border-white/20" : "border-white/10",
 						className,
 					)}
 					initial={{
@@ -128,7 +127,12 @@ export function Upload({ className, ...props }: UploadProps) {
 					onClick={handleClick}
 					{...props}
 				>
-					<div className="absolute inset-0 size-full bg-[#20242e]" />
+					<div
+						className={cn(
+							"absolute inset-0 size-full rounded-lg",
+							isDrag ? "bg-white/10" : "bg-black/25",
+						)}
+					/>
 					<input
 						ref={fileInputRef}
 						type="file"

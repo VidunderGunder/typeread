@@ -2,6 +2,7 @@ import type { ComponentProps } from "react";
 import { cn } from "@/styles/utils";
 import { useAtom } from "jotai";
 import { amountAtom, amounts, modeAtom, modes } from "@/jotai";
+import { WallpaperSelect } from "./Wallpaper";
 
 export type ToolbarProps = {
 	//
@@ -13,7 +14,7 @@ export function Toolbar({ className, ...props }: ToolbarProps) {
 
 	return (
 		<div className={cn("flex gap-5", className)} {...props}>
-			<div className="rounded-xl bg-black/20 p-1">
+			<div className="rounded-xl bg-black/40 p-1">
 				<div className="flex">
 					{modes.map((m) => {
 						return (
@@ -41,7 +42,7 @@ export function Toolbar({ className, ...props }: ToolbarProps) {
 					})}
 				</div>
 			</div>
-			<div className="rounded-xl bg-black/20 p-1">
+			<div className="rounded-xl bg-black/40 p-1">
 				<div className="flex">
 					{amounts.map((a) => {
 						return (
@@ -69,6 +70,7 @@ export function Toolbar({ className, ...props }: ToolbarProps) {
 					})}
 				</div>
 			</div>
+			<WallpaperSelect />
 		</div>
 	);
 }

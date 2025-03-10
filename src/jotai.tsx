@@ -5,6 +5,7 @@ import { getRandomWords } from "./utils/string";
 import { useCallback } from "react";
 import { modeMap } from "./utils/constants";
 import { getBackIndex, getNextIndex } from "./utils/book";
+import type { WallpaperKey } from "./components/Wallpaper";
 
 // ASCII Text Generator:
 // https://patorjk.com/software/taag/#p=display&f=Elite&t=Hello%20World
@@ -22,6 +23,8 @@ export const disableEscapeAtom = atomWithStorage("disable-escape", false);
 export const amounts = [10, 25, 50, 100] as const;
 export type Amount = (typeof amounts)[number];
 export const amountAtom = atomWithStorage<Amount>("amount", 25);
+
+export const wallpaperAtom = atomWithStorage<string>("wallpaper", "");
 
 export const wpmAtom = atomWithReset<number>(0);
 export const charsAtom = atom<Character[]>([]);
