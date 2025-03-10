@@ -229,7 +229,7 @@ export function Keyboard({
 			isModifier={isModifier}
 			className={cn(
 				"relative",
-				pressed ? "border-gray-300 bg-gray-300" : "",
+				pressed ? "bg-gray-300/85" : "",
 				"flex items-center justify-center",
 				"font-black",
 				className,

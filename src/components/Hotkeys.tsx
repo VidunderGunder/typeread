@@ -4,6 +4,7 @@ import { Commands, type CommandType } from "./Command";
 import { modeAtom, problemWordsAtom, useInit } from "@/jotai";
 import { useAtomValue } from "jotai";
 import { mod } from "@/types/keyboard";
+import { useFullscreen } from "@mantine/hooks";
 
 export type HotkeysProps = {
 	//
@@ -13,13 +14,31 @@ export function Hotkeys({ className, ...props }: HotkeysProps) {
 	const mode = useAtomValue(modeAtom);
 	const problemWords = useAtomValue(problemWordsAtom);
 	const { init, retry } = useInit();
+	const { toggle } = useFullscreen();
 
 	return (
 		<div className={cn("", className)} {...props}>
 			<Commands
+				flip
 				vertical
 				commands={(
 					[
+						{
+							keyboard_key: "Enter",
+							label: "Next",
+							handler(event) {
+								event.preventDefault();
+								if (mode === "book") {
+									init({
+										direction: "next",
+									});
+									return;
+								}
+								init({
+									problemWords,
+								});
+							},
+						},
 						mode === "book"
 							? {
 									keyboard_key: "KeyZ",
@@ -44,20 +63,10 @@ export function Hotkeys({ className, ...props }: HotkeysProps) {
 							},
 						},
 						{
-							keyboard_key: "Enter",
-							label: "Next",
-							handler(event) {
-								event.preventDefault();
-								if (mode === "book") {
-									init({
-										direction: "next",
-									});
-									return;
-								}
-								init({
-									problemWords,
-								});
-							},
+							modifiers: [mod],
+							keyboard_key: "KeyF",
+							handler: toggle,
+							label: "Fullscreen",
 						},
 					] satisfies (CommandType | null)[]
 				).filter(Boolean)}

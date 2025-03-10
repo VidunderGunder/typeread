@@ -53,7 +53,7 @@ export type CommandType = Partial<Hotkey> & {
 };
 
 export type CommandProps = {
-	//
+	flip?: boolean;
 } & Partial<CommandType> &
 	Omit<ComponentProps<"div">, "label" | "children">;
 
@@ -63,6 +63,7 @@ export function Command({
 	modifiers = [],
 	keyboard_key = "",
 	handler,
+	flip = false,
 	label,
 	...props
 }: CommandProps) {
@@ -134,8 +135,8 @@ export function Command({
 		<div
 			className={cn(
 				"flex items-center gap-1.5",
-				irrelevant ? "opacity-20" : "opacity-100",
-
+				flip && "flex-row-reverse",
+				irrelevant ? "opacity-80" : "opacity-100",
 				className,
 			)}
 			{...props}
@@ -182,12 +183,14 @@ export function CommandSeparator({
 export type CommandsProps = {
 	commands: CommandType[];
 	vertical?: boolean;
+	flip?: boolean;
 } & ComponentProps<"div">;
 
 export function Commands({
 	commands,
 	vertical = false,
 	className,
+	flip = false,
 	...props
 }: CommandsProps) {
 	return (
@@ -206,7 +209,7 @@ export function Commands({
 				return (
 					<Fragment key={key}>
 						{!vertical && i > 0 && <CommandSeparator />}
-						<Command {...command} />
+						<Command flip={flip} {...command} />
 					</Fragment>
 				);
 			})}
