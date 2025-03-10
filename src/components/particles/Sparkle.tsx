@@ -64,6 +64,7 @@ export function Sparkle({
 						opacity: 0,
 					}}
 					transition={{
+						delay: 0.05,
 						duration,
 					}}
 					{...props}

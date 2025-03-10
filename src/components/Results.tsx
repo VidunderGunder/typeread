@@ -1,8 +1,10 @@
 import { useEffect, type ComponentProps } from "react";
 import { cn } from "@/styles/utils";
 import {
+	bookTextAtom,
 	charsAtom,
 	missesAtom,
+	modeAtom,
 	problemWordsAtom,
 	useInit,
 	wpmAtom,
@@ -47,6 +49,11 @@ export function Results({ className, ...props }: ResultsProps) {
 			setUiWpm(0);
 		}
 	}, [finished, uiWpm, setUiWpm]);
+
+	const bookText = useAtomValue(bookTextAtom);
+	const mode = useAtomValue(modeAtom);
+
+	if (mode === "book" && !bookText) return null;
 
 	return (
 		<div

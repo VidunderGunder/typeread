@@ -4,11 +4,11 @@ import { Results } from "@/components/Results";
 import { useEffect } from "react";
 import { useInit } from "@/jotai";
 import { WPM } from "@/components/WPM";
-import { Upload } from "@/components/Upload";
+import { UploadAfter } from "@/components/Upload";
 import { BookTitle } from "@/components/BookTitle";
 import { Hotkeys } from "@/components/Hotkeys";
 import { cn } from "@/styles/utils";
-import { Wallpaper, WallpaperTyperBackdrop } from "@/components/Wallpaper";
+import { Wallpaper } from "@/components/Wallpaper";
 
 export function App() {
 	const { init } = useInit();
@@ -33,14 +33,12 @@ export function App() {
 					<div className="z-10 flex flex-1 flex-col items-center justify-center gap-10">
 						<WPM />
 						<div>
-							<WallpaperTyperBackdrop>
-								<Typer />
-							</WallpaperTyperBackdrop>
+							<Typer />
 						</div>
 						<Results />
 					</div>
 				</div>
-				<Upload className="absolute bottom-4 left-4" />
+				<UploadAfter className="absolute bottom-4 left-4" />
 				<Hotkeys className="absolute right-5 bottom-5" />
 			</div>
 		</>

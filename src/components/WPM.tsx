@@ -1,6 +1,6 @@
 import type { ComponentProps } from "react";
 import { cn } from "@/styles/utils";
-import { charsAtom, wpmAtom } from "@/jotai";
+import { bookTextAtom, charsAtom, modeAtom, wpmAtom } from "@/jotai";
 import { useAtomValue } from "jotai";
 import { AnimatePresence, motion } from "motion/react";
 import { Icon } from "@iconify/react";
@@ -18,6 +18,11 @@ export function WPM({ className, ...props }: WPMProps) {
 	const factor = level / 3;
 	const chars = useAtomValue(charsAtom);
 	const finished = !chars.some((e) => e.typed.length === 0);
+
+	const bookText = useAtomValue(bookTextAtom);
+	const mode = useAtomValue(modeAtom);
+
+	if (mode === "book" && !bookText) return null;
 
 	return (
 		<div

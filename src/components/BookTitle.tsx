@@ -23,7 +23,7 @@ export function BookTitle({ className, ...props }: BookTitleProps) {
 	// 	chapterTitle,
 	// });
 
-	if (mode !== "book") return null;
+	if (mode !== "book" || !bookText) return null;
 
 	return (
 		<div

@@ -1,4 +1,4 @@
-import { useRef, useState, type ComponentProps } from "react";
+import { type ReactNode, useRef, useState, type ComponentProps } from "react";
 import { cn } from "@/styles/utils";
 import ePub from "epubjs";
 import type Section from "epubjs/types/section";
@@ -13,12 +13,11 @@ import {
 } from "@/jotai";
 import { AnimatePresence, motion } from "motion/react";
 
-export type UploadProps = {} & Omit<
-	ComponentProps<typeof motion.div>,
-	"children"
->;
+export type UploadProps = {
+	children?: ReactNode;
+} & Omit<ComponentProps<typeof motion.div>, "children">;
 
-export function Upload({ className, ...props }: UploadProps) {
+export function Upload({ className, children, ...props }: UploadProps) {
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const [isDrag, setIsDrag] = useState(false);
 	const [text, setText] = useAtom(bookTextAtom);
@@ -140,13 +139,34 @@ export function Upload({ className, ...props }: UploadProps) {
 						className="hidden"
 						onChange={handleFileChange}
 					/>
-					<div className={cn("relative z-0 text-center")}>
-						Drop an EPUB file, or
-						<div />
-						click to replace book
-					</div>
+					{children ?? (
+						<div className={cn("relative z-0 text-center")}>
+							Drop an EPUB file, or
+							<div />
+							click to upload book
+						</div>
+					)}
 				</motion.div>
 			)}
 		</AnimatePresence>
+	);
+}
+
+export function UploadAfter({ children, ...props }: UploadProps) {
+	const bookText = useAtomValue(bookTextAtom);
+	const mode = useAtomValue(modeAtom);
+
+	if (mode === "book" && !bookText) return null;
+
+	return (
+		<Upload {...props}>
+			{children ?? (
+				<div className={cn("relative z-0 text-center")}>
+					Drop an EPUB file, or
+					<div />
+					click to replace book
+				</div>
+			)}
+		</Upload>
 	);
 }
