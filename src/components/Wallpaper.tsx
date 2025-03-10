@@ -102,7 +102,10 @@ export function WallpaperSelect({
 	const [wallpaper, setWallpaper] = useAtom(wallpaperAtom);
 
 	return (
-		<div className={cn("flex items-center gap-2", className)} {...props}>
+		<div
+			className={cn("flex flex-col items-center gap-2", className)}
+			{...props}
+		>
 			{wallpaperKeys.map((key) => (
 				<button
 					type="button"
