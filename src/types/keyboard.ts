@@ -1,5 +1,12 @@
 import type { Hotkey } from "@/components/Command";
 import type { StringWithSuggestions } from ".";
+import { isIOS, isMacOs, isWindows } from "react-device-detect";
+
+export type OS = "macos" | "windows" | "linux";
+export const os: OS =
+	isMacOs || isIOS ? "macos" : isWindows ? "windows" : "linux";
+
+export const mod = os === "macos" ? "Meta" : "Control";
 
 export type SafeHotkey = {
 	modifiers: SafeHotkeyModifier[];

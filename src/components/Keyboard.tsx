@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { ComponentProps } from "react";
 import { cn } from "@/styles/utils";
-import type { KeyboardKey, Modifier } from "@/types/keyboard";
+import { os, type KeyboardKey, type Modifier, type OS } from "@/types/keyboard";
 import { Sparkle } from "./particles/Sparkle";
 
 export type KeyboardBaseProps = {
@@ -15,6 +15,26 @@ export type KeyboardProps = {
 	dark?: boolean;
 } & ComponentProps<"kbd">;
 
+const platformSymbols = {
+	Alt: {
+		macos: <span className="relative top-[1px] text-[14px]">⌥</span>,
+		windows: "Alt",
+		linux: "Alt",
+	},
+	Control: {
+		macos: <span className="relative top-[1px] text-[14px]">⌃</span>,
+		windows: "Ctrl",
+		linux: "Ctrl",
+	},
+	Meta: {
+		macos: <span className="relative top-[1px] text-[14px]">⌘</span>,
+		windows: "⊞",
+		linux: "Meta",
+	},
+} as const satisfies Partial<
+	Record<KeyboardKey | Modifier, Record<OS, React.ReactNode>>
+>;
+
 export const codeToLabel = {
 	Space: "Space",
 	Backspace: "⌫",
@@ -27,19 +47,19 @@ export const codeToLabel = {
 	Shift: "⇧",
 
 	// Control
-	ControlLeft: "⌃",
-	ControlRight: "⌃",
-	Control: "⌃",
+	ControlLeft: platformSymbols.Control[os],
+	ControlRight: platformSymbols.Control[os],
+	Control: platformSymbols.Control[os],
 
 	// Alt / Option
-	AltLeft: "⌥",
-	AltRight: "⌥",
-	Alt: "⌥",
+	AltLeft: platformSymbols.Alt[os],
+	AltRight: platformSymbols.Alt[os],
+	Alt: platformSymbols.Alt[os],
 
 	// Meta (Command on Mac, Windows key on Windows, etc.)
-	MetaLeft: "⌘",
-	MetaRight: "⌘",
-	Meta: "⌘",
+	MetaLeft: platformSymbols.Meta[os],
+	MetaRight: platformSymbols.Meta[os],
+	Meta: platformSymbols.Meta[os],
 
 	// Arrows
 	ArrowUp: "▲",
@@ -176,15 +196,14 @@ const modifiers = {
 export function KeyboardBase({
 	children,
 	className,
-	isModifier,
 	...props
 }: KeyboardBaseProps) {
 	return (
 		<kbd
 			className={cn(
-				"inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-md border px-1 py-1 font-mono text-sm",
+				"inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-md border px-1 py-1 font-mono",
 				"border-gray-400 bg-gray-400 text-gray-800 shadow-[0px_2px_0px_0px_rgba(0,0,0,0.025)]",
-				isModifier ? "text-sm" : "text-xs",
+				"text-xs",
 				className,
 			)}
 			{...props}
@@ -193,6 +212,7 @@ export function KeyboardBase({
 		</kbd>
 	);
 }
+
 export function Keyboard({
 	children,
 	code,

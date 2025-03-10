@@ -3,6 +3,7 @@ import { cn } from "@/styles/utils";
 import { Commands, type CommandType } from "./Command";
 import { modeAtom, problemWordsAtom, useInit } from "@/jotai";
 import { useAtomValue } from "jotai";
+import { mod } from "@/types/keyboard";
 
 export type HotkeysProps = {
 	//
@@ -21,7 +22,7 @@ export function Hotkeys({ className, ...props }: HotkeysProps) {
 						mode === "book"
 							? {
 									keyboard_key: "KeyZ",
-									modifiers: ["Meta"],
+									modifiers: [mod],
 									label: "Previous",
 									disabled: mode !== "book",
 									handler(event) {
@@ -34,7 +35,7 @@ export function Hotkeys({ className, ...props }: HotkeysProps) {
 							: null,
 						{
 							keyboard_key: "KeyR",
-							modifiers: ["Meta"],
+							modifiers: [mod],
 							label: "Retry",
 							handler: (e) => {
 								e.preventDefault();
