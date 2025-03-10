@@ -9,6 +9,7 @@ import { BookTitle } from "@/components/BookTitle";
 import { Hotkeys } from "@/components/Hotkeys";
 import { cn } from "@/styles/utils";
 import { Wallpaper, WallpaperSelect } from "@/components/Wallpaper";
+import { Fullscreen } from "./components/Fullscreen";
 
 export function App() {
 	const { init } = useInit();
@@ -38,6 +39,7 @@ export function App() {
 						<Results />
 					</div>
 				</div>
+				<Fullscreen className="absolute top-5 right-5" />
 				<UploadAfter className="absolute bottom-4" />
 				<Hotkeys className="absolute right-5 bottom-5" />
 				<WallpaperSelect className="absolute bottom-4 left-4" />

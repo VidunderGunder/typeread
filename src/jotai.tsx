@@ -6,6 +6,7 @@ import { useCallback } from "react";
 import { modeMap } from "./utils/constants";
 import { getBackIndex, getNextIndex } from "./utils/book";
 import {
+	bookChapterIndiciesDefault,
 	bookCoverDefault,
 	bookIndexDefault,
 	bookTextDefault,
@@ -51,6 +52,10 @@ export const bookCoverAtom = atomWithStorage<string>(
 export const bookTitleAtom = atomWithStorage<string>(
 	"book-cover",
 	bookTitleDefault,
+);
+export const bookChapterIndiciesAtom = atomWithStorage<number[]>(
+	"book-chapter-indicies",
+	bookChapterIndiciesDefault,
 );
 
 export const modes = ["words", "code", "book"] as const;
