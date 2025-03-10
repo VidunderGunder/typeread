@@ -16,13 +16,6 @@ export function BookTitle({ className, ...props }: BookTitleProps) {
 
 	const progress = ((100 * bookIndex) / (bookText.length + 1)).toFixed(2);
 
-	// TODO: Display current chapter
-
-	// console.log({
-	// 	chapters,
-	// 	chapterTitle,
-	// });
-
 	if (mode !== "book" || !bookText) return null;
 
 	return (
