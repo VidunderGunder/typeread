@@ -3,17 +3,45 @@ import { cn } from "@/styles/utils";
 import { useAtom, useAtomValue } from "jotai";
 import { wallpaperAtom } from "@/jotai";
 
-import treeSrc from "@/../assets/images/forest.jpg";
-import citySrc from "@/../assets/images/sea.jpg";
-import seaSrc from "@/../assets/images/city.jpg";
+import mushrooms from "@/../assets/images/mushrooms.jpg";
+import tree from "@/../assets/images/forest.jpg";
+import cafe from "@/../assets/images/cafe.jpg";
+import sea from "@/../assets/images/sea.jpg";
+import field from "@/../assets/images/field.jpg";
+import view from "@/../assets/images/view.jpg";
+import volcanic from "@/../assets/images/volcanic.jpg";
+import asiaRain from "@/../assets/images/asia-rain.jpg";
+import scifi from "@/../assets/images/scifi.jpg";
+import fantasy from "@/../assets/images/fantasy.jpg";
+import hobbit from "@/../assets/images/hobbit.jpg";
 
-export const wallpaperKeys = ["tree", "city", "sea"] as const;
+export const wallpaperKeys = [
+	"mushrooms",
+	"tree",
+	"cafe",
+	"sea",
+	"field",
+	"view",
+	"volcanic",
+	"asiaRain",
+	"scifi",
+	"fantasy",
+	"hobbit",
+] as const;
 export type WallpaperKey = (typeof wallpaperKeys)[number];
 
 const wallpapers = {
-	tree: treeSrc,
-	city: citySrc,
-	sea: seaSrc,
+	mushrooms,
+	tree,
+	cafe,
+	sea,
+	field,
+	view,
+	volcanic,
+	asiaRain,
+	scifi,
+	fantasy,
+	hobbit,
 } as const satisfies Record<WallpaperKey, string>;
 
 export type WallpaperProps = {
@@ -40,7 +68,7 @@ export function Wallpaper({ className, ...props }: WallpaperProps) {
 				alt="wallpaper"
 				className="absolute size-full object-cover"
 			/>
-			<div className="absolute size-full bg-black/50" />
+			<div className="absolute size-full bg-black/40" />
 		</div>
 	);
 }

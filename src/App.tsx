@@ -8,7 +8,7 @@ import { UploadAfter } from "@/components/Upload";
 import { BookTitle } from "@/components/BookTitle";
 import { Hotkeys } from "@/components/Hotkeys";
 import { cn } from "@/styles/utils";
-import { Wallpaper } from "@/components/Wallpaper";
+import { Wallpaper, WallpaperSelect } from "@/components/Wallpaper";
 
 export function App() {
 	const { init } = useInit();
@@ -24,7 +24,7 @@ export function App() {
 			<div
 				className={cn(
 					"relative flex size-full select-none flex-col items-center justify-center gap-10 text-white focus-visible:outline-none focus-visible:ring-0",
-					"backdrop-blur",
+					"backdrop-blur-md",
 				)}
 			>
 				<div className="z-0 flex size-full flex-col items-center py-5">
@@ -40,6 +40,7 @@ export function App() {
 				</div>
 				<UploadAfter className="absolute bottom-4 left-4" />
 				<Hotkeys className="absolute right-5 bottom-5" />
+				<WallpaperSelect className="absolute bottom-4" />
 			</div>
 		</>
 	);

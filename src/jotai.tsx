@@ -5,7 +5,6 @@ import { getRandomWords } from "./utils/string";
 import { useCallback } from "react";
 import { modeMap } from "./utils/constants";
 import { getBackIndex, getNextIndex } from "./utils/book";
-import type { WallpaperKey } from "./components/Wallpaper";
 
 // ASCII Text Generator:
 // https://patorjk.com/software/taag/#p=display&f=Elite&t=Hello%20World

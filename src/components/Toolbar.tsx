@@ -2,7 +2,6 @@ import type { ComponentProps } from "react";
 import { cn } from "@/styles/utils";
 import { useAtom } from "jotai";
 import { amountAtom, amounts, modeAtom, modes } from "@/jotai";
-import { WallpaperSelect } from "./Wallpaper";
 
 export type ToolbarProps = {
 	//
@@ -70,7 +69,6 @@ export function Toolbar({ className, ...props }: ToolbarProps) {
 					})}
 				</div>
 			</div>
-			<WallpaperSelect />
 		</div>
 	);
 }

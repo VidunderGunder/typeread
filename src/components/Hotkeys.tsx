@@ -23,7 +23,7 @@ export function Hotkeys({ className, ...props }: HotkeysProps) {
 							? {
 									keyboard_key: "KeyZ",
 									modifiers: [mod],
-									label: "Previous",
+									label: "Back",
 									disabled: mode !== "book",
 									handler(event) {
 										event.preventDefault();
