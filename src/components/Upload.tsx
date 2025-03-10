@@ -8,7 +8,6 @@ import {
 	bookCoverAtom,
 	bookIndexAtom,
 	bookTitleAtom,
-	bookChaptersAtom,
 	modeAtom,
 } from "@/jotai";
 import { AnimatePresence, motion } from "motion/react";
@@ -24,7 +23,6 @@ export function Upload({ className, children, ...props }: UploadProps) {
 	const setIndex = useSetAtom(bookIndexAtom);
 	const setCover = useSetAtom(bookCoverAtom);
 	const setTitle = useSetAtom(bookTitleAtom);
-	const setBookChapters = useSetAtom(bookChaptersAtom);
 	const mode = useAtomValue(modeAtom);
 
 	async function processFile(file: File) {
@@ -62,7 +60,6 @@ export function Upload({ className, children, ...props }: UploadProps) {
 		});
 		const newText = chapters.join(" ");
 
-		setBookChapters({});
 		setText(newText);
 		setIndex(0);
 		// const coverUrl = await book.coverUrl();

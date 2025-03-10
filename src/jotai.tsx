@@ -32,11 +32,6 @@ export const missesAtom = atomWithReset<number>(0);
 export const problemWordsAtom = atomWithReset<string[]>([]);
 
 export const bookTextAtom = atomWithStorage<string>("book-text", "");
-export const bookChaptersAtom = atomWithStorage<Record<string, string>>(
-	"book-chapters",
-	{},
-);
-export const bookChapterTitleAtom = atomWithStorage<string>("book-chapter", "");
 export const bookIndexAtom = atomWithStorage<number>("book-index", 0);
 export const bookCoverAtom = atomWithStorage<string>("book-cover", "");
 export const bookTitleAtom = atomWithStorage<string>("book-cover", "");
@@ -55,7 +50,6 @@ export function useInit() {
 	const amount = useAtomValue(amountAtom);
 	const mode = useAtomValue(modeAtom);
 	const [bookIndex, setBookIndex] = useAtom(bookIndexAtom);
-	const setBookChapterTitle = useSetAtom(bookChapterTitleAtom);
 	const bookText = useAtomValue(bookTextAtom);
 
 	const init = useCallback(
@@ -116,12 +110,6 @@ export function useInit() {
 							typed: "",
 						})),
 				);
-
-				const chapterTitle = "";
-
-				// TODO: Get title
-
-				setBookChapterTitle(chapterTitle);
 			} else {
 				setChars(
 					[
@@ -153,7 +141,6 @@ export function useInit() {
 			bookIndex,
 			bookText,
 			setBookIndex,
-			setBookChapterTitle,
 		],
 	);
 
