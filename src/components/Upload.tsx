@@ -105,8 +105,8 @@ export function Upload({ className, ...props }: UploadProps) {
 			{mode === "book" && (
 				<motion.div
 					className={cn(
-						"relative cursor-pointer rounded-lg px-6 py-4 transition-colors duration-200",
-						isDrag ? "text-gray-200" : "text-[#545f79]",
+						"relative cursor-pointer rounded-lg px-6 py-4 transition-colors duration-150",
+						isDrag ? "text-gray-200" : "text-[#545f79] hover:text-[#818eac]",
 						"border-2 border-dashed",
 						isDrag ? "border-white/20" : "border-white/10",
 						className,

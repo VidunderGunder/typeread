@@ -35,7 +35,11 @@ export function Wallpaper({ className, ...props }: WallpaperProps) {
 
 	return (
 		<div className={cn("absolute inset-0 z-0 size-full", className)} {...props}>
-			<img src={src} alt="wallpaper" className="absolute size-full" />
+			<img
+				src={src}
+				alt="wallpaper"
+				className="absolute size-full object-cover"
+			/>
 			<div className="absolute size-full bg-black/50" />
 		</div>
 	);
