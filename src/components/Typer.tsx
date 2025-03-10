@@ -44,7 +44,7 @@ export function Typer({ className, ...props }: TyperProps) {
 	return (
 		<WallpaperTyperBackdrop>
 			<div
-				className={cn("max-w-[min(75dvw,800px)] font-bold text-xl", className)}
+				className={cn("max-w-[min(65dvw,800px)] font-bold text-xl", className)}
 				{...props}
 			>
 				<input
