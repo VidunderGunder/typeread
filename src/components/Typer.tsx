@@ -24,7 +24,7 @@ export function Typer({ className, ...props }: TyperProps) {
 
 	return (
 		<div
-			className={cn("max-w-[70dvw] font-bold text-xl", className)}
+			className={cn("max-w-[min(70dvw,720px)] font-bold text-xl", className)}
 			{...props}
 		>
 			<input
