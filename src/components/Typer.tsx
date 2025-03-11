@@ -103,7 +103,7 @@ export function Typer({ className, ...props }: TyperProps) {
 					// biome-ignore lint/a11y/noAutofocus: <explanation>
 					autoFocus
 					tabIndex={0}
-					// Native inputs are not handled correctly unless the input is considered visible
+					// Native inputs are not handled correctly unless the input is considered visible by the browser
 					className="absolute right-[9999px] size-[1px] text-transparent outline-none ring-0 focus-visible:outline-none"
 					onKeyDown={(e) => {
 						if (
