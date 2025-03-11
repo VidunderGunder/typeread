@@ -20,7 +20,7 @@ export function Logo({ className, ...props }: LogoProps) {
 			<span className="absolute bottom-0 left-[0px] size-0 w-max text-center text-white/50">
 				<p className="font-black text-[12.9px] leading-[1.2em]">
 					Improve typing speed
-					<div />
+					<br />
 					while enjoying a book
 				</p>
 			</span>
