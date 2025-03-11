@@ -27,7 +27,7 @@ export function Hotkeys({ className, ...props }: HotkeysProps) {
 							keyboard_key: "Enter",
 							label: "Next",
 							handler(event) {
-								event.preventDefault();
+								event?.preventDefault();
 								if (mode === "book") {
 									init({
 										direction: "next",
@@ -46,7 +46,7 @@ export function Hotkeys({ className, ...props }: HotkeysProps) {
 									label: "Back",
 									disabled: mode !== "book",
 									handler(event) {
-										event.preventDefault();
+										event?.preventDefault();
 										init({
 											direction: "back",
 										});
@@ -57,8 +57,8 @@ export function Hotkeys({ className, ...props }: HotkeysProps) {
 							keyboard_key: "KeyR",
 							modifiers: [mod],
 							label: "Retry",
-							handler: (e) => {
-								e.preventDefault();
+							handler: (event) => {
+								event?.preventDefault();
 								retry();
 							},
 						},

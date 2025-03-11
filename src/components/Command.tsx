@@ -15,6 +15,7 @@ import {
 	Fragment,
 	useState,
 	useEffect,
+	type MouseEvent,
 } from "react";
 import {
 	getLabelFromCode,
@@ -49,13 +50,13 @@ export function isEqualHotkey(a: Hotkey, b: Hotkey): boolean {
 export type CommandType = Partial<Hotkey> & {
 	label: ReactNode;
 	disabled?: boolean;
-	handler?: (event: KeyboardEvent) => void;
+	handler?: (event?: KeyboardEvent) => void;
 };
 
 export type CommandProps = {
 	flip?: boolean;
 } & Partial<CommandType> &
-	Omit<ComponentProps<"div">, "label" | "children">;
+	Omit<ComponentProps<"button">, "label" | "children">;
 
 export function Command({
 	disabled = false,
@@ -132,13 +133,19 @@ export function Command({
 	useHotkeys(hotkeyItems, []);
 
 	return (
-		<div
+		<button
 			className={cn(
 				"flex items-center gap-1.5",
 				flip && "flex-row-reverse",
 				irrelevant ? "opacity-80" : "opacity-100",
+				"cursor-pointer rounded-lg px-2.5 py-1 hover:bg-white/10",
+				flip ? "pr-1" : "pl-1",
 				className,
 			)}
+			type="button"
+			onClick={() => {
+				handler?.();
+			}}
 			{...props}
 		>
 			<div className="flex gap-[1px]">
@@ -156,7 +163,7 @@ export function Command({
 			{label && (
 				<div className="font-semibold text-sm text-white/75">{label}</div>
 			)}
-		</div>
+		</button>
 	);
 }
 
@@ -197,7 +204,7 @@ export function Commands({
 		<div
 			className={cn(
 				"flex",
-				vertical ? "flex-col gap-2" : "items-center gap-3",
+				vertical ? "flex-col items-end gap-2" : "items-center gap-3",
 				className,
 			)}
 			{...props}
