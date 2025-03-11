@@ -47,7 +47,6 @@ export function Typer({ className, ...props }: TyperProps) {
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const newValue = e.target.value;
-		console.log(newValue);
 
 		const oldValue = inputValueRef.current;
 		const newChars = [...chars];
