@@ -85,7 +85,7 @@ export function WallpaperTyperBackdrop({
 	return (
 		<div
 			className={cn(
-				"inset-0 size-full rounded-xl bg-black/50 px-6 py-4 [box-shadow:0_0_0px_2px_rgba(255,255,255,0.05)]",
+				"inset-0 size-full rounded-xl bg-black/60 px-6 py-4 [box-shadow:0_0_0px_2px_rgba(255,255,255,0.05)]",
 				className,
 			)}
 			{...props}

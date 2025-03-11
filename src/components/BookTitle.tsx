@@ -41,7 +41,7 @@ export function BookTitle({ className, ...props }: BookTitleProps) {
 			<div className={"flex gap-4 font-black text-xl"}>
 				<span className="text-white/100">{bookTitle}</span>
 			</div>
-			<motion.div className="full relative flex h-[18px] w-full items-center justify-center overflow-clip rounded-full bg-black/40">
+			<motion.div className="full relative flex h-[18px] w-full items-center justify-center overflow-clip rounded-full bg-black/60">
 				<div className="absolute bottom-0 flex h-full w-full justify-start overflow-clip rounded-full">
 					<motion.div
 						className="h-full bg-green-600"

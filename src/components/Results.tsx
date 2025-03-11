@@ -111,24 +111,17 @@ export function Results({ className, ...props }: ResultsProps) {
 								<div className="inline-flex flex-wrap gap-x-1.5 gap-y-1 pt-2">
 									{problemWords.map((word, i) => {
 										return (
-											<button
+											<Command
 												type="button"
 												key={word}
-												className="relative flex cursor-pointer gap-1 rounded-lg bg-black/40 px-2 py-1 pl-1 text-center text-sm not-disabled:hover:text-white"
-												onClick={() => practice(word)}
-											>
-												{i < 9 && (
-													<Command
-														keyboard_key={"Digit" + (i + 1)}
-														handler={(e) => {
-															e.preventDefault();
-															practice(word);
-														}}
-														className="scale-85"
-													/>
-												)}
-												{word}
-											</button>
+												className="bg-black/40"
+												handler={(e) => {
+													e?.preventDefault();
+													practice(word);
+												}}
+												keyboard_key={i < 9 ? "Digit" + (i + 1) : undefined}
+												label={word}
+											/>
 										);
 									})}
 								</div>
