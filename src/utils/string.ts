@@ -52,29 +52,34 @@ export function getRandomWords(
 }
 
 export function splitIntoGroups(chars: Character[]) {
-	const groups: Array<{ type: "word" | "space"; indices: number[] }> = [];
-	let currentGroupIndices: number[] = [];
-	let currentGroupType: "word" | "space" | null = null;
+	const groups: Array<{
+		type: "word" | "space";
+		indices: number[];
+		isWrong: boolean;
+	}> = [];
+	let isWrong = false;
+	let indices: number[] = [];
+	let type: "word" | "space" | null = null;
 
 	for (let i = 0; i < chars.length; i++) {
 		const char = chars[i];
 		if (char.char === " ") {
-			if (currentGroupType === "word") {
-				groups.push({ type: "word", indices: currentGroupIndices });
-				currentGroupIndices = [];
-				currentGroupType = null;
+			if (type === "word") {
+				groups.push({ type: "word", indices, isWrong });
+				isWrong = false;
+				indices = [];
+				type = null;
 			}
-			groups.push({ type: "space", indices: [i] });
+			groups.push({ type: "space", indices: [i], isWrong });
 		} else {
-			if (currentGroupType !== "word") {
-				currentGroupType = "word";
-			}
-			currentGroupIndices.push(i);
+			if (!!char.typed && char.typed !== char.char) isWrong = true;
+			if (type !== "word") type = "word";
+			indices.push(i);
 		}
 	}
 
-	if (currentGroupIndices.length > 0 && currentGroupType === "word") {
-		groups.push({ type: "word", indices: currentGroupIndices });
+	if (indices.length > 0 && type === "word") {
+		groups.push({ type: "word", indices: indices, isWrong });
 	}
 
 	return groups;

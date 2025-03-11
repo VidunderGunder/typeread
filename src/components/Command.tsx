@@ -129,24 +129,25 @@ export function Command({
 				]
 			: [];
 
-	useHotkeys(hotkeyItems, []);
-
 	return (
 		<button
 			className={cn(
 				"flex items-center gap-1.5",
 				flip && "flex-row-reverse",
 				irrelevant ? "opacity-80" : "opacity-100",
-				"cursor-pointer rounded-lg px-2.5 py-1 hover:bg-white/10",
+				"not-disabled:cursor-pointer rounded-lg px-2.5 py-1 not-disabled:hover:bg-white/10",
 				flip ? "pr-1" : "pl-1",
 				className,
 			)}
 			type="button"
+			disabled={disabled}
 			onClick={() => {
+				if (disabled) return;
 				handler?.();
 			}}
 			{...props}
 		>
+			{!disabled && <UseHotkey hotkeyItems={hotkeyItems} />}
 			<div className="flex gap-[1px]">
 				{modifiers.map((code) => (
 					<Keyboard key={code} interactive={!irrelevant} code={code} />
@@ -164,6 +165,20 @@ export function Command({
 			)}
 		</button>
 	);
+}
+
+function UseHotkey({
+	hotkeyItems,
+	tagsToIgnore,
+	triggerOnContentEditable,
+}: {
+	hotkeyItems: HotkeyItem[];
+	tagsToIgnore?: string[];
+	triggerOnContentEditable?: boolean;
+}) {
+	useHotkeys(hotkeyItems, tagsToIgnore, triggerOnContentEditable);
+
+	return null;
 }
 
 export function CommandSeparator({

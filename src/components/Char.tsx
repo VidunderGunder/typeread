@@ -26,11 +26,18 @@ export const Char = memo(function Char({
 	const isIncorrectSpace = char !== " " && typed === " ";
 
 	return (
-		<span className={cn("relative", className)} {...props}>
+		<span
+			className={cn(
+				"relative",
+				"text-[#4c5874]",
+				isCorrect && "text-[#cbcdb6]",
+				className,
+			)}
+			{...props}
+		>
 			<span
 				className={cn(
-					"text-[#4c5874]",
-					isCorrect && "text-[#cbcdb6]",
+					typed.length > 0 && !isCorrect && "text-red-600",
 					isCurrent && "underline",
 				)}
 			>
@@ -38,14 +45,16 @@ export const Char = memo(function Char({
 			</span>
 			{isTyped && !isCorrect && (
 				<span className="pointer-events-none absolute inset-0 flex size-full items-center justify-center text-[#bc2030]">
-					<span className="-rotate-6 relative top-2">
+					<span className="relative bottom-3.5 text-xs">
 						{isIncorrectSpace ? "␣" : typed}
 					</span>
 				</span>
 			)}
 			<span className="pointer-events-none absolute inset-0 size-full">
 				{typed.length > 0 && typed !== " " && (
-					<Sparkle className={cn("-top-1", !isCorrect && "bg-red-400")} />
+					<Sparkle
+						className={cn("-top-1", !isCorrect && "-top-3 bg-red-400")}
+					/>
 				)}
 			</span>
 		</span>

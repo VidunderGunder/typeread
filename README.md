@@ -1,4 +1,4 @@
-# Typer
+# TypeRead
 
 ![screenshot](./public/screenshot.jpg)
 

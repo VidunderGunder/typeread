@@ -161,6 +161,7 @@ export function Results({ className, ...props }: ResultsProps) {
 										{problemWords.map((word, i) => {
 											return (
 												<Command
+													disabled={!isFinished}
 													type="button"
 													key={word}
 													className="bg-black/40"

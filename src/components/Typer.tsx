@@ -135,12 +135,15 @@ export function Typer({ className, ...props }: TyperProps) {
 					return (
 						<span
 							key={["word", groupIndex].join("-")}
-							className="whitespace-nowrap"
+							className={cn("whitespace-nowrap")}
 						>
 							{group.indices.map((charIndex) => {
 								const char = chars[charIndex];
 								return (
 									<Char
+										className={cn(
+											group.isWrong ? "rounded-2xl text-red-500/25" : "",
+										)}
 										key={charIndex}
 										char={char.char}
 										typed={char.typed}

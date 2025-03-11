@@ -30,7 +30,7 @@ export function Toolbar({ className, ...props }: ToolbarProps) {
 									// });
 								}}
 								className={cn(
-									"rounded-lg px-4 py-1.5",
+									"rounded-lg px-3 py-1.5",
 									"not-disabled:cursor-pointer not-disabled:hover:bg-white/5 focus-visible:outline-none focus-visible:ring-0",
 									mode === m ? "bg-white/15" : "",
 								)}
@@ -58,7 +58,7 @@ export function Toolbar({ className, ...props }: ToolbarProps) {
 									// });
 								}}
 								className={cn(
-									"rounded-lg px-4 py-1.5",
+									"rounded-lg px-3 py-1.5",
 									"not-disabled:cursor-pointer not-disabled:hover:bg-white/5 focus-visible:outline-none focus-visible:ring-0",
 									amount === a ? "bg-white/15" : "",
 								)}
