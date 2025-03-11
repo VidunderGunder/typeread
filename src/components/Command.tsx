@@ -169,7 +169,7 @@ export function Command({
 
 function UseHotkey({
 	hotkeyItems,
-	tagsToIgnore,
+	tagsToIgnore = [],
 	triggerOnContentEditable,
 }: {
 	hotkeyItems: HotkeyItem[];
@@ -177,7 +177,6 @@ function UseHotkey({
 	triggerOnContentEditable?: boolean;
 }) {
 	useHotkeys(hotkeyItems, tagsToIgnore, triggerOnContentEditable);
-
 	return null;
 }
 
