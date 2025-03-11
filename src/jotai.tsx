@@ -32,34 +32,34 @@ export const missesAtom = atomWithReset<number>(0);
 export const problemWordsAtom = atomWithReset<string[]>([]);
 
 export type Book = {
-	"book-title": string;
-	"book-index": number;
-	"book-cover": string;
-	"book-chapter-indicies": number[];
-	"book-text": string;
+	title: string;
+	index: number;
+	cover: string;
+	chapterIndicies: number[];
+	text: string;
 };
 
 export const booksAtom = atomWithStorage<Book[]>("books", booksDefault);
 
 export const bookTitleAtom = atomWithStorage<string>(
 	"book-title",
-	booksDefault[0]["book-title"],
+	booksDefault[0].title,
 );
 export const bookIndexAtom = atomWithStorage<number>(
 	"book-index",
-	booksDefault[0]["book-index"],
+	booksDefault[0].index,
 );
 export const bookCoverAtom = atomWithStorage<string>(
 	"book-cover",
-	booksDefault[0]["book-cover"],
+	booksDefault[0].cover,
 );
 export const bookChapterIndiciesAtom = atomWithStorage<number[]>(
 	"book-chapter-indicies",
-	booksDefault[0]["book-chapter-indicies"],
+	booksDefault[0].chapterIndicies,
 );
 export const bookTextAtom = atomWithStorage<string>(
 	"book-text",
-	booksDefault[0]["book-text"],
+	booksDefault[0].text,
 );
 
 export const modes = ["words", "code", "book"] as const;

@@ -17,7 +17,7 @@ export function WPM({ className, ...props }: WPMProps) {
 	const level: 0 | 1 | 2 | 3 = wpm > 100 ? 3 : wpm > 75 ? 2 : wpm > 50 ? 1 : 0;
 	const factor = level / 3;
 	const chars = useAtomValue(charsAtom);
-	const finished = !chars.some((e) => e.typed.length === 0);
+	const isFinished = (chars[chars.length - 1]?.typed.length ?? 0) > 0;
 
 	const bookText = useAtomValue(bookTextAtom);
 	const mode = useAtomValue(modeAtom);
@@ -33,7 +33,7 @@ export function WPM({ className, ...props }: WPMProps) {
 			{...props}
 		>
 			<AnimatePresence>
-				{showIndicator && !finished && level >= 1 && (
+				{showIndicator && !isFinished && level >= 1 && (
 					<motion.div
 						className="absolute size-max"
 						initial={{ scale: 0, opacity: 1 }}
@@ -82,7 +82,7 @@ export function WPM({ className, ...props }: WPMProps) {
 						</Wiggle>
 					</motion.div>
 				)}
-				{finished && (
+				{isFinished && (
 					<motion.div
 						className="absolute bottom-0 flex size-max items-center justify-center"
 						initial={{ scale: 0 }}
@@ -104,7 +104,7 @@ export function WPM({ className, ...props }: WPMProps) {
 						</motion.div>
 					</motion.div>
 				)}
-				{showCount && !!chars[0]?.typed?.length && !finished && (
+				{showCount && !!chars[0]?.typed?.length && !isFinished && (
 					<motion.span
 						initial={{ scale: 0 }}
 						animate={{ scale: 1 }}

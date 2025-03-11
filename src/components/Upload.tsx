@@ -2,13 +2,14 @@ import { type ReactNode, useRef, useState, type ComponentProps } from "react";
 import { cn } from "@/styles/utils";
 import ePub from "epubjs";
 import type Section from "epubjs/types/section";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
 	bookTextAtom,
 	bookIndexAtom,
 	bookTitleAtom,
 	modeAtom,
 	bookChapterIndiciesAtom,
+	booksAtom,
 } from "@/jotai";
 import { AnimatePresence, motion } from "motion/react";
 
@@ -24,18 +25,21 @@ export function Upload({ className, children, ...props }: UploadProps) {
 	const setTitle = useSetAtom(bookTitleAtom);
 	const setChapterIndicies = useSetAtom(bookChapterIndiciesAtom);
 	const mode = useAtomValue(modeAtom);
+	const [books, setBooks] = useAtom(booksAtom);
 
 	async function processFile(file: File) {
 		const buffer = await file.arrayBuffer();
-		const book = ePub(buffer);
-		await book.ready;
+		const epub = ePub(buffer);
+		await epub.ready;
+
+		const title = epub.packaging.metadata.title ?? file.name;
 
 		const sectionPromises: Promise<string>[] = [];
 		let chapterTitles: string[] = [];
 
-		book.spine.each((section: Section) => {
+		epub.spine.each((section: Section) => {
 			const sectionPromise = (async () => {
-				const chapter = await book.load(section.href);
+				const chapter = await epub.load(section.href);
 				if (!(chapter instanceof Document) || !chapter.body?.textContent) {
 					return "";
 				}
@@ -65,14 +69,31 @@ export function Upload({ className, children, ...props }: UploadProps) {
 			chapterIndicies.push(nextChapterIndex);
 			nextChapterIndex += chapter.length - 1;
 		}
-		const newText = chapters.join(" ");
+		const text = chapters.join(" ");
 
-		setText(newText);
-		setIndex(0);
-		setChapterIndicies(chapterIndicies);
-		// const coverUrl = await book.coverUrl();
-		// setCover(coverUrl ?? "");
-		setTitle(book.packaging.metadata.title ?? file.name);
+		const exists = books.some(
+			(book) => book.title === title || book.text === text,
+		);
+
+		if (exists) return;
+
+		setBooks((prev) => [
+			...prev,
+			{
+				title,
+				index: 0,
+				cover: "",
+				chapterIndicies,
+				text,
+			},
+		]);
+
+		// setText(newText);
+		// setIndex(0);
+		// setChapterIndicies(chapterIndicies);
+		// // const coverUrl = await book.coverUrl();
+		// // setCover(coverUrl ?? "");
+		// setTitle();
 	}
 
 	async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {

@@ -45,7 +45,10 @@ export function Typer({ className, ...props }: TyperProps) {
 
 	const controlledValue = chars.map((c) => c.typed).join("");
 
+	const isFinished = (chars[chars.length - 1]?.typed.length ?? 0) > 0;
+
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		if (isFinished) return;
 		const newValue = e.target.value;
 
 		const oldValue = inputValueRef.current;

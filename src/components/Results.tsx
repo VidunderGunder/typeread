@@ -26,7 +26,7 @@ export function Results({ className, ...props }: ResultsProps) {
 
 	const { practice } = useInit();
 
-	const finished = !chars.some((e) => e.typed.length === 0);
+	const isFinished = (chars[chars.length - 1]?.typed.length ?? 0) > 0;
 	const currentIndex = chars.findIndex((char) => char.typed === "");
 	const currentLength = currentIndex === -1 ? chars.length : currentIndex;
 	const lastTypedIndex = currentLength - 1;
@@ -56,11 +56,11 @@ export function Results({ className, ...props }: ResultsProps) {
 	}
 
 	useEffect(() => {
-		if (finished && uiWpm !== 0) {
+		if (isFinished && uiWpm !== 0) {
 			// On finished
 			setUiWpm(0);
 		}
-	}, [finished, uiWpm, setUiWpm]);
+	}, [isFinished, uiWpm, setUiWpm]);
 
 	const bookText = useAtomValue(bookTextAtom);
 	const mode = useAtomValue(modeAtom);
@@ -76,7 +76,7 @@ export function Results({ className, ...props }: ResultsProps) {
 			{...props}
 		>
 			<div className="pointer-events-none absolute inset-0 flex size-full items-center justify-center">
-				{finished && <Sparkles />}
+				{isFinished && <Sparkles />}
 			</div>
 			<motion.div
 				className="w-full"
@@ -109,11 +109,41 @@ export function Results({ className, ...props }: ResultsProps) {
 					<>
 						<div className="flex items-center justify-center gap-3">
 							<div className="flex gap-2">
-								<div>{wpm} WPM</div>
+								<motion.div
+									animate={{
+										// color: finished ? "#ffffff" : "#a2aeca",
+										fontWeight: isFinished ? 900 : 500,
+									}}
+									transition={{
+										duration: 0.1,
+									}}
+								>
+									{wpm} WPM
+								</motion.div>
 								<div>•</div>
-								<div>{accuracy}% Accuracy</div>
+								<motion.div
+									animate={{
+										// color: finished ? "#ffffff" : "#a2aeca",
+										fontWeight: isFinished ? 900 : 500,
+									}}
+									transition={{
+										duration: 0.1,
+									}}
+								>
+									{accuracy}% Accuracy
+								</motion.div>
 								<div>•</div>
-								<div>{misses} Misses</div>
+								<motion.div
+									animate={{
+										// color: finished ? "#ffffff" : "#a2aeca",
+										fontWeight: isFinished ? 900 : 500,
+									}}
+									transition={{
+										duration: 0.1,
+									}}
+								>
+									{misses} Misses
+								</motion.div>
 							</div>
 						</div>
 						{problemWords.length > 0 && (
