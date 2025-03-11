@@ -292,14 +292,13 @@ export function HotkeyKeyboard({
 	...props
 }: HotkeyKeyboardProps) {
 	const label = children ?? getLabelFromCode(code);
-	const { pressed, isModifier } = useKeyboard(code, {
+	const { pressed } = useKeyboard(code, {
 		onPressDown,
 		onPressUp,
 	});
 
 	return (
 		<KeyboardBase
-			isModifier={isModifier}
 			className={cn(
 				pressed ? "border-gray-300 bg-gray-300" : "hidden",
 				className,

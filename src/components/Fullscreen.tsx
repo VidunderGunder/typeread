@@ -2,8 +2,6 @@ import type { ComponentProps } from "react";
 import { cn } from "@/styles/utils";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { useFullscreen } from "@mantine/hooks";
-import { Command } from "./Command";
-import { mod } from "@/types/keyboard";
 
 export type FullscreenProps = {
 	//
@@ -23,13 +21,6 @@ export function Fullscreen({ className, ...props }: FullscreenProps) {
 			onClick={toggle}
 			{...props}
 		>
-			<Command
-				className="sr-only"
-				modifiers={[mod, "Shift"]}
-				keyboard_key="KeyF"
-				handler={toggle}
-				label="Fullscreen"
-			/>
 			{fullscreen ? (
 				<Icon icon="material-symbols:fullscreen-exit" className="size-8" />
 			) : (

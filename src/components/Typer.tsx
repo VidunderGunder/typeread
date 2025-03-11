@@ -1,4 +1,4 @@
-import type { ComponentProps } from "react";
+import { useRef, type ComponentProps } from "react";
 import { cn } from "@/styles/utils";
 import { getWordAtIndex, splitIntoGroups } from "@/utils/string";
 import { Char } from "./Char";
@@ -29,10 +29,12 @@ export function Typer({ className, ...props }: TyperProps) {
 
 	const currentIndex = chars.findIndex((char) => char.typed === "");
 	const str = chars.map((char) => char.char).join("");
-	const finished = !chars.some((e) => e.typed.length === 0);
+	// const finished = !chars.some((e) => e.typed.length === 0);
 
 	const bookText = useAtomValue(bookTextAtom);
 	const mode = useAtomValue(modeAtom);
+
+	const inputValueRef = useRef(chars.map((c) => c.typed).join(""));
 
 	if (mode === "book" && !bookText)
 		return (
@@ -40,6 +42,51 @@ export function Typer({ className, ...props }: TyperProps) {
 				<Upload />
 			</div>
 		);
+
+	const controlledValue = chars.map((c) => c.typed).join("");
+
+	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const newValue = e.target.value;
+		console.log(newValue);
+
+		const oldValue = inputValueRef.current;
+		const newChars = [...chars];
+
+		for (let i = 0; i < newChars.length; i++) {
+			const newCharValue = newValue[i] || "";
+			const oldCharValue = oldValue[i] || "";
+
+			if (newCharValue !== oldCharValue) {
+				newChars[i] = {
+					...newChars[i],
+					typed: newCharValue,
+					changed: Date.now(),
+				};
+
+				if (
+					newCharValue !== "" &&
+					newCharValue !== newChars[i].char &&
+					oldCharValue === ""
+				) {
+					setMisses((prev) => prev + 1);
+					const word = getWordAtIndex(str, i);
+					if (!problemWords.includes(word)) {
+						setProblemWords((prev) => [...prev, word]);
+					}
+				}
+			}
+		}
+
+		setChars(newChars);
+		setWpm(
+			getWpm({
+				chars: newChars,
+				cursorIndex: newValue.length,
+			}),
+		);
+
+		inputValueRef.current = newValue;
+	};
 
 	return (
 		<WallpaperTyperBackdrop>
@@ -56,59 +103,19 @@ export function Typer({ className, ...props }: TyperProps) {
 					// biome-ignore lint/a11y/noAutofocus: <explanation>
 					autoFocus
 					tabIndex={0}
-					className="size-0 opacity-0"
-					// value={chars.map((e) => e.typed)}
-					// onChange={e => {
-					// 	const value = e.currentTarget.value;
-					// }}
+					// Native inputs are not handled correctly unless the input is considered visible
+					className="absolute right-[9999px] size-[1px] text-transparent outline-none ring-0 focus-visible:outline-none"
 					onKeyDown={(e) => {
-						if (finished) return;
-
-						if (e.key === "Backspace") {
-							if (currentIndex === 0) return;
-							const prevIndex = currentIndex - 1;
-							const newChar = {
-								char: chars[prevIndex].char,
-								typed: "",
-							};
-
-							setChars((prev) => {
-								const newChars = [...prev];
-								newChars[prevIndex] = newChar;
-								return newChars;
-							});
-							// setWpm(0);
-
-							return;
-						}
-
-						if (e.key.length === 1) {
-							const newChars = [...chars];
-							const newChar = {
-								char: chars[currentIndex].char,
-								typed: e.key,
-								changed: Date.now(),
-							};
-
-							newChars[currentIndex] = newChar;
-							if (newChar.typed.length > 0 && newChar.typed !== newChar.char) {
-								setMisses((prev) => prev + 1);
-								const word = getWordAtIndex(str, currentIndex);
-								if (!problemWords.includes(word)) {
-									setProblemWords((prev) => [...prev, word]);
-								}
-							}
-
-							setChars(newChars);
-							setWpm(
-								getWpm({
-									chars: newChars,
-									cursorIndex: currentIndex,
-								}),
-							);
-							return;
+						if (
+							["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(
+								e.key,
+							)
+						) {
+							e.preventDefault();
 						}
 					}}
+					value={controlledValue}
+					onChange={handleChange}
 				/>
 				{splitIntoGroups(chars).map((group, groupIndex) => {
 					if (group.type === "space") {

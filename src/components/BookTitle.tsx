@@ -20,7 +20,6 @@ export function BookTitle({ className, ...props }: BookTitleProps) {
 	const bookIndex = useAtomValue(bookIndexAtom);
 	const bookText = useAtomValue(bookTextAtom);
 	const indicies = useAtomValue(bookChapterIndiciesAtom);
-	console.log(indicies);
 
 	function indexToPercent(index: number): number {
 		return Number(((100 * index) / (bookText.length + 1)).toFixed(2));

@@ -5,8 +5,7 @@ import { os, type KeyboardKey, type Modifier, type OS } from "@/types/keyboard";
 import { Sparkle } from "./particles/Sparkle";
 
 export type KeyboardBaseProps = {
-	isModifier?: boolean;
-	label?: string;
+	//
 } & Omit<ComponentProps<"kbd">, "label">;
 
 export type KeyboardProps = {
@@ -221,12 +220,11 @@ export function Keyboard({
 	...props
 }: KeyboardProps) {
 	const label = children ?? getLabelFromCode(code);
-	const { pressed: _pressed, isModifier } = useKeyboard(code);
+	const { pressed: _pressed } = useKeyboard(code);
 	const pressed = !interactive ? false : _pressed;
 
 	return (
 		<KeyboardBase
-			isModifier={isModifier}
 			className={cn(
 				"relative",
 				pressed ? "bg-gray-300/85" : "",
