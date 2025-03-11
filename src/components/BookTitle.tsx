@@ -64,8 +64,8 @@ export function BookTitle({ className, ...props }: BookTitleProps) {
 							>
 								<div
 									className={cn(
-										"-right-[1px] absolute h-full w-[2px] rounded-full",
-										isPassed ? "bg-green-700/75" : "bg-white/15",
+										"-right-[1px] absolute h-full w-[1px] rounded-full",
+										isPassed ? "bg-green-800" : "bg-white/15",
 									)}
 								/>
 							</div>
