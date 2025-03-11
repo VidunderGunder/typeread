@@ -1,9 +1,4 @@
-import {
-	atomWithReset,
-	atomWithStorage,
-	useAtomCallback,
-	useResetAtom,
-} from "jotai/utils";
+import { atomWithReset, atomWithStorage, useResetAtom } from "jotai/utils";
 import type { Character } from "./types";
 import {
 	atom,

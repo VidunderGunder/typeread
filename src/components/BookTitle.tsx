@@ -1,6 +1,6 @@
 import type { ComponentProps } from "react";
 import { cn } from "@/styles/utils";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtomValue } from "jotai";
 import {
 	bookChapterIndiciesAtom,
 	bookIndexAtom,
