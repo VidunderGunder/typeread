@@ -32,12 +32,12 @@ export function App() {
 				<div className="z-0 flex size-full flex-col items-center py-5">
 					<Toolbar className="z-0" />
 					<BookTitle className="absolute top-[min(max(75px,10dvh),90px)]" />
-					<div className="z-10 flex flex-1 flex-col items-center justify-center gap-10">
-						<WPM />
+					<div className="pointer-events-none z-10 flex flex-1 flex-col items-center justify-center gap-10">
+						<WPM className="pointer-events-auto" />
 						<div>
-							<Typer />
+							<Typer className="pointer-events-auto" />
 						</div>
-						<Results />
+						<Results className="pointer-events-auto" />
 					</div>
 				</div>
 				<Logo className="absolute top-4 left-5" />

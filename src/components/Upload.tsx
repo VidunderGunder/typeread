@@ -3,7 +3,7 @@ import { cn } from "@/styles/utils";
 import ePub from "epubjs";
 import type Section from "epubjs/types/section";
 import { useAtom, useAtomValue } from "jotai";
-import { bookTextAtom, modeAtom, booksAtom } from "@/jotai";
+import { bookTextAtom, modeAtom, booksAtom, useBook, type Book } from "@/jotai";
 import { AnimatePresence, motion } from "motion/react";
 
 export type UploadProps = {
@@ -13,8 +13,10 @@ export type UploadProps = {
 export function Upload({ className, children, ...props }: UploadProps) {
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const [isDrag, setIsDrag] = useState(false);
+
 	const mode = useAtomValue(modeAtom);
 	const [books, setBooks] = useAtom(booksAtom);
+	const { setBook } = useBook();
 
 	async function processFile(file: File) {
 		const buffer = await file.arrayBuffer();
@@ -66,23 +68,17 @@ export function Upload({ className, children, ...props }: UploadProps) {
 
 		if (exists) return;
 
-		setBooks((prev) => [
-			...prev,
-			{
-				title,
-				index: 0,
-				cover: "",
-				chapterIndicies,
-				text,
-			},
-		]);
+		const newBook: Book = {
+			title,
+			index: 0,
+			cover: "",
+			chapterIndicies,
+			text,
+		};
 
-		// setText(newText);
-		// setIndex(0);
-		// setChapterIndicies(chapterIndicies);
-		// // const coverUrl = await book.coverUrl();
-		// // setCover(coverUrl ?? "");
-		// setTitle();
+		setBooks((prev) => [...prev, newBook]);
+
+		setBook(newBook);
 	}
 
 	async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {

@@ -1,6 +1,17 @@
-import { atomWithReset, atomWithStorage, useResetAtom } from "jotai/utils";
+import {
+	atomWithReset,
+	atomWithStorage,
+	useAtomCallback,
+	useResetAtom,
+} from "jotai/utils";
 import type { Character } from "./types";
-import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
+import {
+	atom,
+	getDefaultStore,
+	useAtom,
+	useAtomValue,
+	useSetAtom,
+} from "jotai";
 import { getRandomWords } from "./utils/string";
 import { useCallback } from "react";
 import { modeMap } from "./utils/constants";
@@ -67,6 +78,74 @@ export type Mode = (typeof modes)[number];
 export const modeAtom = atomWithStorage<Mode>("mode", "book");
 
 let words: string[] = [];
+
+export function useBook() {
+	const [bookTitle, setBookTitle] = useAtom(bookTitleAtom);
+	const setBookIndex = useSetAtom(bookIndexAtom);
+	const setBookCover = useSetAtom(bookCoverAtom);
+	const setBookChapterIndicies = useSetAtom(bookChapterIndiciesAtom);
+	const setBookText = useSetAtom(bookTextAtom);
+
+	const store = getDefaultStore();
+
+	const [books, setBooks] = useAtom(booksAtom);
+	const bookOutdated: Book | undefined =
+		books.find((book) => book.title === bookTitle) ?? books[0];
+
+	const getBook = useCallback((): Book => {
+		return {
+			title: bookTitle,
+			index: store.get(bookIndexAtom),
+			cover: store.get(bookCoverAtom),
+			chapterIndicies: store.get(bookChapterIndiciesAtom),
+			text: store.get(bookTextAtom),
+		};
+	}, [bookTitle, store.get]);
+
+	const setBook = useCallback(
+		(newBook: Book) => {
+			const currentBook = getBook();
+
+			setBooks((prev) => {
+				const newBooks = [...prev];
+				const index = newBooks.findIndex(
+					(book) => book.title === currentBook.title,
+				);
+
+				if (index !== -1) newBooks[index] = currentBook;
+
+				return newBooks;
+			});
+
+			setBookTitle(newBook.title);
+			setBookIndex(newBook.index);
+			setBookCover(newBook.cover);
+			setBookChapterIndicies(newBook.chapterIndicies);
+			setBookText(newBook.text);
+		},
+		[
+			setBookIndex,
+			setBookCover,
+			setBookChapterIndicies,
+			setBookText,
+			setBookTitle,
+			setBooks,
+			getBook,
+		],
+	);
+
+	return {
+		/**
+		 * Out-of-date, use global paramaters for up to date values
+		 */
+		bookOutdated,
+		/**
+		 * Get up-to-date book
+		 */
+		getBook,
+		setBook,
+	};
+}
 
 export function useInit() {
 	const setChars = useSetAtom(charsAtom);
