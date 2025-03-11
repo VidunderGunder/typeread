@@ -167,6 +167,9 @@ export function Command({
 	);
 }
 
+/**
+ * Component to be able to conditionally run hotkey assignemnts
+ */
 function UseHotkey({
 	hotkeyItems,
 	tagsToIgnore = [],
