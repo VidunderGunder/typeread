@@ -10,6 +10,7 @@ import { Hotkeys } from "@/components/Hotkeys";
 import { cn } from "@/styles/utils";
 import { Wallpaper, WallpaperSelect } from "@/components/Wallpaper";
 import { Fullscreen } from "./components/Fullscreen";
+import { Logo } from "./components/Logo";
 
 export function App() {
 	const { init } = useInit();
@@ -39,6 +40,7 @@ export function App() {
 						<Results />
 					</div>
 				</div>
+				<Logo className="absolute top-5 left-5" />
 				<Fullscreen className="absolute top-5 right-5" />
 				<UploadAfter className="absolute bottom-4" />
 				<Hotkeys className="absolute right-5 bottom-5" />

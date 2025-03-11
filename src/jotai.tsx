@@ -5,13 +5,7 @@ import { getRandomWords } from "./utils/string";
 import { useCallback } from "react";
 import { modeMap } from "./utils/constants";
 import { getBackIndex, getNextIndex } from "./utils/book";
-import {
-	bookChapterIndiciesDefault,
-	bookCoverDefault,
-	bookIndexDefault,
-	bookTextDefault,
-	bookTitleDefault,
-} from "./default";
+import { booksDefault } from "./default";
 
 // ASCII Text Generator:
 // https://patorjk.com/software/taag/#p=display&f=Elite&t=Hello%20World
@@ -37,25 +31,35 @@ export const charsAtom = atom<Character[]>([]);
 export const missesAtom = atomWithReset<number>(0);
 export const problemWordsAtom = atomWithReset<string[]>([]);
 
-export const bookTextAtom = atomWithStorage<string>(
-	"book-text",
-	bookTextDefault,
+export type Book = {
+	"book-title": string;
+	"book-index": number;
+	"book-cover": string;
+	"book-chapter-indicies": number[];
+	"book-text": string;
+};
+
+export const booksAtom = atomWithStorage<Book[]>("books", booksDefault);
+
+export const bookTitleAtom = atomWithStorage<string>(
+	"book-title",
+	booksDefault[0]["book-title"],
 );
 export const bookIndexAtom = atomWithStorage<number>(
 	"book-index",
-	bookIndexDefault,
+	booksDefault[0]["book-index"],
 );
 export const bookCoverAtom = atomWithStorage<string>(
 	"book-cover",
-	bookCoverDefault,
-);
-export const bookTitleAtom = atomWithStorage<string>(
-	"book-cover",
-	bookTitleDefault,
+	booksDefault[0]["book-cover"],
 );
 export const bookChapterIndiciesAtom = atomWithStorage<number[]>(
 	"book-chapter-indicies",
-	bookChapterIndiciesDefault,
+	booksDefault[0]["book-chapter-indicies"],
+);
+export const bookTextAtom = atomWithStorage<string>(
+	"book-text",
+	booksDefault[0]["book-text"],
 );
 
 export const modes = ["words", "code", "book"] as const;
