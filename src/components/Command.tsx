@@ -15,7 +15,6 @@ import {
 	Fragment,
 	useState,
 	useEffect,
-	type MouseEvent,
 } from "react";
 import {
 	getLabelFromCode,
