@@ -1,6 +1,6 @@
 # Typer
 
-![screenshot](./public/screenshot.png)
+![screenshot](./public/screenshot.jpg)
 
 ```
 bun i
