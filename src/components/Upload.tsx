@@ -151,11 +151,11 @@ export function Upload({ className, children, ...props }: UploadProps) {
 						onChange={handleFileChange}
 					/>
 					{children ?? (
-						<div className={cn("relative z-0 text-center")}>
+						<p className={cn("relative z-0 text-center")}>
 							Drop an EPUB file, or
-							<div />
+							<br />
 							click to upload book
-						</div>
+						</p>
 					)}
 				</motion.div>
 			)}
@@ -172,11 +172,11 @@ export function UploadAfter({ children, ...props }: UploadProps) {
 	return (
 		<Upload {...props}>
 			{children ?? (
-				<div className={cn("relative z-0 text-center")}>
-					Drop an EPUB file, or
-					<div />
-					click to replace book
-				</div>
+				<p className={cn("relative z-0 text-center")}>
+					Click or drop an EPUB-file to
+					<br />
+					add books to your collection
+				</p>
 			)}
 		</Upload>
 	);
