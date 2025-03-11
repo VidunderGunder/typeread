@@ -40,7 +40,7 @@ export function App() {
 						<Results />
 					</div>
 				</div>
-				<Logo className="absolute top-5 left-5" />
+				<Logo className="absolute top-4 left-5" />
 				<Fullscreen className="absolute top-5 right-5" />
 				<UploadAfter className="absolute bottom-4" />
 				<Hotkeys className="absolute right-5 bottom-5" />
