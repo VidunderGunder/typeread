@@ -3,7 +3,13 @@ import { cn } from "@/styles/utils";
 import ePub from "epubjs";
 import type Section from "epubjs/types/section";
 import { useAtomValue, useSetAtom } from "jotai";
-import { bookTextAtom, bookIndexAtom, bookTitleAtom, modeAtom } from "@/jotai";
+import {
+	bookTextAtom,
+	bookIndexAtom,
+	bookTitleAtom,
+	modeAtom,
+	bookChapterIndiciesAtom,
+} from "@/jotai";
 import { AnimatePresence, motion } from "motion/react";
 
 export type UploadProps = {
@@ -16,6 +22,7 @@ export function Upload({ className, children, ...props }: UploadProps) {
 	const setText = useSetAtom(bookTextAtom);
 	const setIndex = useSetAtom(bookIndexAtom);
 	const setTitle = useSetAtom(bookTitleAtom);
+	const setChapterIndicies = useSetAtom(bookChapterIndiciesAtom);
 	const mode = useAtomValue(modeAtom);
 
 	async function processFile(file: File) {
@@ -42,6 +49,9 @@ export function Upload({ className, children, ...props }: UploadProps) {
 			sectionPromises.push(sectionPromise);
 		});
 
+		let nextChapterIndex = 0;
+		const chapterIndicies: number[] = [];
+
 		const content = await Promise.all(sectionPromises);
 		const chapters = content.filter((text, i) => {
 			const hasText = !!text;
@@ -51,10 +61,15 @@ export function Upload({ className, children, ...props }: UploadProps) {
 			}
 			return hasText;
 		});
+		for (const chapter of chapters) {
+			chapterIndicies.push(nextChapterIndex);
+			nextChapterIndex += chapter.length - 1;
+		}
 		const newText = chapters.join(" ");
 
 		setText(newText);
 		setIndex(0);
+		setChapterIndicies(chapterIndicies);
 		// const coverUrl = await book.coverUrl();
 		// setCover(coverUrl ?? "");
 		setTitle(book.packaging.metadata.title ?? file.name);

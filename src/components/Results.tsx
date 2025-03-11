@@ -58,7 +58,7 @@ export function Results({ className, ...props }: ResultsProps) {
 	return (
 		<div
 			className={cn(
-				"flex max-w-[700px] flex-col items-center gap-5 font-bold text-[#a2aeca]",
+				"flex max-w-[min(700px,65dvw)] flex-col items-center gap-5 font-bold text-[#a2aeca]",
 				className,
 			)}
 			{...props}
@@ -106,7 +106,7 @@ export function Results({ className, ...props }: ResultsProps) {
 						{problemWords.length > 0 && (
 							<div className="mt-3 flex flex-col items-center">
 								<div className="text-center font-normal italic">
-									Press a number to practice:
+									Pick a problematic word to practise:
 								</div>
 								<div className="inline-flex flex-wrap gap-x-1.5 gap-y-1 pt-2">
 									{problemWords.map((word, i) => {

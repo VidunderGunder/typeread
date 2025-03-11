@@ -1,7 +1,13 @@
 import type { ComponentProps } from "react";
 import { cn } from "@/styles/utils";
 import { useAtomValue } from "jotai";
-import { bookIndexAtom, bookTextAtom, bookTitleAtom, modeAtom } from "@/jotai";
+import {
+	bookChapterIndiciesAtom,
+	bookIndexAtom,
+	bookTextAtom,
+	bookTitleAtom,
+	modeAtom,
+} from "@/jotai";
 import { motion } from "motion/react";
 
 export type BookTitleProps = {
@@ -13,8 +19,14 @@ export function BookTitle({ className, ...props }: BookTitleProps) {
 	const mode = useAtomValue(modeAtom);
 	const bookIndex = useAtomValue(bookIndexAtom);
 	const bookText = useAtomValue(bookTextAtom);
+	const indicies = useAtomValue(bookChapterIndiciesAtom);
+	console.log(indicies);
 
-	const progress = ((100 * bookIndex) / (bookText.length + 1)).toFixed(2);
+	function indexToPercent(index: number): number {
+		return Number(((100 * index) / (bookText.length + 1)).toFixed(2));
+	}
+
+	const progress = indexToPercent(bookIndex);
 
 	if (mode !== "book" || !bookText) return null;
 
@@ -30,10 +42,7 @@ export function BookTitle({ className, ...props }: BookTitleProps) {
 				<span className="text-white/100">{bookTitle}</span>
 			</div>
 			<motion.div className="full relative flex h-[18px] w-full items-center justify-center overflow-clip rounded-full bg-black/40">
-				<motion.div className="absolute text-sm text-white/90">
-					{progress}%
-				</motion.div>
-				<div className="flex h-full w-full justify-start">
+				<div className="absolute bottom-0 flex h-full w-full justify-start overflow-clip rounded-full">
 					<motion.div
 						className="h-full bg-green-600"
 						animate={{
@@ -41,6 +50,31 @@ export function BookTitle({ className, ...props }: BookTitleProps) {
 						}}
 					/>
 				</div>
+				<div className="absolute bottom-0 h-full w-full">
+					{indicies.map((i) => {
+						if (i === 0) return null;
+						const isPassed = bookIndex >= i;
+						return (
+							<div
+								key={i}
+								className="absolute h-full"
+								style={{
+									left: `${indexToPercent(i)}%`,
+								}}
+							>
+								<div
+									className={cn(
+										"-right-[1px] absolute h-full w-[2px] rounded-full",
+										isPassed ? "bg-green-700/75" : "bg-white/15",
+									)}
+								/>
+							</div>
+						);
+					})}
+				</div>
+				<motion.div className="absolute text-sm text-white/90">
+					{progress}%
+				</motion.div>
 			</motion.div>
 		</div>
 	);
