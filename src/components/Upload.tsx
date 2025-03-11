@@ -2,15 +2,8 @@ import { type ReactNode, useRef, useState, type ComponentProps } from "react";
 import { cn } from "@/styles/utils";
 import ePub from "epubjs";
 import type Section from "epubjs/types/section";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import {
-	bookTextAtom,
-	bookIndexAtom,
-	bookTitleAtom,
-	modeAtom,
-	bookChapterIndiciesAtom,
-	booksAtom,
-} from "@/jotai";
+import { useAtom, useAtomValue } from "jotai";
+import { bookTextAtom, modeAtom, booksAtom } from "@/jotai";
 import { AnimatePresence, motion } from "motion/react";
 
 export type UploadProps = {
@@ -20,10 +13,6 @@ export type UploadProps = {
 export function Upload({ className, children, ...props }: UploadProps) {
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const [isDrag, setIsDrag] = useState(false);
-	const setText = useSetAtom(bookTextAtom);
-	const setIndex = useSetAtom(bookIndexAtom);
-	const setTitle = useSetAtom(bookTitleAtom);
-	const setChapterIndicies = useSetAtom(bookChapterIndiciesAtom);
 	const mode = useAtomValue(modeAtom);
 	const [books, setBooks] = useAtom(booksAtom);
 

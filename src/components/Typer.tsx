@@ -29,7 +29,6 @@ export function Typer({ className, ...props }: TyperProps) {
 
 	const currentIndex = chars.findIndex((char) => char.typed === "");
 	const str = chars.map((char) => char.char).join("");
-	// const finished = !chars.some((e) => e.typed.length === 0);
 
 	const bookText = useAtomValue(bookTextAtom);
 	const mode = useAtomValue(modeAtom);
