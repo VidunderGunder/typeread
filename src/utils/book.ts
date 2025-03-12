@@ -1,3 +1,6 @@
+/**
+ * AI generated slop
+ */
 export function getBackIndex({
 	text,
 	currentIndex,
@@ -33,6 +36,9 @@ export function getBackIndex({
 	return index;
 }
 
+/**
+ * AI generated slop
+ */
 export function getNextIndex({
 	text,
 	currentIndex,
@@ -48,8 +54,15 @@ export function getNextIndex({
 	let index = currentIndex;
 
 	// If currently in the middle of a word, move forward to its end.
-	while (index < text.length && text[index] !== " " && text[index] !== ",") {
-		index++;
+	// Only move to the end of the current word if we're not already at a boundary.
+	if (
+		currentIndex > 0 &&
+		text[currentIndex - 1] !== " " &&
+		text[currentIndex - 1] !== ","
+	) {
+		while (index < text.length && text[index] !== " " && text[index] !== ",") {
+			index++;
+		}
 	}
 
 	// Skip any subsequent separator characters.
@@ -58,7 +71,7 @@ export function getNextIndex({
 	}
 
 	// Count the first word that we have just finished.
-	let wordsCount = 1;
+	let wordsCount = 0;
 	// Now move forward by CHUNK_SIZE - 1 additional words.
 	while (index < text.length && wordsCount < chunk) {
 		// Skip over the next word.
@@ -74,5 +87,6 @@ export function getNextIndex({
 			index++;
 		}
 	}
+
 	return index;
 }
