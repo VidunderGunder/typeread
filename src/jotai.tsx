@@ -33,6 +33,9 @@ export const searchEngines = [
 	"Brave",
 	"Bing",
 	"Yahoo",
+	"YouTube",
+	"TikTok",
+	"Reddit",
 ] as const;
 export type SearchEngine = (typeof searchEngines)[number];
 export const searches = {
@@ -41,6 +44,10 @@ export const searches = {
 	Bing: (term: string) => `https://www.bing.com/search?q=${term}`,
 	Yahoo: (term: string) => `https://www.yahoo.com/search?p=${term}`,
 	Brave: (term: string) => `https://search.brave.com/search?q=${term}`,
+	YouTube: (term: string) =>
+		`https://www.youtube.com/results?search_query=${term}`,
+	TikTok: (term: string) => `https://www.tiktok.com/search?q=${term}`,
+	Reddit: (term: string) => `https://www.reddit.com/search/?q=${term}`,
 } as const satisfies Record<SearchEngine, (term: string) => void>;
 export const searchEngineAtom = atomWithStorage<SearchEngine>(
 	"search-engine",

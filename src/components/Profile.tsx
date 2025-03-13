@@ -68,6 +68,9 @@ const engineIconifyIcons = {
 	DuckDuckGo: "logos:duckduckgo",
 	Brave: "logos:brave",
 	Yahoo: "logos:yahoo",
+	YouTube: "logos:youtube-icon",
+	TikTok: "logos:tiktok-icon",
+	Reddit: "logos:reddit-icon",
 } as const satisfies Record<SearchEngine, string>;
 
 function SearchEngineSelect({ className, ...props }: SearchEngineSelectProps) {
