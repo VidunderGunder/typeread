@@ -8,7 +8,7 @@ import {
 	useSetAtom,
 } from "jotai";
 import { getRandomWords } from "./utils/string";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { modeMap } from "./utils/constants";
 import { getBackIndex, getNextIndex } from "./utils/book";
 import { booksDefault } from "./default";
@@ -300,4 +300,14 @@ export function useInit() {
 		incrementBook,
 		decrementBook,
 	};
+}
+
+export function UseInit() {
+	const { init } = useInit();
+
+	useEffect(() => {
+		init();
+	}, [init]);
+
+	return null;
 }
