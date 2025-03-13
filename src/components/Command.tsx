@@ -170,7 +170,7 @@ export function Command({
 /**
  * Component to be able to conditionally run hotkey assignemnts
  */
-function UseHotkey({
+export function UseHotkey({
 	hotkeyItems,
 	tagsToIgnore = [],
 	triggerOnContentEditable,
@@ -204,12 +204,14 @@ export function CommandSeparator({
 }
 
 export type CommandsProps = {
+	disabled?: boolean;
 	commands: CommandType[];
 	vertical?: boolean;
 	flip?: boolean;
 } & ComponentProps<"div">;
 
 export function Commands({
+	disabled = false,
 	commands,
 	vertical = false,
 	className,
@@ -232,7 +234,7 @@ export function Commands({
 				return (
 					<Fragment key={key}>
 						{!vertical && i > 0 && <CommandSeparator />}
-						<Command flip={flip} {...command} />
+						<Command flip={flip} disabled={disabled} {...command} />
 					</Fragment>
 				);
 			})}

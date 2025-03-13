@@ -1,10 +1,11 @@
 import type { ComponentProps } from "react";
 import { cn } from "@/styles/utils";
 import { Commands, type CommandType } from "./Command";
-import { modeAtom, problemWordsAtom, useInit } from "@/jotai";
-import { useAtomValue } from "jotai";
+import { disableTyperAtom, modeAtom, problemWordsAtom, useInit } from "@/jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { mod } from "@/types/keyboard";
 import { useFullscreen } from "@mantine/hooks";
+import { Profile } from "./Profile";
 
 export type HotkeysProps = {
 	//
@@ -15,6 +16,7 @@ export function Hotkeys({ className, ...props }: HotkeysProps) {
 	const problemWords = useAtomValue(problemWordsAtom);
 	const { init, retry } = useInit();
 	const { toggle } = useFullscreen();
+	const [disableTyper] = useAtom(disableTyperAtom);
 
 	return (
 		<div className={cn("", className)} {...props}>
@@ -24,6 +26,7 @@ export function Hotkeys({ className, ...props }: HotkeysProps) {
 				commands={(
 					[
 						{
+							disabled: disableTyper,
 							keyboard_key: "Enter",
 							label: "Next",
 							handler(event) {
@@ -44,7 +47,7 @@ export function Hotkeys({ className, ...props }: HotkeysProps) {
 									keyboard_key: "KeyZ",
 									modifiers: [mod],
 									label: "Back",
-									disabled: mode !== "book",
+									disabled: mode !== "book" || disableTyper,
 									handler(event) {
 										event?.preventDefault();
 										init({
@@ -54,6 +57,7 @@ export function Hotkeys({ className, ...props }: HotkeysProps) {
 								}
 							: null,
 						{
+							disabled: disableTyper,
 							keyboard_key: "KeyR",
 							modifiers: [mod],
 							label: "Retry",
@@ -71,6 +75,8 @@ export function Hotkeys({ className, ...props }: HotkeysProps) {
 					] satisfies (CommandType | null)[]
 				).filter(Boolean)}
 			/>
+			<hr className="my-2 text-white/50" />
+			<Profile />
 		</div>
 	);
 }

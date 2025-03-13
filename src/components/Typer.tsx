@@ -5,6 +5,7 @@ import { Char } from "./Char";
 import {
 	bookTextAtom,
 	charsAtom,
+	disableTyperAtom,
 	missesAtom,
 	modeAtom,
 	problemWordsAtom,
@@ -21,6 +22,7 @@ export type TyperProps = {
 } & Omit<ComponentProps<"div">, "children">;
 
 export function Typer({ className, ...props }: TyperProps) {
+	const [disable] = useAtom(disableTyperAtom);
 	const [chars, setChars] = useAtom(charsAtom);
 	const focusTrapRef = useFocusTrap();
 	const setMisses = useSetAtom(missesAtom);
@@ -47,6 +49,7 @@ export function Typer({ className, ...props }: TyperProps) {
 	const isFinished = (chars[chars.length - 1]?.typed.length ?? 0) > 0;
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		if (disable) return;
 		if (isFinished) return;
 		const newValue = e.target.value;
 
