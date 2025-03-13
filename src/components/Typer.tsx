@@ -103,7 +103,7 @@ export function Typer({ className, ...props }: TyperProps) {
 	 * Googles the given word in a new tab
 	 */
 	function lookupWord(word: string) {
-		const url = searches[searchEngine](word);
+		const url = searches[searchEngine](word.replaceAll(/[^\w\s]/g, " ")).trim();
 		window.open(url, "_blank");
 	}
 

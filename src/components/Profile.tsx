@@ -71,6 +71,7 @@ const engineIconifyIcons = {
 	YouTube: "logos:youtube-icon",
 	TikTok: "logos:tiktok-icon",
 	Reddit: "logos:reddit-icon",
+	Dictionary: "emojione-v1:blue-book",
 } as const satisfies Record<SearchEngine, string>;
 
 function SearchEngineSelect({ className, ...props }: SearchEngineSelectProps) {

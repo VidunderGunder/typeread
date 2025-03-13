@@ -36,6 +36,7 @@ export const searchEngines = [
 	"YouTube",
 	"TikTok",
 	"Reddit",
+	"Dictionary",
 ] as const;
 export type SearchEngine = (typeof searchEngines)[number];
 export const searches = {
@@ -48,6 +49,7 @@ export const searches = {
 		`https://www.youtube.com/results?search_query=${term}`,
 	TikTok: (term: string) => `https://www.tiktok.com/search?q=${term}`,
 	Reddit: (term: string) => `https://www.reddit.com/search/?q=${term}`,
+	Dictionary: (term: string) => `https://www.dictionary.com/browse/${term}`,
 } as const satisfies Record<SearchEngine, (term: string) => void>;
 export const searchEngineAtom = atomWithStorage<SearchEngine>(
 	"search-engine",
