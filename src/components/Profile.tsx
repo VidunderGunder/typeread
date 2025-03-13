@@ -81,30 +81,33 @@ function SearchEngineSelect({ className, ...props }: SearchEngineSelectProps) {
 					Select your preferred search engine
 				</span>
 			</label>
-			<div className="flex flex-col gap-0.5">
-				{searchEngines.map((engine) => (
-					<button
-						type="button"
-						key={engine}
-						className={cn(
-							"flex not-disabled:cursor-pointer items-center justify-between gap-2 rounded-md px-2 py-2 font-semibold text-sm hover:bg-white/10",
-						)}
-						onClick={() => {
-							setSearchEngine(engine);
-						}}
-					>
-						<span className="flex items-center gap-2">
-							<Icon
-								icon={engineIconifyIcons[engine]}
-								className="aspect-square size-[1rem]"
-							/>
-							{engine}
-						</span>
-						{searchEngine === engine && (
-							<Icon icon="ion:checkmark" className="text-lg" />
-						)}
-					</button>
-				))}
+			<div className="flex flex-wrap gap-1.5">
+				{searchEngines.map((engine) => {
+					const isSelected = searchEngine === engine;
+					return (
+						<button
+							type="button"
+							key={engine}
+							className={cn(
+								"flex not-disabled:cursor-pointer items-center justify-between gap-2 rounded-md bg-black/50 px-2.5 py-2 font-semibold text-sm transition-all duration-100 hover:bg-white/10",
+								"[box-shadow:inset_0_0_0px_1px_rgba(255,255,255,0.1)]",
+								isSelected ? "" : "text-white/30",
+							)}
+							onClick={() => {
+								setSearchEngine(engine);
+							}}
+						>
+							<span className="flex items-center gap-2">
+								<Icon
+									icon={engineIconifyIcons[engine]}
+									className="aspect-square size-[1rem]"
+								/>
+								{engine}
+							</span>
+							{/* {isSelected && <Icon icon="ion:checkmark" className="text-lg" />} */}
+						</button>
+					);
+				})}
 			</div>
 		</div>
 	);
