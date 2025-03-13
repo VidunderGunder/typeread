@@ -31,7 +31,7 @@ export function App() {
 			>
 				<div className="z-0 flex size-full flex-col items-center py-3">
 					<Toolbar className="z-0" />
-					<BookTitle className="absolute top-[65px]" />
+					<BookTitle className="absolute top-[70px]" />
 					<div className="pointer-events-none z-10 flex flex-1 flex-col items-center justify-center gap-10">
 						<WPM className="pointer-events-auto" />
 						<div>
