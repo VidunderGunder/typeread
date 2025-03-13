@@ -72,6 +72,12 @@ export function Hotkeys({ className, ...props }: HotkeysProps) {
 							handler: toggle,
 							label: "Fullscreen",
 						},
+						{
+							disabled: disableTyper,
+							modifiers: [mod],
+							keyboard_key: "KeyI",
+							label: "Definition",
+						},
 					] satisfies (CommandType | null)[]
 				).filter(Boolean)}
 			/>

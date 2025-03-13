@@ -4,6 +4,8 @@ import { Command } from "./Command";
 import { mod } from "@/types/keyboard";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { Modal } from "./Modal";
+import { useAtom } from "jotai";
+import { type SearchEngine, searchEngineAtom, searchEngines } from "@/jotai";
 
 export type ProfileProps = {
 	//
@@ -34,13 +36,13 @@ export function Profile({ className, ...props }: ProfileProps) {
 				header={
 					<>
 						<Icon icon="gridicons:user" />
-						User Profile
+						{isSignedIn ? "User Profile" : "Sign in"}
 					</>
 				}
 				footer={
 					<div className="flex justify-end p-4">
 						<Command
-							label="Signout"
+							label="Sign out"
 							flip
 							keyboard_key="KeyO"
 							handler={() => {
@@ -50,8 +52,60 @@ export function Profile({ className, ...props }: ProfileProps) {
 					</div>
 				}
 			>
-				Hello, there! This feature isn't ready yet
+				<SearchEngineSelect />
 			</Modal>
+		</div>
+	);
+}
+
+type SearchEngineSelectProps = {
+	//
+} & Omit<ComponentProps<"div">, "children">;
+
+const engineIconifyIcons = {
+	Google: "logos:google-icon",
+	Bing: "logos:bing",
+	DuckDuckGo: "logos:duckduckgo",
+	Brave: "logos:brave",
+	Yahoo: "logos:yahoo",
+} as const satisfies Record<SearchEngine, string>;
+
+function SearchEngineSelect({ className, ...props }: SearchEngineSelectProps) {
+	const [searchEngine, setSearchEngine] = useAtom(searchEngineAtom);
+
+	return (
+		<div className={cn("flex flex-col gap-4", className)} {...props}>
+			<label className="flex flex-col gap-1 font-semibold text-sm">
+				Search Engine
+				<span className="font-normal text-gray-400 text-xs leading-1">
+					Select your preferred search engine
+				</span>
+			</label>
+			<div className="flex flex-col gap-0.5">
+				{searchEngines.map((engine) => (
+					<button
+						type="button"
+						key={engine}
+						className={cn(
+							"flex not-disabled:cursor-pointer items-center justify-between gap-2 rounded-md px-2 py-2 font-semibold text-sm hover:bg-white/10",
+						)}
+						onClick={() => {
+							setSearchEngine(engine);
+						}}
+					>
+						<span className="flex items-center gap-2">
+							<Icon
+								icon={engineIconifyIcons[engine]}
+								className="aspect-square size-[1rem]"
+							/>
+							{engine}
+						</span>
+						{searchEngine === engine && (
+							<Icon icon="ion:checkmark" className="text-lg" />
+						)}
+					</button>
+				))}
+			</div>
 		</div>
 	);
 }
