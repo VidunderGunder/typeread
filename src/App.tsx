@@ -1,8 +1,7 @@
 import { Toolbar } from "@/components/Toolbar";
 import { Typer } from "@/components/Typer";
 import { Results } from "@/components/Results";
-import { useEffect } from "react";
-import { useInit } from "@/jotai";
+import { UseInit } from "@/jotai";
 import { WPM } from "@/components/WPM";
 import { UploadAfter } from "@/components/Upload";
 import { BookTitle } from "@/components/BookTitle";
@@ -13,12 +12,6 @@ import { Fullscreen } from "./components/Fullscreen";
 import { Logo } from "./components/Logo";
 
 export function App() {
-	const { init } = useInit();
-
-	useEffect(() => {
-		init();
-	}, [init]);
-
 	return (
 		<>
 			<div className="absolute size-full bg-[#13161c]" />
@@ -46,6 +39,7 @@ export function App() {
 				<Hotkeys className="absolute right-5 bottom-5" />
 				<WallpaperSelect className="absolute bottom-4 left-4" />
 			</div>
+			<UseInit />
 		</>
 	);
 }
