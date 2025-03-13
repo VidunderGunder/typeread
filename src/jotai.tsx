@@ -30,9 +30,9 @@ export const disableTyperAtom = atom(false);
 export const searchEngines = [
 	"Google",
 	"DuckDuckGo",
+	"Brave",
 	"Bing",
 	"Yahoo",
-	"Brave",
 ] as const;
 export type SearchEngine = (typeof searchEngines)[number];
 export const searches = {
