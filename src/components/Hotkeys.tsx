@@ -81,7 +81,7 @@ export function Hotkeys({ className, ...props }: HotkeysProps) {
 					] satisfies (CommandType | null)[]
 				).filter(Boolean)}
 			/>
-			<hr className="my-2 text-white/50" />
+			<hr className="my-2 text-white/25" />
 			<Profile />
 		</div>
 	);

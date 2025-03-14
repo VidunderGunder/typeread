@@ -10,7 +10,6 @@ import {
 	modeAtom,
 	problemWordsAtom,
 	searchEngineAtom,
-	searchEngines,
 	searches,
 	wpmAtom,
 } from "@/jotai";
