@@ -37,12 +37,7 @@ export const Char = memo(function Char({
 			)}
 			{...props}
 		>
-			<span
-				className={cn(
-					typed.length > 0 && !isCorrect && "text-red-600",
-					isCurrent && "underline",
-				)}
-			>
+			<span className={cn(typed.length > 0 && !isCorrect && "text-red-600")}>
 				{char}
 			</span>
 			{decorations && isTyped && !isCorrect && (
