@@ -5,9 +5,12 @@ import { Char } from "./Char";
 import {
 	bookTextAtom,
 	charsAtom,
+	disableTyperAtom,
 	missesAtom,
 	modeAtom,
 	problemWordsAtom,
+	searchEngineAtom,
+	searches,
 	wpmAtom,
 } from "@/jotai";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
@@ -15,12 +18,15 @@ import { useFocusTrap } from "@mantine/hooks";
 import { getWpm } from "@/utils/wpm";
 import { Upload } from "./Upload";
 import { WallpaperTyperBackdrop } from "./Wallpaper";
+import { Command } from "./Command";
+import { mod } from "@/types/keyboard";
 
 export type TyperProps = {
 	//
 } & Omit<ComponentProps<"div">, "children">;
 
 export function Typer({ className, ...props }: TyperProps) {
+	const [disable] = useAtom(disableTyperAtom);
 	const [chars, setChars] = useAtom(charsAtom);
 	const focusTrapRef = useFocusTrap();
 	const setMisses = useSetAtom(missesAtom);
@@ -47,6 +53,7 @@ export function Typer({ className, ...props }: TyperProps) {
 	const isFinished = (chars[chars.length - 1]?.typed.length ?? 0) > 0;
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		if (disable) return;
 		if (isFinished) return;
 		const newValue = e.target.value;
 
@@ -88,6 +95,16 @@ export function Typer({ className, ...props }: TyperProps) {
 
 		inputValueRef.current = newValue;
 	};
+
+	const [searchEngine] = useAtom(searchEngineAtom);
+
+	/**
+	 * Googles the given word in a new tab
+	 */
+	function lookupWord(word: string) {
+		const url = searches[searchEngine](word.replaceAll(/[^\w\s]/g, " ")).trim();
+		window.open(url, "_blank");
+	}
 
 	return (
 		<WallpaperTyperBackdrop>
@@ -132,11 +149,30 @@ export function Typer({ className, ...props }: TyperProps) {
 							</span>
 						);
 					}
+
+					const isCurrent = [
+						...group.indices,
+						group.indices[group.indices.length - 1] + 1,
+					].includes(currentIndex);
+
 					return (
 						<span
 							key={["word", groupIndex].join("-")}
 							className={cn("whitespace-nowrap")}
 						>
+							{isCurrent && (
+								<Command
+									className="hidden"
+									modifiers={[mod]}
+									keyboard_key="KeyI"
+									handler={() => {
+										const word = group.indices
+											.map((i) => chars[i].char)
+											.join("");
+										lookupWord(word);
+									}}
+								/>
+							)}
 							{group.indices.map((charIndex) => {
 								const char = chars[charIndex];
 								return (

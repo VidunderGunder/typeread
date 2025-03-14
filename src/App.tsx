@@ -19,12 +19,12 @@ export function App() {
 			<div
 				className={cn(
 					"relative flex size-full select-none flex-col items-center justify-center gap-10 text-white focus-visible:outline-none focus-visible:ring-0",
-					"backdrop-blur-md",
+					"backdrop-blur-sm",
 				)}
 			>
-				<div className="z-0 flex size-full flex-col items-center py-5">
+				<div className="z-0 flex size-full flex-col items-center py-3">
 					<Toolbar className="z-0" />
-					<BookTitle className="absolute top-[min(max(75px,10dvh),90px)]" />
+					<BookTitle className="absolute top-[70px]" />
 					<div className="pointer-events-none z-10 flex flex-1 flex-col items-center justify-center gap-10">
 						<WPM className="pointer-events-auto" />
 						<div>
@@ -34,9 +34,9 @@ export function App() {
 					</div>
 				</div>
 				<Logo className="absolute top-4 left-5" />
-				<Fullscreen className="absolute top-5 right-5" />
-				<UploadAfter className="absolute bottom-4" />
-				<Hotkeys className="absolute right-5 bottom-5" />
+				<Fullscreen className="absolute top-3 right-3" />
+				<UploadAfter className="absolute bottom-3" />
+				<Hotkeys className="absolute right-3 bottom-3" />
 				<WallpaperSelect className="absolute bottom-4 left-4" />
 			</div>
 			<UseInit />

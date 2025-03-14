@@ -25,6 +25,36 @@ import { booksDefault } from "./default";
  */
 
 export const disableEscapeAtom = atomWithStorage("disable-escape", false);
+export const disableTyperAtom = atom(false);
+
+export const searchEngines = [
+	"Google",
+	"DuckDuckGo",
+	"Brave",
+	"Bing",
+	"Yahoo",
+	"YouTube",
+	"TikTok",
+	"Reddit",
+	"Dictionary",
+] as const;
+export type SearchEngine = (typeof searchEngines)[number];
+export const searches = {
+	Google: (term: string) => `https://www.google.com/search?q=${term}`,
+	DuckDuckGo: (term: string) => `https://www.duckduckgo.com/?q=${term}`,
+	Bing: (term: string) => `https://www.bing.com/search?q=${term}`,
+	Yahoo: (term: string) => `https://www.yahoo.com/search?p=${term}`,
+	Brave: (term: string) => `https://search.brave.com/search?q=${term}`,
+	YouTube: (term: string) =>
+		`https://www.youtube.com/results?search_query=${term}`,
+	TikTok: (term: string) => `https://www.tiktok.com/search?q=${term}`,
+	Reddit: (term: string) => `https://www.reddit.com/search/?q=${term}`,
+	Dictionary: (term: string) => `https://www.dictionary.com/browse/${term}`,
+} as const satisfies Record<SearchEngine, (term: string) => void>;
+export const searchEngineAtom = atomWithStorage<SearchEngine>(
+	"search-engine",
+	"Google",
+);
 
 export const amounts = [10, 25, 50, 100] as const;
 export type Amount = (typeof amounts)[number];
