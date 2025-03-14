@@ -53,11 +53,6 @@ export function BookTitle({ className, ...props }: BookTitleProps) {
 			)}
 			{...props}
 		>
-			{/* TODO: Convert title to a nice select/dropdown to select books, skip cover for now */}
-			{/* <div className={"flex gap-4 font-black text-xl"}>
-				<span className="text-white/100">{bookTitle}</span>
-			</div> */}
-
 			<div className="relative flex items-center gap-4 font-black text-xl">
 				<select
 					value={currentBookIndex >= 0 ? currentBookIndex : 0}
@@ -72,7 +67,7 @@ export function BookTitle({ className, ...props }: BookTitleProps) {
 				</select>
 				<Icon
 					icon="material-symbols:arrows-outward-rounded"
-					className="absolute right-2 rotate-90"
+					className="pointer-events-none absolute right-2 rotate-90"
 				/>
 			</div>
 
