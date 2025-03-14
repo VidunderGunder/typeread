@@ -20,6 +20,8 @@ import { Upload } from "./Upload";
 import { WallpaperTyperBackdrop } from "./Wallpaper";
 import { Command } from "./Command";
 import { mod } from "@/types/keyboard";
+import { motion } from "motion/react";
+import { Sparkle } from "./particles/Sparkle";
 
 export type TyperProps = {
 	//
@@ -139,23 +141,52 @@ export function Typer({ className, ...props }: TyperProps) {
 					if (group.type === "space") {
 						const charIndex = group.indices[0];
 						const char = chars[charIndex];
+						const isCurrentChar = currentIndex === charIndex;
+						const isTyped = char.typed.length > 0;
+						const isIncorrectSpace = char.char !== " " && char.typed === " ";
+						const isCorrect = char.char === char.typed;
+
 						return (
 							<span key={["space", groupIndex].join("-")} className="relative">
 								<Char
-									isCurrent={currentIndex === charIndex}
+									isCurrent={isCurrentChar}
 									char={char.char}
 									typed={char.typed}
 								/>
-								{char.typed.length > 0 && char.char !== char.typed && (
-									<span className="absolute inset-y-0 left-0 z-[10] flex h-full w-0 items-center justify-center">
-										<span className="relative top-[1px]o left-[2.5px] aspect-square size-[4px] rounded bg-red-600" />
+								<span className="absolute inset-y-0 top-0 left-0 z-[10] flex h-full max-h-[1.2em] w-[5px] items-center justify-center">
+									{char.typed.length > 0 && char.char !== char.typed && (
+										<span className="absolute inset-y-0 left-0 z-[10] flex h-full w-0 items-center justify-center">
+											<span className="relative top-[1px]o left-[2.5px] aspect-square size-[4px] rounded bg-red-600" />
+										</span>
+									)}
+									{isCurrentChar && (
+										<span className="absolute inset-0 flex items-center justify-center">
+											<Cursor />
+										</span>
+									)}
+									{isTyped && !isCorrect && (
+										<span className="pointer-events-none absolute inset-0 flex size-full items-center justify-center text-[#bc2030]">
+											<span className="relative bottom-3.5 text-xs">
+												{isIncorrectSpace ? "␣" : char.typed}
+											</span>
+										</span>
+									)}
+									<span className="pointer-events-none absolute inset-0 size-full">
+										{char.typed.length > 0 && char.typed !== " " && (
+											<Sparkle
+												className={cn(
+													"-top-1",
+													!isCorrect && "-top-3 bg-red-400",
+												)}
+											/>
+										)}
 									</span>
-								)}
+								</span>
 							</span>
 						);
 					}
 
-					const isCurrent = [
+					const isCurrentWord = [
 						...group.indices,
 						group.indices[group.indices.length - 1] + 1,
 					].includes(currentIndex);
@@ -163,9 +194,9 @@ export function Typer({ className, ...props }: TyperProps) {
 					return (
 						<span
 							key={["word", groupIndex].join("-")}
-							className={cn("whitespace-nowrap")}
+							className="whitespace-nowrap"
 						>
-							{isCurrent && (
+							{isCurrentWord && (
 								<Command
 									className="hidden"
 									modifiers={[mod]}
@@ -180,20 +211,32 @@ export function Typer({ className, ...props }: TyperProps) {
 							)}
 							{group.indices.map((charIndex) => {
 								const char = chars[charIndex];
+								const isCurrentChar = currentIndex === charIndex;
+
 								return (
-									<Char
-										className={cn(
-											group.isWrong
-												? char.char === char.typed
-													? "rounded-2xl text-red-300/75"
-													: "rounded-2xl text-red-600/25"
-												: "",
-										)}
+									<span
+										className="relative flex-inline items-center justify-center overflow-visible"
 										key={charIndex}
-										char={char.char}
-										typed={char.typed}
-										isCurrent={currentIndex === charIndex}
-									/>
+									>
+										{isCurrentChar && (
+											<span className="absolute inset-0 flex items-center justify-center overflow-visible">
+												<Cursor />
+											</span>
+										)}
+										<Char
+											decorations
+											className={cn(
+												group.isWrong
+													? char.char === char.typed
+														? "rounded-2xl text-red-300/75"
+														: "rounded-2xl text-red-600/25"
+													: "",
+											)}
+											char={char.char}
+											typed={char.typed}
+											isCurrent={isCurrentChar}
+										/>
+									</span>
 								);
 							})}
 						</span>
@@ -201,5 +244,28 @@ export function Typer({ className, ...props }: TyperProps) {
 				})}
 			</div>
 		</WallpaperTyperBackdrop>
+	);
+}
+
+type CursorProps = {
+	//
+} & ComponentProps<typeof motion.div>;
+
+function Cursor({ className, ...props }: CursorProps) {
+	return (
+		<motion.div
+			animate={{ opacity: [1, 0, 1] }}
+			transition={{
+				duration: 1,
+				ease: "easeInOut",
+				repeat: Number.POSITIVE_INFINITY,
+				repeatType: "loop",
+			}}
+			className={cn(
+				"absolute bottom-1 left-[-0.5px] h-[75%] w-[1px] rounded-full bg-amber-100/65",
+				className,
+			)}
+			{...props}
+		/>
 	);
 }

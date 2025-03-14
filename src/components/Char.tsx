@@ -10,6 +10,7 @@ export type Character = {
 
 export type CharProps = {
 	isCurrent: boolean;
+	decorations?: boolean;
 } & Character &
 	ComponentProps<"span">;
 
@@ -19,6 +20,7 @@ export const Char = memo(function Char({
 	char,
 	typed,
 	isCurrent = false,
+	decorations = false,
 	...props
 }: CharProps) {
 	const isTyped = typed.length > 0;
@@ -43,20 +45,22 @@ export const Char = memo(function Char({
 			>
 				{char}
 			</span>
-			{isTyped && !isCorrect && (
+			{decorations && isTyped && !isCorrect && (
 				<span className="pointer-events-none absolute inset-0 flex size-full items-center justify-center text-[#bc2030]">
 					<span className="relative bottom-3.5 text-xs">
 						{isIncorrectSpace ? "␣" : typed}
 					</span>
 				</span>
 			)}
-			<span className="pointer-events-none absolute inset-0 size-full">
-				{typed.length > 0 && typed !== " " && (
-					<Sparkle
-						className={cn("-top-1", !isCorrect && "-top-3 bg-red-400")}
-					/>
-				)}
-			</span>
+			{decorations && (
+				<span className="pointer-events-none absolute inset-0 size-full">
+					{typed.length > 0 && typed !== " " && (
+						<Sparkle
+							className={cn("-top-1", !isCorrect && "-top-3 bg-red-400")}
+						/>
+					)}
+				</span>
+			)}
 			{children}
 		</span>
 	);
