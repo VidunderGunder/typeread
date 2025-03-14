@@ -140,12 +140,17 @@ export function Typer({ className, ...props }: TyperProps) {
 						const charIndex = group.indices[0];
 						const char = chars[charIndex];
 						return (
-							<span key={["space", groupIndex].join("-")}>
+							<span key={["space", groupIndex].join("-")} className="relative">
 								<Char
 									isCurrent={currentIndex === charIndex}
 									char={char.char}
 									typed={char.typed}
 								/>
+								{char.typed.length > 0 && char.char !== char.typed && (
+									<span className="absolute inset-y-0 left-0 z-[10] flex h-full w-0 items-center justify-center">
+										<span className="relative top-[1px]o left-[2.5px] aspect-square size-[4px] rounded bg-red-600" />
+									</span>
+								)}
 							</span>
 						);
 					}
@@ -178,7 +183,11 @@ export function Typer({ className, ...props }: TyperProps) {
 								return (
 									<Char
 										className={cn(
-											group.isWrong ? "rounded-2xl text-red-500/25" : "",
+											group.isWrong
+												? char.char === char.typed
+													? "rounded-2xl text-red-300/75"
+													: "rounded-2xl text-red-600/25"
+												: "",
 										)}
 										key={charIndex}
 										char={char.char}
