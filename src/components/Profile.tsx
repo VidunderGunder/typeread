@@ -39,6 +39,7 @@ export function Profile({ className, ...props }: ProfileProps) {
 						{isSignedIn ? "User Profile" : "Sign in"}
 					</>
 				}
+				children={<SearchEngineSelect />}
 				footer={
 					<div className="flex justify-end p-4">
 						<Command
@@ -51,9 +52,7 @@ export function Profile({ className, ...props }: ProfileProps) {
 						/>
 					</div>
 				}
-			>
-				<SearchEngineSelect />
-			</Modal>
+			/>
 		</div>
 	);
 }
