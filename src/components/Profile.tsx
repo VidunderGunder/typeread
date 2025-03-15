@@ -12,7 +12,7 @@ export type ProfileProps = {
 } & Omit<ComponentProps<"div">, "children">;
 
 export function Profile({ className, ...props }: ProfileProps) {
-	const isSignedIn = true;
+	const isSignedIn = false;
 
 	const [open, setOpen] = useState(false);
 
@@ -22,7 +22,7 @@ export function Profile({ className, ...props }: ProfileProps) {
 			{...props}
 		>
 			<Command
-				label={isSignedIn ? "User Profile" : "Sign in"}
+				label="User Profile"
 				flip
 				modifiers={[mod]}
 				keyboard_key="KeyU"
@@ -42,14 +42,25 @@ export function Profile({ className, ...props }: ProfileProps) {
 				children={<SearchEngineSelect />}
 				footer={
 					<div className="flex justify-end p-4">
-						<Command
-							label="Sign out"
-							flip
-							keyboard_key="KeyO"
-							handler={() => {
-								alert("TODO");
-							}}
-						/>
+						{isSignedIn ? (
+							<Command
+								label="Sign out"
+								flip
+								keyboard_key="KeyO"
+								handler={() => {
+									alert("TODO");
+								}}
+							/>
+						) : (
+							<Command
+								label="Sign in"
+								flip
+								keyboard_key="Enter"
+								handler={() => {
+									alert("TODO");
+								}}
+							/>
+						)}
 					</div>
 				}
 			/>
