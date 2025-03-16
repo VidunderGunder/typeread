@@ -38,7 +38,8 @@ export function isEqualHotkey(a: Hotkey, b: Hotkey): boolean {
 	if (a.keyboard_key !== b.keyboard_key) return false;
 
 	for (let i = 0; i < a.modifiers.length; i++) {
-		if (!b.modifiers.includes(a.modifiers[i])) {
+		const modifier = a.modifiers[i];
+		if (!modifier || !b.modifiers.includes(modifier)) {
 			return false;
 		}
 	}

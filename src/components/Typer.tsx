@@ -55,6 +55,8 @@ export function Typer({ className, ...props }: TyperProps) {
 	const isFinished = (chars[chars.length - 1]?.typed.length ?? 0) > 0;
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		console.log({ e, disable, isFinished, value: e.currentTarget.value });
+
 		if (disable) return;
 		if (isFinished) return;
 		const newValue = e.target.value;
@@ -62,20 +64,27 @@ export function Typer({ className, ...props }: TyperProps) {
 		const oldValue = inputValueRef.current;
 		const newChars = [...chars];
 
+		console.log({
+			oldValue,
+			newChars,
+		});
+
 		for (let i = 0; i < newChars.length; i++) {
 			const newCharValue = newValue[i] || "";
 			const oldCharValue = oldValue[i] || "";
 
 			if (newCharValue !== oldCharValue) {
+				const tmp = newChars[i];
+				if (tmp === undefined) return;
 				newChars[i] = {
-					...newChars[i],
+					...tmp,
 					typed: newCharValue,
 					changed: Date.now(),
 				};
 
 				if (
 					newCharValue !== "" &&
-					newCharValue !== newChars[i].char &&
+					newCharValue !== newChars[i]?.char &&
 					oldCharValue === ""
 				) {
 					setMisses((prev) => prev + 1);
@@ -137,10 +146,12 @@ export function Typer({ className, ...props }: TyperProps) {
 					value={controlledValue}
 					onChange={handleChange}
 				/>
-				{splitIntoGroups(chars).map((group, groupIndex) => {
+				{splitIntoGroups(chars)?.map((group, groupIndex) => {
 					if (group.type === "space") {
 						const charIndex = group.indices[0];
+						if (charIndex === undefined) return;
 						const char = chars[charIndex];
+						if (char === undefined) return;
 						const isCurrentChar = currentIndex === charIndex;
 						const isTyped = char.typed.length > 0;
 						const isIncorrectSpace = char.char !== " " && char.typed === " ";
@@ -188,7 +199,7 @@ export function Typer({ className, ...props }: TyperProps) {
 
 					const isCurrentWord = [
 						...group.indices,
-						group.indices[group.indices.length - 1] + 1,
+						(group.indices[group.indices.length - 1] ?? -1) + 1,
 					].includes(currentIndex);
 
 					return (
@@ -203,7 +214,7 @@ export function Typer({ className, ...props }: TyperProps) {
 									keyboard_key="KeyI"
 									handler={() => {
 										const word = group.indices
-											.map((i) => chars[i].char)
+											.map((i) => chars[i]?.char)
 											.join("");
 										lookupWord(word);
 									}}
@@ -211,6 +222,7 @@ export function Typer({ className, ...props }: TyperProps) {
 							)}
 							{group.indices.map((charIndex) => {
 								const char = chars[charIndex];
+								if (char === undefined) return null;
 								const isCurrentChar = currentIndex === charIndex;
 
 								return (

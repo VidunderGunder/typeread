@@ -40,7 +40,7 @@ export function Results({ className, ...props }: ResultsProps) {
 		show &&
 		chars[0]?.changed &&
 		chars[1]?.typed &&
-		chars[lastTypedIndex].changed
+		chars[lastTypedIndex]?.changed
 	) {
 		const timeElapsed =
 			(chars[lastTypedIndex].changed - chars[0].changed) / 1000; // seconds

@@ -14,7 +14,7 @@ export function getWpm({
 	const subset = chars.slice(firstIndex, cursorIndex);
 
 	const firstTimestamp = subset.find((c) => c.changed !== undefined)?.changed;
-	const lastTimestamp = subset[subset.length - 1].changed;
+	const lastTimestamp = subset[subset.length - 1]?.changed;
 
 	if (firstTimestamp === undefined || lastTimestamp === undefined) return 0;
 

@@ -10,8 +10,13 @@ import { cn } from "@/styles/utils";
 import { Wallpaper, WallpaperSelect } from "@/components/Wallpaper";
 import { Fullscreen } from "./components/Fullscreen";
 import { Logo } from "./components/Logo";
+import { api } from "./api";
 
 export function App() {
+	const { data } = api.useQuery("get", "/hello");
+
+	console.log(data);
+
 	return (
 		<>
 			<div className="absolute size-full bg-[#13161c]" />

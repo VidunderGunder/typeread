@@ -25,7 +25,10 @@
 			"**/Thumbs.db/**",
 			"**/.tamagui*",
 			"**/.next*",
-			"**/tsconfig.tsbuildinfo"
+			"**/tsconfig.tsbuildinfo",
+			"**/backend",
+			"**/backend/",
+			"**/backend/**"
 		]
 	},
 	"formatter": {

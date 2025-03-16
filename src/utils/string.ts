@@ -63,6 +63,7 @@ export function splitIntoGroups(chars: Character[]) {
 
 	for (let i = 0; i < chars.length; i++) {
 		const char = chars[i];
+		if (char === undefined) return;
 		if (char.char === " ") {
 			if (type === "word") {
 				groups.push({ type: "word", indices, isWrong });
