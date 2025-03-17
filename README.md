@@ -26,4 +26,10 @@ bun dev
 bun sync
 ```
 
-http://localhost:8888/docs
+To see the generated documentation, start the development server:
+
+```
+bun dev
+```
+
+Then go to http://localhost:8888/docs
