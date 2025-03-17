@@ -25,3 +25,5 @@ bun dev
 ```
 bun sync
 ```
+
+http://localhost:8888/docs
