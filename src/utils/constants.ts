@@ -211,7 +211,6 @@ export const WORDS = [
 	"travel",
 	"true",
 	"two",
-	"undefined",
 	"under",
 	"university",
 	"up",
