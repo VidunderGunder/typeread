@@ -13,9 +13,18 @@ import { Logo } from "./components/Logo";
 import { api } from "./api";
 
 export function App() {
-	const { data, isLoading, isPending } = api.useQuery("get", "/hello");
+	const { data, isLoading, isPending } = api.useQuery(
+		"get",
+		"/hello",
+		undefined,
+		{
+			enabled: import.meta.env.DEV,
+		},
+	);
 
-	console.log({ data, isLoading, isPending });
+	if (import.meta.env.DEV) {
+		console.log({ data, isLoading, isPending });
+	}
 
 	return (
 		<>
