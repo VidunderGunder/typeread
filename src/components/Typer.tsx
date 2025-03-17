@@ -1,4 +1,4 @@
-import { useRef, type ComponentProps } from "react";
+import { useEffect, useRef, type ComponentProps } from "react";
 import { cn } from "@/styles/utils";
 import { getWordAtIndex, splitIntoGroups } from "@/utils/string";
 import { Char } from "./Char";
@@ -42,6 +42,12 @@ export function Typer({ className, ...props }: TyperProps) {
 	const mode = useAtomValue(modeAtom);
 
 	const inputValueRef = useRef(chars.map((c) => c.typed).join(""));
+	const controlledValue = chars.map((c) => c.typed).join("");
+	useEffect(() => {
+		if (controlledValue === "" && inputValueRef.current !== "") {
+			inputValueRef.current = "";
+		}
+	}, [controlledValue]);
 
 	if (mode === "book" && !bookText)
 		return (
@@ -49,8 +55,6 @@ export function Typer({ className, ...props }: TyperProps) {
 				<Upload />
 			</div>
 		);
-
-	const controlledValue = chars.map((c) => c.typed).join("");
 
 	const isFinished = (chars[chars.length - 1]?.typed.length ?? 0) > 0;
 
