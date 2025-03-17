@@ -11,7 +11,7 @@
 		"lint": "eslint .",
 		"preview": "vite preview",
 		"sync": "bun run openapi-typescript http://localhost:8888/openapi.json -o ./src/api/schema.d.ts",
-		"postinstall": "bun ./scripts/postinstall.ts"
+		"install": "bun ./scripts/postinstall.ts"
 	},
 	"dependencies": {
 		"@mantine/hooks": "^7.17.2",
