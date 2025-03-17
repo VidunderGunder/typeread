@@ -41,8 +41,8 @@ export function Typer({ className, ...props }: TyperProps) {
 	const bookText = useAtomValue(bookTextAtom);
 	const mode = useAtomValue(modeAtom);
 
-	const inputValueRef = useRef(chars.map((c) => c.typed).join(""));
 	const controlledValue = chars.map((c) => c.typed).join("");
+	const inputValueRef = useRef(controlledValue);
 	useEffect(() => {
 		if (controlledValue === "" && inputValueRef.current !== "") {
 			inputValueRef.current = "";
