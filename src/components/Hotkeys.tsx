@@ -31,6 +31,7 @@ export function Hotkeys({ className, ...props }: HotkeysProps) {
 			<CommandsWrapper vertical>
 				<Glow glow={typer === "finished"}>
 					<Command
+						flip
 						disabled={disableTyper}
 						keyboard_key="Enter"
 						label="Next"
@@ -50,6 +51,7 @@ export function Hotkeys({ className, ...props }: HotkeysProps) {
 				</Glow>
 				{mode === "book" && (
 					<Command
+						flip
 						keyboard_key="KeyZ"
 						modifiers={[mod]}
 						label="Back"
@@ -63,6 +65,7 @@ export function Hotkeys({ className, ...props }: HotkeysProps) {
 					/>
 				)}
 				<Command
+					flip
 					disabled={disableTyper}
 					keyboard_key="KeyR"
 					modifiers={[mod]}
@@ -73,16 +76,18 @@ export function Hotkeys({ className, ...props }: HotkeysProps) {
 					}}
 				/>
 				<Command
-					modifiers={[mod]}
-					keyboard_key="KeyF"
-					handler={toggle}
-					label="Fullscreen"
-				/>
-				<Command
+					flip
 					disabled={disableTyper}
 					modifiers={[mod]}
 					keyboard_key="KeyI"
 					label="Definition"
+				/>
+				<Command
+					flip
+					modifiers={[mod]}
+					keyboard_key="KeyF"
+					handler={toggle}
+					label="Fullscreen"
 				/>
 			</CommandsWrapper>
 			<hr className="my-2 text-white/25" />
