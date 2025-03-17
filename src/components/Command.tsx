@@ -138,6 +138,7 @@ export function Command({
 				irrelevant ? "opacity-80" : "opacity-100",
 				"not-disabled:cursor-pointer rounded-lg px-2.5 py-1 not-disabled:hover:bg-white/10",
 				flip ? "pr-1" : "pl-1",
+				"font-semibold text-sm text-white/75",
 				className,
 			)}
 			type="button"
@@ -161,9 +162,7 @@ export function Command({
 					/>
 				)}
 			</div>
-			{label && (
-				<div className="font-semibold text-sm text-white/75">{label}</div>
-			)}
+			{label && <span>{label}</span>}
 		</button>
 	);
 }

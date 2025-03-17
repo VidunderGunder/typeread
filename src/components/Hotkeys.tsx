@@ -31,6 +31,7 @@ export function Hotkeys({ className, ...props }: HotkeysProps) {
 			<CommandsWrapper vertical>
 				<Glow glow={typer === "finished"}>
 					<Command
+						className={cn(typer === "finished" && "text-white")}
 						flip
 						disabled={disableTyper}
 						keyboard_key="Enter"

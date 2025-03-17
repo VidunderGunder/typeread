@@ -14,7 +14,7 @@ export function Glow({ className, glow = false, ...props }: GlowProps) {
 				boxShadow: glow
 					? [
 							"0 0 0 0px rgba(255,255,255,0)",
-							"0 0 0 3px rgba(255,255,255,0.5)",
+							"0 0 0 3px rgba(255,255,255,1)",
 							"0 0 0 4px rgba(255,255,255,0)",
 						]
 					: [
@@ -25,7 +25,7 @@ export function Glow({ className, glow = false, ...props }: GlowProps) {
 			}}
 			transition={{
 				duration: 1.25,
-				// ease: "easeInOut",
+				ease: "easeInOut",
 				repeat: Number.POSITIVE_INFINITY,
 			}}
 			{...props}
