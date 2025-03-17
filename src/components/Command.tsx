@@ -206,10 +206,10 @@ export function CommandSeparator({
 
 export type CommandsProps = {
 	disabled?: boolean;
-	commands: CommandType[];
-	vertical?: boolean;
+	commands: (Omit<CommandProps, "label" | "keyboard_key"> &
+		Required<Pick<CommandProps, "label" | "keyboard_key">>)[];
 	flip?: boolean;
-} & ComponentProps<"div">;
+} & CommandsWrapperProps;
 
 export function Commands({
 	disabled = false,
@@ -220,18 +220,13 @@ export function Commands({
 	...props
 }: CommandsProps) {
 	return (
-		<div
-			className={cn(
-				"flex",
-				vertical ? "flex-col items-end gap-2" : "items-center gap-3",
-				className,
-			)}
-			{...props}
-		>
+		<CommandsWrapper {...props}>
 			{commands.map((command, i) => {
-				const key = [...(command.modifiers ?? []), command.keyboard_key].join(
-					"-",
-				);
+				const key = [
+					...(command.modifiers ?? []),
+					command.keyboard_key,
+					command.label,
+				].join("-");
 				return (
 					<Fragment key={key}>
 						{!vertical && i > 0 && <CommandSeparator />}
@@ -239,7 +234,28 @@ export function Commands({
 					</Fragment>
 				);
 			})}
-		</div>
+		</CommandsWrapper>
+	);
+}
+
+export type CommandsWrapperProps = ComponentProps<"div"> & {
+	vertical?: boolean;
+};
+
+export function CommandsWrapper({
+	vertical,
+	className,
+	...props
+}: CommandsWrapperProps) {
+	return (
+		<div
+			className={cn(
+				"flex",
+				vertical ? "flex-col items-end gap-2" : "items-center gap-3",
+				className,
+			)}
+			{...props}
+		/>
 	);
 }
 

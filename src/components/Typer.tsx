@@ -11,6 +11,7 @@ import {
 	problemWordsAtom,
 	searchEngineAtom,
 	searches,
+	useTyperState,
 	wpmAtom,
 } from "@/jotai";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
@@ -49,14 +50,14 @@ export function Typer({ className, ...props }: TyperProps) {
 		}
 	}, [controlledValue]);
 
+	const isFinished = useTyperState() === "finished";
+
 	if (mode === "book" && !bookText)
 		return (
 			<div className={cn("", className)}>
 				<Upload />
 			</div>
 		);
-
-	const isFinished = (chars[chars.length - 1]?.typed.length ?? 0) > 0;
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		console.log({ e, disable, isFinished, value: e.currentTarget.value });
@@ -171,7 +172,7 @@ export function Typer({ className, ...props }: TyperProps) {
 								<span className="absolute inset-y-0 top-0 left-0 z-[10] flex h-full max-h-[1.2em] w-[5px] items-center justify-center">
 									{char.typed.length > 0 && char.char !== char.typed && (
 										<span className="absolute inset-y-0 left-0 z-[10] flex h-full w-0 items-center justify-center">
-											<span className="relative top-[1px]o left-[2.5px] aspect-square size-[4px] rounded bg-red-600" />
+											<span className="relative top-[1px] left-[2px] aspect-square size-[4px] rounded bg-red-600" />
 										</span>
 									)}
 									{isCurrentChar && (

@@ -11,7 +11,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 if (import.meta.env.DEV) {
 	import("react-scan").then(({ scan }) => {
-		scan({ enabled: process.env.NODE_ENV === "development" });
+		scan();
 	});
 }
 

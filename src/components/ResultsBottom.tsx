@@ -7,6 +7,7 @@ import {
 	modeAtom,
 	problemWordsAtom,
 	useInit,
+	useTyperState,
 	wpmAtom,
 } from "@/jotai";
 import { useAtom, useAtomValue } from "jotai";
@@ -26,7 +27,7 @@ export function Results({ className, ...props }: ResultsProps) {
 
 	const { practice } = useInit();
 
-	const isFinished = (chars[chars.length - 1]?.typed.length ?? 0) > 0;
+	const isFinished = useTyperState() === "finished";
 	const currentIndex = chars.findIndex((char) => char.typed === "");
 	const currentLength = currentIndex === -1 ? chars.length : currentIndex;
 	const lastTypedIndex = currentLength - 1;

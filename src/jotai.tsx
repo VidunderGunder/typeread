@@ -67,6 +67,29 @@ export const charsAtom = atom<Character[]>([]);
 export const missesAtom = atomWithReset<number>(0);
 export const problemWordsAtom = atomWithReset<string[]>([]);
 
+export const typerStateAtom = atom<"finished" | "not-started" | "in-progress">(
+	(get) => {
+		const chars = get(charsAtom);
+
+		if (
+			chars.length === 0 ||
+			chars[0]?.typed === "" ||
+			chars[0]?.typed === undefined
+		) {
+			return "not-started";
+		}
+
+		if ((chars[chars.length - 1]?.typed.length ?? 0) > 0) {
+			return "finished";
+		}
+
+		return "in-progress";
+	},
+);
+export function useTyperState() {
+	return useAtomValue(typerStateAtom);
+}
+
 export type Book = {
 	title: string;
 	index: number;

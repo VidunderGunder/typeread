@@ -1,11 +1,18 @@
 import type { ComponentProps } from "react";
 import { cn } from "@/styles/utils";
-import { Commands, type CommandType } from "./Command";
-import { disableTyperAtom, modeAtom, problemWordsAtom, useInit } from "@/jotai";
+import { Command, CommandsWrapper } from "./Command";
+import {
+	disableTyperAtom,
+	modeAtom,
+	problemWordsAtom,
+	useInit,
+	useTyperState,
+} from "@/jotai";
 import { useAtom, useAtomValue } from "jotai";
 import { mod } from "@/types/keyboard";
 import { useFullscreen } from "@mantine/hooks";
 import { Profile } from "./Profile";
+import { Glow } from "./particles/Glow";
 
 export type HotkeysProps = {
 	//
@@ -17,70 +24,67 @@ export function Hotkeys({ className, ...props }: HotkeysProps) {
 	const { init, retry } = useInit();
 	const { toggle } = useFullscreen();
 	const [disableTyper] = useAtom(disableTyperAtom);
+	const typer = useTyperState();
 
 	return (
 		<div className={cn("", className)} {...props}>
-			<Commands
-				flip
-				vertical
-				commands={(
-					[
-						{
-							disabled: disableTyper,
-							keyboard_key: "Enter",
-							label: "Next",
-							handler(event) {
-								event?.preventDefault();
-								if (mode === "book") {
-									init({
-										direction: "next",
-									});
-									return;
-								}
+			<CommandsWrapper vertical>
+				<Glow glow={typer === "finished"}>
+					<Command
+						disabled={disableTyper}
+						keyboard_key="Enter"
+						label="Next"
+						handler={(event) => {
+							event?.preventDefault();
+							if (mode === "book") {
 								init({
-									problemWords,
+									direction: "next",
 								});
-							},
-						},
-						mode === "book"
-							? {
-									keyboard_key: "KeyZ",
-									modifiers: [mod],
-									label: "Back",
-									disabled: mode !== "book" || disableTyper,
-									handler(event) {
-										event?.preventDefault();
-										init({
-											direction: "back",
-										});
-									},
-								}
-							: null,
-						{
-							disabled: disableTyper,
-							keyboard_key: "KeyR",
-							modifiers: [mod],
-							label: "Retry",
-							handler: (event) => {
-								event?.preventDefault();
-								retry();
-							},
-						},
-						{
-							modifiers: [mod],
-							keyboard_key: "KeyF",
-							handler: toggle,
-							label: "Fullscreen",
-						},
-						{
-							disabled: disableTyper,
-							modifiers: [mod],
-							keyboard_key: "KeyI",
-							label: "Definition",
-						},
-					] satisfies (CommandType | null)[]
-				).filter(Boolean)}
-			/>
+								return;
+							}
+							init({
+								problemWords,
+							});
+						}}
+					/>
+				</Glow>
+				{mode === "book" && (
+					<Command
+						keyboard_key="KeyZ"
+						modifiers={[mod]}
+						label="Back"
+						disabled={mode !== "book" || disableTyper}
+						handler={(event) => {
+							event?.preventDefault();
+							init({
+								direction: "back",
+							});
+						}}
+					/>
+				)}
+				<Command
+					disabled={disableTyper}
+					keyboard_key="KeyR"
+					modifiers={[mod]}
+					label="Retry"
+					handler={(event) => {
+						event?.preventDefault();
+						retry();
+					}}
+				/>
+				<Command
+					modifiers={[mod]}
+					keyboard_key="KeyF"
+					handler={toggle}
+					label="Fullscreen"
+				/>
+				<Command
+					disabled={disableTyper}
+					modifiers={[mod]}
+					keyboard_key="KeyI"
+					label="Definition"
+				/>
+			</CommandsWrapper>
 			<hr className="my-2 text-white/25" />
 			<Profile />
 		</div>

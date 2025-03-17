@@ -1,8 +1,8 @@
 import { Toolbar } from "@/components/Toolbar";
 import { Typer } from "@/components/Typer";
-import { Results } from "@/components/Results";
+import { Results } from "@/components/ResultsBottom";
 import { UseInit } from "@/jotai";
-import { WPM } from "@/components/WPM";
+import { WPM } from "@/components/ResultsTop";
 import { UploadAfter } from "@/components/Upload";
 import { BookTitle } from "@/components/BookTitle";
 import { Hotkeys } from "@/components/Hotkeys";

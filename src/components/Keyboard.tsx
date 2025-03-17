@@ -222,6 +222,7 @@ export function Keyboard({
 	const label = children ?? getLabelFromCode(code);
 	const { pressed: _pressed } = useKeyboard(code);
 	const pressed = !interactive ? false : _pressed;
+	const isModifier = getIsModifier(code);
 
 	return (
 		<KeyboardBase
@@ -235,7 +236,7 @@ export function Keyboard({
 			{...props}
 		>
 			<span>
-				{!pressed && <Sparkle className="-top-2 absolute" />}
+				{!isModifier && !pressed && <Sparkle className="-top-2 absolute" />}
 				{label}
 			</span>
 		</KeyboardBase>

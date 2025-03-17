@@ -1,6 +1,12 @@
 import type { ComponentProps } from "react";
 import { cn } from "@/styles/utils";
-import { bookTextAtom, charsAtom, modeAtom, wpmAtom } from "@/jotai";
+import {
+	bookTextAtom,
+	charsAtom,
+	modeAtom,
+	useTyperState,
+	wpmAtom,
+} from "@/jotai";
 import { useAtomValue } from "jotai";
 import { AnimatePresence, motion } from "motion/react";
 import { Icon } from "@iconify/react";
@@ -17,7 +23,7 @@ export function WPM({ className, ...props }: WPMProps) {
 	const level: 0 | 1 | 2 | 3 = wpm > 100 ? 3 : wpm > 75 ? 2 : wpm > 50 ? 1 : 0;
 	const factor = level / 3;
 	const chars = useAtomValue(charsAtom);
-	const isFinished = (chars[chars.length - 1]?.typed.length ?? 0) > 0;
+	const isFinished = useTyperState() === "finished";
 
 	const bookText = useAtomValue(bookTextAtom);
 	const mode = useAtomValue(modeAtom);
@@ -84,13 +90,14 @@ export function WPM({ className, ...props }: WPMProps) {
 				)}
 				{isFinished && (
 					<motion.div
-						className="absolute bottom-0 flex size-max items-center justify-center"
+						className="absolute bottom-0 flex size-max flex-col items-center justify-center gap-2"
 						initial={{ scale: 0 }}
 						animate={{ scale: 1 }}
 						exit={{ scale: 0 }}
 						transition={{ duration: 0.25 }}
 					>
 						<motion.div
+							className="relative size-[64px]"
 							animate={{}}
 							transition={{
 								repeatType: "loop",
