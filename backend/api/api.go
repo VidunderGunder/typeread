@@ -70,7 +70,7 @@ func Serve() {
 
 	providerIndex := &ProviderIndex{Providers: keys, ProvidersMap: m}
 
-	mux.HandleFunc("GET /auth/{provider}/callback", func(res http.ResponseWriter, req *http.Request) {
+	mux.HandleFunc("GET /auth/callback", func(res http.ResponseWriter, req *http.Request) {
 		user, err := gothic.CompleteUserAuth(res, req)
 		if err != nil {
 			fmt.Fprintln(res, err)
@@ -80,13 +80,18 @@ func Serve() {
 		t.Execute(res, user)
 	})
 
-	mux.HandleFunc("GET /auth/{provider}", func(res http.ResponseWriter, req *http.Request) {
+	mux.HandleFunc("GET /auth", func(res http.ResponseWriter, req *http.Request) {
 		if gothUser, err := gothic.CompleteUserAuth(res, req); err == nil {
 			t, _ := template.New("foo").Parse(userTemplate)
 			t.Execute(res, gothUser)
 		} else {
 			gothic.BeginAuthHandler(res, req)
 		}
+	})
+	mux.HandleFunc("GET /logout/{provider}", func(res http.ResponseWriter, req *http.Request) {
+		gothic.Logout(res, req)
+		res.Header().Set("Location", "/providers")
+		res.WriteHeader(http.StatusTemporaryRedirect)
 	})
 
 	mux.HandleFunc("GET /providers", func(res http.ResponseWriter, req *http.Request) {
@@ -125,7 +130,7 @@ type ProviderIndex struct {
 }
 
 var providersTemplate = `{{range $key,$value:=.Providers}}
-    <p><a href="/auth/{{$value}}">Log in with {{index $.ProvidersMap $value}}</a></p>
+    <p><a href="/auth?provider={{$value}}">Log in with {{index $.ProvidersMap $value}}</a></p>
 {{end}}`
 
 var userTemplate = `
