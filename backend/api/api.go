@@ -91,6 +91,7 @@ func Serve() {
 			gothic.BeginAuthHandler(res, req)
 		}
 	})
+
 	mux.HandleFunc("GET /logout/{provider}", func(res http.ResponseWriter, req *http.Request) {
 		gothic.Logout(res, req)
 		res.Header().Set("Location", "/providers")
