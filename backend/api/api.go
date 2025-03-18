@@ -1,5 +1,10 @@
 package api
 
+/*
+ASCII art generator:
+https://patorjk.com/software/taag/#p=display&f=ANSI%20Shadow&t=Serve
+*/
+
 import (
 	"context"
 	"fmt"
@@ -29,13 +34,14 @@ func Serve() {
 	mux := http.NewServeMux()
 	api := humago.New(mux, huma.DefaultConfig("TypeRead API", "0.0.1"))
 
-	// ooooooooo.                             .
-	// `888   `Y88.                     .o8
-	//  888   .d88' .ooooo. oooo  oooo.o888oo .ooooo.  .oooo.o
-	//  888ooo88P' d88' `88b`888  `888  888  d88' `88bd88(  "8
-	//  888`88b.   888   888 888   888  888  888ooo888`"Y88b.
-	//  888  `88b. 888   888 888   888  888 .888    .oo.  )88b
-	// o888o  o888o`Y8bod8P' `V88V"V8P' "888"`Y8bod8P'8""888P'
+	/*
+		██████╗  ██████╗ ██╗   ██╗████████╗███████╗███████╗
+		██╔══██╗██╔═══██╗██║   ██║╚══██╔══╝██╔════╝██╔════╝
+		██████╔╝██║   ██║██║   ██║   ██║   █████╗  ███████╗
+		██╔══██╗██║   ██║██║   ██║   ██║   ██╔══╝  ╚════██║
+		██║  ██║╚██████╔╝╚██████╔╝   ██║   ███████╗███████║
+		╚═╝  ╚═╝ ╚═════╝  ╚═════╝    ╚═╝   ╚══════╝╚══════╝
+	*/
 
 	huma.Get(api, "/hello", func(ctx context.Context, _ *struct{}) (*BaseOutput, error) {
 		res := &BaseOutput{}
@@ -51,13 +57,14 @@ func Serve() {
 		return res, nil
 	})
 
-	//       .o.                   .  oooo
-	//      .888.                .o8  `888
-	//     .8"888.   oooo  oooo.o888oo 888 .oo.
-	//    .8' `888.  `888  `888  888   888P"Y88b
-	//   .88ooo8888.  888   888  888   888   888
-	//  .8'     `888. 888   888  888 . 888   888
-	// o88o     o8888o`V88V"V8P' "888"o888o o888o
+	/*
+		 █████╗ ██╗   ██╗████████╗██╗  ██╗
+		██╔══██╗██║   ██║╚══██╔══╝██║  ██║
+		███████║██║   ██║   ██║   ███████║
+		██╔══██║██║   ██║   ██║   ██╔══██║
+		██║  ██║╚██████╔╝   ██║   ██║  ██║
+		╚═╝  ╚═╝ ╚═════╝    ╚═╝   ╚═╝  ╚═╝
+	*/
 
 	m := map[string]string{
 		"google": "Google",
@@ -99,13 +106,14 @@ func Serve() {
 		t.Execute(res, providerIndex)
 	})
 
-	//  .oooooo..o
-	// d8P'    `Y8
-	// Y88bo.      .ooooo. oooo d8boooo    ooo.ooooo.
-	//  `"Y8888o. d88' `88b`888""8P `88.  .8'd88' `88b
-	//      `"Y88b888ooo888 888      `88..8' 888ooo888
-	// oo     .d8P888    .o 888       `888'  888    .o
-	// 8""88888P' `Y8bod8P'd888b       `8'   `Y8bod8P'
+	/*
+		██████╗  ██████╗ ██╗   ██╗████████╗███████╗███████╗
+		██╔══██╗██╔═══██╗██║   ██║╚══██╔══╝██╔════╝██╔════╝
+		██████╔╝██║   ██║██║   ██║   ██║   █████╗  ███████╗
+		██╔══██╗██║   ██║██║   ██║   ██║   ██╔══╝  ╚════██║
+		██║  ██║╚██████╔╝╚██████╔╝   ██║   ███████╗███████║
+		╚═╝  ╚═╝ ╚═════╝  ╚═════╝    ╚═╝   ╚══════╝╚══════╝
+	*/
 
 	http.ListenAndServe("127.0.0.1:8888", cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:5173", "http://localhost:3000", "https://typeread.vercel.app/"},
