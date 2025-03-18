@@ -94,11 +94,11 @@ func Serve() {
 
 	mux.HandleFunc("GET /logout/{provider}", func(res http.ResponseWriter, req *http.Request) {
 		gothic.Logout(res, req)
-		res.Header().Set("Location", "/providers")
+		res.Header().Set("Location", "/providers-example")
 		res.WriteHeader(http.StatusTemporaryRedirect)
 	})
 
-	mux.HandleFunc("GET /providers", func(res http.ResponseWriter, req *http.Request) {
+	mux.HandleFunc("GET /providers-example", func(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(providersTemplate)
 		t.Execute(res, providerIndex)
 	})
@@ -110,6 +110,9 @@ func Serve() {
 	███████║███████╗██║  ██║ ╚████╔╝ ███████╗
 	╚══════╝╚══════╝╚═╝  ╚═╝  ╚═══╝  ╚═════*/
 
+	fmt.Println("👂 http://localhost:8888")
+	fmt.Println("📚 http://localhost:8888/docs")
+	fmt.Println("🔑 http://localhost:8888/providers-example")
 	http.ListenAndServe("127.0.0.1:8888", cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:5173", "http://localhost:3000", "https://typeread.vercel.app/"},
 		AllowCredentials: true,
