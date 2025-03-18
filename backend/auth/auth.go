@@ -24,9 +24,6 @@ func Init() {
 		log.Fatal("Error loading environment variables")
 	}
 
-	googleClientId := os.Getenv("GOOGLE_CLIENT_ID")
-	googleClientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
-
 	store := sessions.NewCookieStore([]byte(key))
 	store.MaxAge(maxAge)
 	store.Options.Path = "/"
@@ -36,6 +33,10 @@ func Init() {
 	gothic.Store = store
 
 	goth.UseProviders(
-		google.New(googleClientId, googleClientSecret, "http://localhost:5173"), // http://localhost:5173/auth/google/callback
+		google.New(
+			os.Getenv("GOOGLE_CLIENT_ID"),
+			os.Getenv("GOOGLE_CLIENT_SECRET"),
+			"http://localhost:5173", // http://localhost:5173/auth/google/callback
+		),
 	)
 }

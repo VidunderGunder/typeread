@@ -420,6 +420,12 @@ export const WORDS = [
 	"inches",
 	"grab",
 	"mog",
+	"ohio",
+	"rizz",
+	"sigma",
+	"skibidi",
+	"toilet",
+	"giga",
 ];
 
 export const CODE = [
