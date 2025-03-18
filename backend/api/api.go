@@ -29,13 +29,20 @@ func Serve() {
 	mux := http.NewServeMux()
 	api := humago.New(mux, huma.DefaultConfig("TypeRead API", "0.0.1"))
 
+	//	ooooooooo.                             .
+	//	`888   `Y88.                         .o8
+	//	 888   .d88'  .ooooo.  oooo  oooo  .o888oo  .ooooo.   .oooo.o
+	//	 888ooo88P'  d88' `88b `888  `888    888   d88' `88b d88(  "8
+	//	 888`88b.    888   888  888   888    888   888ooo888 `"Y88b.
+	//	 888  `88b.  888   888  888   888    888 . 888    .o o.  )88b
+	//	o888o  o888o `Y8bod8P'  `V88V"V8P'   "888" `Y8bod8P' 8""888P'
+
 	huma.Get(api, "/hello", func(ctx context.Context, _ *struct{}) (*BaseOutput, error) {
 		res := &BaseOutput{}
 		res.Body = "Hello, World!"
 		return res, nil
 	})
 
-	// Register GET /greeting/{name} handler.
 	huma.Get(api, "/greeting/{name}", func(ctx context.Context, req *struct {
 		Name string `path:"name" maxLength:"30" example:"world" doc:"Name to greet"`
 	}) (*GreetingOutput, error) {
@@ -43,6 +50,14 @@ func Serve() {
 		res.Body.Message = fmt.Sprintf("Hello, %s!", req.Name)
 		return res, nil
 	})
+
+	//       .o.                       .   oooo
+	//      .888.                    .o8   `888
+	//     .8"888.     oooo  oooo  .o888oo  888 .oo.
+	//    .8' `888.    `888  `888    888    888P"Y88b
+	//   .88ooo8888.    888   888    888    888   888
+	//  .8'     `888.   888   888    888 .  888   888
+	// o88o     o8888o  `V88V"V8P'   "888" o888o o888o
 
 	m := map[string]string{
 		"google": "Google",
@@ -78,6 +93,14 @@ func Serve() {
 		t, _ := template.New("foo").Parse(providersTemplate)
 		t.Execute(res, providerIndex)
 	})
+
+	//  .oooooo..o
+	// d8P'    `Y8
+	// Y88bo.       .ooooo.  oooo d8b oooo    ooo  .ooooo.
+	//  `"Y8888o.  d88' `88b `888""8P  `88.  .8'  d88' `88b
+	//      `"Y88b 888ooo888  888       `88..8'   888ooo888
+	// oo     .d8P 888    .o  888        `888'    888    .o
+	// 8""88888P'  `Y8bod8P' d888b        `8'     `Y8bod8P'
 
 	http.ListenAndServe("127.0.0.1:8888", cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:5173", "http://localhost:3000", "https://typeread.vercel.app/"},
