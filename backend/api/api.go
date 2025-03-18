@@ -29,13 +29,13 @@ func Serve() {
 	mux := http.NewServeMux()
 	api := humago.New(mux, huma.DefaultConfig("TypeRead API", "0.0.1"))
 
-	//	ooooooooo.                             .
-	//	`888   `Y88.                     .o8
-	//	 888   .d88' .ooooo. oooo  oooo.o888oo .ooooo.  .oooo.o
-	//	 888ooo88P' d88' `88b`888  `888  888  d88' `88bd88(  "8
-	//	 888`88b.   888   888 888   888  888  888ooo888`"Y88b.
-	//	 888  `88b. 888   888 888   888  888 .888    .oo.  )88b
-	//	o888o  o888o`Y8bod8P' `V88V"V8P' "888"`Y8bod8P'8""888P'
+	// ooooooooo.                             .
+	// `888   `Y88.                     .o8
+	//  888   .d88' .ooooo. oooo  oooo.o888oo .ooooo.  .oooo.o
+	//  888ooo88P' d88' `88b`888  `888  888  d88' `88bd88(  "8
+	//  888`88b.   888   888 888   888  888  888ooo888`"Y88b.
+	//  888  `88b. 888   888 888   888  888 .888    .oo.  )88b
+	// o888o  o888o`Y8bod8P' `V88V"V8P' "888"`Y8bod8P'8""888P'
 
 	huma.Get(api, "/hello", func(ctx context.Context, _ *struct{}) (*BaseOutput, error) {
 		res := &BaseOutput{}
