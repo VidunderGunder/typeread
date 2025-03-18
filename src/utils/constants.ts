@@ -419,6 +419,7 @@ export const WORDS = [
 	"feet",
 	"inches",
 	"grab",
+	"mog",
 ];
 
 export const CODE = [
