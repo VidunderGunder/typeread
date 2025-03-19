@@ -110,7 +110,7 @@ func Serve() {
 	███████║███████╗██║  ██║ ╚████╔╝ ███████╗
 	╚══════╝╚══════╝╚═╝  ╚═╝  ╚═══╝  ╚═════*/
 
-	fmt.Println("👂 http://localhost:8888")
+	fmt.Println("👂 http://localhost:8888/")
 	fmt.Println("📚 http://localhost:8888/docs")
 	fmt.Println("🔑 http://localhost:8888/providers-example")
 	http.ListenAndServe("127.0.0.1:8888", cors.New(cors.Options{
