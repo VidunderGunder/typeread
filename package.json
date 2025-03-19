@@ -6,11 +6,12 @@
 	"scripts": {
 		"dev:ts": "vite",
 		"dev:go": "cd backend && air",
-		"dev": "concurrently -n \"ts\",\"go\" -c blue,cyan \"bun dev:ts\" \"bun dev:go\"",
+		"dev": "concurrently -n \"ts,go,↱↲\" -c blue,cyan,yellow \"bun dev:ts\" \"bun dev:go\" \"bun sync:watch\"",
 		"build": "tsc -b && vite build",
 		"lint": "eslint .",
 		"preview": "vite preview",
 		"sync": "bun run openapi-typescript http://localhost:8888/openapi.json -o ./src/api/schema.d.ts",
+		"sync:watch": "onchange \"backend/api/api.go\" -- bun sync",
 		"postinstall": "bun ./scripts/postinstall.ts"
 	},
 	"dependencies": {
@@ -44,6 +45,7 @@
 		"@vitejs/plugin-react": "^4.3.4",
 		"concurrently": "^9.1.2",
 		"globals": "^16.0.0",
+		"onchange": "^7.1.0",
 		"openapi-typescript": "^7.6.1",
 		"typescript": "~5.8.2",
 		"vite": "^6.2.2"
