@@ -4,9 +4,9 @@
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
-		"dev:bun": "vite",
-		"dev:air": "cd backend && air",
-		"dev": "concurrently -n \"ts\",\"go\" -c blue,cyan \"bun dev:bun\" \"bun dev:air\"",
+		"dev:ts": "vite",
+		"dev:go": "cd backend && air",
+		"dev": "concurrently -n \"ts\",\"go\" -c blue,cyan \"bun dev:ts\" \"bun dev:go\"",
 		"build": "tsc -b && vite build",
 		"lint": "eslint .",
 		"preview": "vite preview",
