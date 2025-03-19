@@ -6,7 +6,7 @@
 	"scripts": {
 		"dev:bun": "vite",
 		"dev:air": "cd backend && air",
-		"dev": "concurrently -n \"bun\",\"air\" -c yellow,blue \"bun dev:bun\" \"bun dev:air\"",
+		"dev": "concurrently -n \"ts\",\"go\" -c blue,cyan \"bun dev:bun\" \"bun dev:air\"",
 		"build": "tsc -b && vite build",
 		"lint": "eslint .",
 		"preview": "vite preview",
