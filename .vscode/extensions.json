@@ -21,6 +21,7 @@
     "YoavBls.pretty-ts-errors",
     "usernamehw.errorlens",
     "joshx.workspace-terminals",
-    "golang.go"
+    "golang.go",
+    "tamasfe.even-better-toml"
   ]
 }

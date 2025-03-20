@@ -60,6 +60,17 @@ func Serve() {
 	██║  ██║╚██████╔╝   ██║   ██║  ██║
 	╚═╝  ╚═╝ ╚═════╝    ╚═╝   ╚═╝  ╚*/
 
+	// m := map[string]string{
+	// 	"google": "Google",
+	// }
+	// var keys []string
+	// for k := range m {
+	// 	keys = append(keys, k)
+	// }
+	// sort.Strings(keys)
+
+	// providerIndex := &ProviderIndex{Providers: keys, ProvidersMap: m}
+
 	mux.HandleFunc("GET /login", func(res http.ResponseWriter, req *http.Request) {
 		provider := req.URL.Query().Get("provider")
 		if provider == "" {
@@ -74,6 +85,20 @@ func Serve() {
 		res.Header().Set("Location", "http://localhost:5173")
 		res.WriteHeader(http.StatusTemporaryRedirect)
 	})
+
+	// mux.HandleFunc("GET /auth", func(res http.ResponseWriter, req *http.Request) {
+	// 	if gothUser, err := gothic.CompleteUserAuth(res, req); err == nil {
+	// 		t, _ := template.New("foo").Parse(userTemplate)
+	// 		t.Execute(res, gothUser)
+	// 	} else {
+	// 		gothic.BeginAuthHandler(res, req)
+	// 	}
+	// })
+
+	// mux.HandleFunc("GET /providers-example", func(res http.ResponseWriter, req *http.Request) {
+	// 	t, _ := template.New("foo").Parse(providersTemplate)
+	// 	t.Execute(res, providerIndex)
+	// })
 
 	/*█████╗███████╗██████╗ ██╗   ██╗███████╗
 	██╔════╝██╔════╝██╔══██╗██║   ██║██╔════╝
@@ -101,3 +126,26 @@ func Serve() {
 		},
 	}).Handler(mux))
 }
+
+// type ProviderIndex struct {
+// 	Providers    []string
+// 	ProvidersMap map[string]string
+// }
+
+// var providersTemplate = `{{range $key,$value:=.Providers}}
+//     <p><a href="/auth?provider={{$value}}">Log in with {{index $.ProvidersMap $value}}</a></p>
+// {{end}}`
+
+// var userTemplate = `
+// <p><a href="/logout?provider={{.Provider}}">logout</a></p>
+// <p>Name: {{.Name}} [{{.LastName}}, {{.FirstName}}]</p>
+// <p>Email: {{.Email}}</p>
+// <p>NickName: {{.NickName}}</p>
+// <p>Location: {{.Location}}</p>
+// <p>AvatarURL: {{.AvatarURL}} <img src="{{.AvatarURL}}"></p>
+// <p>Description: {{.Description}}</p>
+// <p>UserID: {{.UserID}}</p>
+// <p>AccessToken: {{.AccessToken}}</p>
+// <p>ExpiresAt: {{.ExpiresAt}}</p>
+// <p>RefreshToken: {{.RefreshToken}}</p>
+// `

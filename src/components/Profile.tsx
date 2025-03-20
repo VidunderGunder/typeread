@@ -13,7 +13,9 @@ export type ProfileProps = {
 } & Omit<ComponentProps<"div">, "children">;
 
 export function Profile({ className, ...props }: ProfileProps) {
-	const {} = useAuth();
+	const auth = useAuth();
+
+	if (import.meta.env.DEV) console.log(auth);
 
 	const [open, setOpen] = useState(false);
 
@@ -43,19 +45,7 @@ export function Profile({ className, ...props }: ProfileProps) {
 				children={<SearchEngineSelect />}
 				footer={
 					<CommandsWrapper className="justify-end p-4">
-						<Command
-							label="Sign out"
-							flip
-							keyboard_key="KeyO"
-							handler={signout}
-						/>
-						<Command
-							label="Sign in"
-							flip
-							keyboard_key="Enter"
-							handler={signin}
-						/>
-						{/* {isSignedIn ? (
+						{auth.isAuthenticated ? (
 							<Command
 								label="Sign out"
 								flip
@@ -69,7 +59,7 @@ export function Profile({ className, ...props }: ProfileProps) {
 								keyboard_key="Enter"
 								handler={signin}
 							/>
-						)} */}
+						)}
 					</CommandsWrapper>
 				}
 			/>

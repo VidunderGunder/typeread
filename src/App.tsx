@@ -10,39 +10,15 @@ import { cn } from "@/styles/utils";
 import { Wallpaper, WallpaperSelect } from "@/components/Wallpaper";
 import { Fullscreen } from "./components/Fullscreen";
 import { Logo } from "./components/Logo";
-import { api } from "./api";
 
 export function App() {
-	const hello = api.useQuery("get", "/hello", undefined, {
-		enabled: import.meta.env.DEV,
-	});
-	const greeting = api.useQuery(
-		"get",
-		"/greeting/{name}",
-		{
-			params: {
-				path: {
-					name: "World",
-				},
-			},
-		},
-		{
-			enabled: import.meta.env.DEV,
-		},
-	);
-
-	if (import.meta.env.DEV) {
-		console.log(hello);
-		console.log(greeting);
-	}
-
 	return (
 		<>
-			<div className="absolute size-full bg-[#13161c]" />
-			<Wallpaper />
+			<div className="-z-[2] absolute size-full bg-[#13161c]" />
+			<Wallpaper className="-z-[1]" />
 			<div
 				className={cn(
-					"relative flex size-full select-none flex-col items-center justify-center gap-10 text-white focus-visible:outline-none focus-visible:ring-0",
+					"relative z-[1] flex size-full select-none flex-col items-center justify-center gap-10 text-white focus-visible:outline-none focus-visible:ring-0",
 					"backdrop-blur-sm",
 				)}
 			>
