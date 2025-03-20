@@ -5,3 +5,8 @@ export function signin() {
 export function signout() {
 	window.location.href = "http://localhost:8888/logout?provider=google";
 }
+
+export function useAuth() {
+	// TODO
+	return {};
+}

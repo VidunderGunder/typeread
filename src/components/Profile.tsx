@@ -6,14 +6,14 @@ import { Icon } from "@iconify/react/dist/iconify.js";
 import { Modal } from "./Modal";
 import { useAtom } from "jotai";
 import { type SearchEngine, searchEngineAtom, searchEngines } from "@/jotai";
-import { signin, signout } from "@/hooks/useAuth";
+import { signin, signout, useAuth } from "@/hooks/useAuth";
 
 export type ProfileProps = {
 	//
 } & Omit<ComponentProps<"div">, "children">;
 
 export function Profile({ className, ...props }: ProfileProps) {
-	const isSignedIn = false;
+	const {} = useAuth();
 
 	const [open, setOpen] = useState(false);
 
