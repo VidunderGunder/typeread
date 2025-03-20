@@ -250,7 +250,7 @@ export function CommandsWrapper({
 		<div
 			className={cn(
 				"flex",
-				vertical ? "flex-col items-end gap-2" : "items-center gap-3",
+				vertical ? "flex-col items-end" : "items-center gap-3",
 				className,
 			)}
 			{...props}

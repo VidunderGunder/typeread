@@ -36,7 +36,7 @@ func Init() {
 		google.New(
 			os.Getenv("GOOGLE_CLIENT_ID"),
 			os.Getenv("GOOGLE_CLIENT_SECRET"),
-			"http://localhost:8888/auth/callback?provider=google",
+			"http://localhost:5173",
 		),
 	)
 }

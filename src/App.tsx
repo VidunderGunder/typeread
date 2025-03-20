@@ -13,17 +13,27 @@ import { Logo } from "./components/Logo";
 import { api } from "./api";
 
 export function App() {
-	const { data, isLoading, isPending } = api.useQuery(
+	const hello = api.useQuery("get", "/hello", undefined, {
+		enabled: import.meta.env.DEV,
+	});
+	const greeting = api.useQuery(
 		"get",
-		"/hello",
-		undefined,
+		"/greeting/{name}",
+		{
+			params: {
+				path: {
+					name: "World",
+				},
+			},
+		},
 		{
 			enabled: import.meta.env.DEV,
 		},
 	);
 
 	if (import.meta.env.DEV) {
-		console.log({ data, isLoading, isPending });
+		console.log(hello);
+		console.log(greeting);
 	}
 
 	return (

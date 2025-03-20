@@ -1,11 +1,12 @@
 import { useState, type ComponentProps } from "react";
 import { cn } from "@/styles/utils";
-import { Command } from "./Command";
+import { Command, CommandsWrapper } from "./Command";
 import { mod } from "@/types/keyboard";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { Modal } from "./Modal";
 import { useAtom } from "jotai";
 import { type SearchEngine, searchEngineAtom, searchEngines } from "@/jotai";
+import { signin, signout } from "@/hooks/useAuth";
 
 export type ProfileProps = {
 	//
@@ -36,32 +37,40 @@ export function Profile({ className, ...props }: ProfileProps) {
 				header={
 					<>
 						<Icon icon="gridicons:user" />
-						{isSignedIn ? "User Profile" : "Sign in"}
+						User Profile
 					</>
 				}
 				children={<SearchEngineSelect />}
 				footer={
-					<div className="flex justify-end p-4">
-						{isSignedIn ? (
+					<CommandsWrapper className="justify-end p-4">
+						<Command
+							label="Sign out"
+							flip
+							keyboard_key="KeyO"
+							handler={signout}
+						/>
+						<Command
+							label="Sign in"
+							flip
+							keyboard_key="Enter"
+							handler={signin}
+						/>
+						{/* {isSignedIn ? (
 							<Command
 								label="Sign out"
 								flip
 								keyboard_key="KeyO"
-								handler={() => {
-									alert("TODO");
-								}}
+								handler={signout}
 							/>
 						) : (
 							<Command
 								label="Sign in"
 								flip
 								keyboard_key="Enter"
-								handler={() => {
-									alert("TODO");
-								}}
+								handler={signin}
 							/>
-						)}
-					</div>
+						)} */}
+					</CommandsWrapper>
 				}
 			/>
 		</div>
