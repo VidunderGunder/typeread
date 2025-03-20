@@ -60,19 +60,12 @@ export function Typer({ className, ...props }: TyperProps) {
 		);
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		console.log({ e, disable, isFinished, value: e.currentTarget.value });
-
 		if (disable) return;
 		if (isFinished) return;
 		const newValue = e.target.value;
 
 		const oldValue = inputValueRef.current;
 		const newChars = [...chars];
-
-		console.log({
-			oldValue,
-			newChars,
-		});
 
 		for (let i = 0; i < newChars.length; i++) {
 			const newCharValue = newValue[i] || "";
