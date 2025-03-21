@@ -29,9 +29,6 @@ export function useAuth() {
 		const params = new URLSearchParams(window.location.search);
 		const state = params.get("state");
 		const code = params.get("code");
-		const scope = params.get("scope");
-		const authuser = params.get("authuser");
-		const prompt = params.get("prompt");
 
 		const allParamKeys = params.keys();
 		const allParams = [];
