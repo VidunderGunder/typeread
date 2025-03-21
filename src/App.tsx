@@ -19,7 +19,7 @@ export function App() {
 			<div
 				className={cn(
 					"relative z-[1] flex size-full select-none flex-col items-center justify-center gap-10 text-white focus-visible:outline-none focus-visible:ring-0",
-					"backdrop-blur-sm",
+					"backdrop-blur",
 				)}
 			>
 				<div className="z-0 flex size-full flex-col items-center py-3">
