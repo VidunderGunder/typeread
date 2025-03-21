@@ -37,9 +37,11 @@ if (root) {
 				persistOptions={{ persister }}
 			>
 				<App />
-				<div className="absolute top-16 right-[5px]">
-					<ReactQueryDevtools buttonPosition="relative" />
-				</div>
+				{import.meta.env.DEV && (
+					<div className="absolute top-16 right-[5px]">
+						<ReactQueryDevtools buttonPosition="relative" />
+					</div>
+				)}
 			</PersistQueryClientProvider>
 		</StrictMode>,
 	);
