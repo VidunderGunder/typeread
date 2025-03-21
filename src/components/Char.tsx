@@ -31,8 +31,8 @@ export const Char = memo(function Char({
 		<span
 			className={cn(
 				"relative",
-				"text-[#4c5874]",
-				isCorrect && "text-[#cbcdb6]",
+				"text-[#8190b3]",
+				isCorrect && "text-white",
 				className,
 			)}
 			{...props}

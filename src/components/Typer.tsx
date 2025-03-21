@@ -238,8 +238,8 @@ export function Typer({ className, ...props }: TyperProps) {
 											className={cn(
 												group.isWrong
 													? char.char === char.typed
-														? "rounded-2xl text-red-300/75"
-														: "rounded-2xl text-red-600/25"
+														? "rounded-2xl text-red-300"
+														: "rounded-2xl text-red-600/50"
 													: "",
 											)}
 											char={char.char}
