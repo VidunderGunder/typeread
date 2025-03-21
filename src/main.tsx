@@ -37,7 +37,9 @@ if (root) {
 				persistOptions={{ persister }}
 			>
 				<App />
-				<ReactQueryDevtools />
+				<div className="absolute top-16 right-[5px]">
+					<ReactQueryDevtools buttonPosition="relative" />
+				</div>
 			</PersistQueryClientProvider>
 		</StrictMode>,
 	);
