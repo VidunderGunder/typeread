@@ -37,11 +37,7 @@ export function useAuth() {
 			allParams.push(`${key}: ${params.get(key)}`);
 		}
 
-		console.log({ allParams });
-
 		if (state && code) {
-			console.log("state", state);
-
 			setAuth((prev) => ({ ...prev, isAuthenticated: true, token: code }));
 
 			// window.history.replaceState({}, document.title, window.location.pathname);
