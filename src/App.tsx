@@ -14,15 +14,14 @@ import { Logo } from "./components/Logo";
 export function App() {
 	return (
 		<>
-			<div className="-z-[2] absolute size-full bg-[#13161c]" />
-			<Wallpaper className="-z-[1]" />
+			<div className="absolute size-full bg-[#13161c]" />
+			<Wallpaper className="blur-sm" />
 			<div
 				className={cn(
-					"relative z-[1] flex size-full select-none flex-col items-center justify-center gap-10 text-white focus-visible:outline-none focus-visible:ring-0",
-					"backdrop-blur",
+					"flex size-full select-none flex-col items-center justify-center gap-10 text-white focus-visible:outline-none focus-visible:ring-0",
 				)}
 			>
-				<div className="z-0 flex size-full flex-col items-center py-3">
+				<div className="flex size-full flex-col items-center py-3">
 					<Toolbar className="z-0" />
 					<BookTitle className="absolute top-[70px]" />
 					<div className="pointer-events-none z-10 flex flex-1 flex-col items-center justify-center gap-10">
