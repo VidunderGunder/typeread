@@ -1,23 +1,17 @@
 package api
 
-/*
-ASCII art generator:
-https://patorjk.com/software/taag/#p=display&f=ANSI%20Shadow&t=Serve
-*/
-
 import (
 	"context"
 	"fmt"
-	"html/template"
 	"net/http"
-	"sort"
+	"time"
+	database "typeread/db"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humago"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/markbates/goth/gothic"
 	"github.com/rs/cors"
-
-	_ "github.com/danielgtaylor/huma/v2/formats/cbor"
 )
 
 type BaseOutput struct {
@@ -30,9 +24,70 @@ type GreetingOutput struct {
 	}
 }
 
+var mux = http.NewServeMux()
+var api = humago.New(mux, huma.DefaultConfig("TypeRead API", "0.0.1"))
+
+// 🔑 Hemmeligheter for signering av tokens
+var jwtSecret = []byte("supersecretkey")
+var refreshSecret = []byte("superrefreshsecret")
+
+// Genererer JWT (access token)
+func generateJWT(userID string) (string, error) {
+	claims := jwt.MapClaims{
+		"sub": userID,
+		"exp": time.Now().Add(time.Minute * 15).Unix(), // 15 min levetid
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString(jwtSecret)
+}
+
+// Genererer Refresh Token
+func generateRefreshToken(userID string) (string, error) {
+	claims := jwt.MapClaims{
+		"sub": userID,
+		"exp": time.Now().Add(time.Hour * 24 * 7).Unix(), // 7 dager levetid
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString(refreshSecret)
+}
+
+// Middleware for å beskytte ruter med JWT
+func validateJWT(ctx huma.Context, next func(huma.Context)) {
+	cookie, err := huma.ReadCookie(ctx, "auth_token")
+	if err != nil {
+		huma.WriteErr(api, ctx, http.StatusUnauthorized,
+			"Unauthorized: No token", fmt.Errorf("error detail"),
+		)
+		return
+	}
+
+	token, err := jwt.Parse(cookie.Value, func(token *jwt.Token) (interface{}, error) {
+		return jwtSecret, nil
+	})
+
+	if err != nil || !token.Valid {
+		huma.WriteErr(api, ctx, http.StatusUnauthorized,
+			"Unauthorized: Invalid token", fmt.Errorf("error detail"),
+		)
+		return
+	}
+
+	ctx = huma.WithValue(ctx, "userId", token.Claims.(jwt.MapClaims)["sub"])
+
+	next(ctx)
+
+}
+
+type MeBody struct {
+	Body struct {
+		Name string `json:"name"`
+	}
+}
+
 func Serve() {
-	mux := http.NewServeMux()
-	api := humago.New(mux, huma.DefaultConfig("TypeRead API", "0.0.1"))
+	db := database.DatabaseInit()
 
 	/*████╗  ██████╗ ██╗   ██╗████████╗███████╗███████╗
 	██╔══██╗██╔═══██╗██║   ██║╚══██╔══╝██╔════╝██╔════╝
@@ -62,66 +117,109 @@ func Serve() {
 	██║  ██║╚██████╔╝   ██║   ██║  ██║
 	╚═╝  ╚═╝ ╚═════╝    ╚═╝   ╚═╝  ╚*/
 
-	m := map[string]string{
-		"google": "Google",
-	}
-	var keys []string
-	for k := range m {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-
-	providerIndex := &ProviderIndex{Providers: keys, ProvidersMap: m}
-
-	mux.HandleFunc("GET /login", func(res http.ResponseWriter, req *http.Request) {
-		provider := req.URL.Query().Get("provider")
-		if provider == "" {
-			http.Error(res, "missing provider", http.StatusBadRequest)
+	// 🔥 Google OAuth callback
+	mux.HandleFunc("GET /auth/callback", func(res http.ResponseWriter, req *http.Request) {
+		gothUser, err := gothic.CompleteUserAuth(res, req)
+		if err != nil {
+			fmt.Fprintln(res, err)
 			return
 		}
-		gothic.BeginAuthHandler(res, req)
+
+		// Lagre bruker i databasen
+		db.CreateUser(&database.UserInput{
+			FirstName:   gothUser.FirstName,
+			LastName:    gothUser.LastName,
+			NickName:    gothUser.NickName,
+			Description: gothUser.Description,
+			AvatarURL:   gothUser.AvatarURL,
+			Location:    gothUser.Location,
+		}, &database.UserProviderInput{
+			UId:               gothUser.UserID,
+			Provider:          gothUser.Provider,
+			AccessToken:       gothUser.AccessToken,
+			AccessTokenSecret: gothUser.AccessTokenSecret,
+			RefreshToken:      gothUser.RefreshToken,
+			ExpiresAt:         gothUser.ExpiresAt,
+			IDToken:           gothUser.IDToken,
+		})
+
+		// 🎟️ Generer tokens
+		refreshToken, _ := generateRefreshToken(gothUser.UserID)
+		// Sett refresh token i HTTP-only cookie
+		http.SetCookie(res, &http.Cookie{
+			Name:     "refresh_token",
+			Value:    refreshToken,
+			Expires:  time.Now().Add(time.Minute * 15),
+			HttpOnly: true,
+			Path:     "/",
+		})
+
+		// Redirect til frontend
+		http.Redirect(res, req, "http://localhost:3000", http.StatusSeeOther)
 	})
 
-	mux.HandleFunc("GET /logout", func(res http.ResponseWriter, req *http.Request) {
-		gothic.Logout(res, req)
-		res.Header().Set("Location", "http://localhost:5173")
-		res.WriteHeader(http.StatusTemporaryRedirect)
-	})
-
-	mux.HandleFunc("GET /auth", func(res http.ResponseWriter, req *http.Request) {
-		if gothUser, err := gothic.CompleteUserAuth(res, req); err == nil {
-			t, _ := template.New("foo").Parse(userTemplate)
-			t.Execute(res, gothUser)
-		} else {
-			gothic.BeginAuthHandler(res, req)
+	// 🔄 Endpoint for å hente nytt access token
+	mux.HandleFunc("POST /auth/refresh", func(res http.ResponseWriter, req *http.Request) {
+		cookie, err := req.Cookie("refresh_token")
+		if err != nil {
+			http.Error(res, "No refresh token", http.StatusUnauthorized)
+			return
 		}
-	})
 
-	mux.HandleFunc("GET /auth/callback", func(res http.ResponseWriter, req *http.Request) {
-		if gothUser, err := gothic.CompleteUserAuth(res, req); err == nil {
-			req.Cookies()
-			t, _ := template.New("foo").Parse(userTemplate)
-			t.Execute(res, gothUser)
-		} else {
-			gothic.BeginAuthHandler(res, req)
+		token, err := jwt.Parse(cookie.Value, func(token *jwt.Token) (interface{}, error) {
+			return refreshSecret, nil
+		})
+
+		if err != nil || !token.Valid {
+			http.Error(res, "Invalid refresh token", http.StatusUnauthorized)
+			return
 		}
+
+		claims, _ := token.Claims.(jwt.MapClaims)
+		userID := claims["sub"].(string)
+
+		// Generer nytt access token
+		newAccessToken, _ := generateJWT(userID)
+		newRefreshToken, _ := generateRefreshToken(userID)
+		// Sett refresh token i HTTP-only cookie
+		http.SetCookie(res, &http.Cookie{
+			Name:     "refresh_token",
+			Value:    newRefreshToken,
+			Expires:  time.Now().Add(time.Minute * 15),
+			HttpOnly: true,
+			Path:     "/",
+		})
+
+		// Send det nye access tokenet til frontend
+		res.Header().Set("Content-Type", "application/json")
+		res.WriteHeader(http.StatusOK)
+		res.Write([]byte(fmt.Sprintf(`{"access_token": "%s"}`, newAccessToken)))
 	})
 
-	mux.HandleFunc("GET /providers-example", func(res http.ResponseWriter, req *http.Request) {
-		t, _ := template.New("foo").Parse(providersTemplate)
-		t.Execute(res, providerIndex)
-	})
+	// 🔐 Beskyttet route
 
-	/*█████╗███████╗██████╗ ██╗   ██╗███████╗
-	██╔════╝██╔════╝██╔══██╗██║   ██║██╔════╝
-	███████╗█████╗  ██████╔╝██║   ██║█████╗
-	╚════██║██╔══╝  ██╔══██╗╚██╗ ██╔╝██╔══╝
-	███████║███████╗██║  ██║ ╚████╔╝ ███████╗
-	╚══════╝╚══════╝╚═╝  ╚═╝  ╚═══╝  ╚═════*/
+	api.UseMiddleware(validateJWT)
+	huma.Register(api, huma.Operation{
+		OperationID: "your-operation-name",
+		Method:      http.MethodGet,
+		Path:        "/me",
+		Summary:     "Get user info",
+	}, func(ctx context.Context, req *struct{}) (*MeBody, error) {
+		userID := ctx.Value("userID") // Hent userID fra kontekst
+		if userID == nil {
+			return nil, fmt.Errorf("Unauthorized")
+		}
+
+		user, err := db.GetUser(userID.(string))
+		if err != nil {
+			return nil, err
+		}
+		resp := &MeBody{}
+		resp.Body.Name = user.Name
+		return resp, nil
+	})
 
 	fmt.Println("👂 http://localhost:8888/")
-	fmt.Println("📚 http://localhost:8888/docs")
-	fmt.Println("🔑 http://localhost:8888/providers-example")
 	http.ListenAndServe("127.0.0.1:8888", cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:5173", "http://localhost:3000", "https://typeread.vercel.app/"},
 		AllowCredentials: true,
@@ -138,26 +236,3 @@ func Serve() {
 		},
 	}).Handler(mux))
 }
-
-type ProviderIndex struct {
-	Providers    []string
-	ProvidersMap map[string]string
-}
-
-var providersTemplate = `{{range $key,$value:=.Providers}}
-    <p><a href="/auth?provider={{$value}}">Log in with {{index $.ProvidersMap $value}}</a></p>
-{{end}}`
-
-var userTemplate = `
-<p><a href="/logout?provider={{.Provider}}">logout</a></p>
-<p>Name: {{.Name}} [{{.LastName}}, {{.FirstName}}]</p>
-<p>Email: {{.Email}}</p>
-<p>NickName: {{.NickName}}</p>
-<p>Location: {{.Location}}</p>
-<p>AvatarURL: {{.AvatarURL}} <img src="{{.AvatarURL}}"></p>
-<p>Description: {{.Description}}</p>
-<p>UserID: {{.UserID}}</p>
-<p>AccessToken: {{.AccessToken}}</p>
-<p>ExpiresAt: {{.ExpiresAt}}</p>
-<p>RefreshToken: {{.RefreshToken}}</p>
-`
