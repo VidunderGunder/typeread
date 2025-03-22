@@ -8,7 +8,9 @@ https://patorjk.com/software/taag/#p=display&f=ANSI%20Shadow&t=Serve
 import (
 	"context"
 	"fmt"
+	"html/template"
 	"net/http"
+	"sort"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humago"
@@ -39,10 +41,10 @@ func Serve() {
 	██║  ██║╚██████╔╝╚██████╔╝   ██║   ███████╗███████║
 	╚═╝  ╚═╝ ╚═════╝  ╚═════╝    ╚═╝   ╚══════╝╚═════*/
 
-	huma.Get(api, "/hello", func(ctx context.Context, _ *struct{}) (*BaseOutput, error) {
-		res := &BaseOutput{}
-		res.Body = "Hello, World!"
-		return res, nil
+	mux.HandleFunc("/", func(res http.ResponseWriter, req *http.Request) {
+		session, err := gothic.Store.Get(req, "_gothic_session")
+		fmt.Println(err)
+		fmt.Println(session.Values)
 	})
 
 	huma.Get(api, "/greeting/{name}", func(ctx context.Context, req *struct {
@@ -60,16 +62,16 @@ func Serve() {
 	██║  ██║╚██████╔╝   ██║   ██║  ██║
 	╚═╝  ╚═╝ ╚═════╝    ╚═╝   ╚═╝  ╚*/
 
-	// m := map[string]string{
-	// 	"google": "Google",
-	// }
-	// var keys []string
-	// for k := range m {
-	// 	keys = append(keys, k)
-	// }
-	// sort.Strings(keys)
+	m := map[string]string{
+		"google": "Google",
+	}
+	var keys []string
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
 
-	// providerIndex := &ProviderIndex{Providers: keys, ProvidersMap: m}
+	providerIndex := &ProviderIndex{Providers: keys, ProvidersMap: m}
 
 	mux.HandleFunc("GET /login", func(res http.ResponseWriter, req *http.Request) {
 		provider := req.URL.Query().Get("provider")
@@ -86,19 +88,29 @@ func Serve() {
 		res.WriteHeader(http.StatusTemporaryRedirect)
 	})
 
-	// mux.HandleFunc("GET /auth", func(res http.ResponseWriter, req *http.Request) {
-	// 	if gothUser, err := gothic.CompleteUserAuth(res, req); err == nil {
-	// 		t, _ := template.New("foo").Parse(userTemplate)
-	// 		t.Execute(res, gothUser)
-	// 	} else {
-	// 		gothic.BeginAuthHandler(res, req)
-	// 	}
-	// })
+	mux.HandleFunc("GET /auth", func(res http.ResponseWriter, req *http.Request) {
+		if gothUser, err := gothic.CompleteUserAuth(res, req); err == nil {
+			t, _ := template.New("foo").Parse(userTemplate)
+			t.Execute(res, gothUser)
+		} else {
+			gothic.BeginAuthHandler(res, req)
+		}
+	})
 
-	// mux.HandleFunc("GET /providers-example", func(res http.ResponseWriter, req *http.Request) {
-	// 	t, _ := template.New("foo").Parse(providersTemplate)
-	// 	t.Execute(res, providerIndex)
-	// })
+	mux.HandleFunc("GET /auth/callback", func(res http.ResponseWriter, req *http.Request) {
+		if gothUser, err := gothic.CompleteUserAuth(res, req); err == nil {
+			req.Cookies()
+			t, _ := template.New("foo").Parse(userTemplate)
+			t.Execute(res, gothUser)
+		} else {
+			gothic.BeginAuthHandler(res, req)
+		}
+	})
+
+	mux.HandleFunc("GET /providers-example", func(res http.ResponseWriter, req *http.Request) {
+		t, _ := template.New("foo").Parse(providersTemplate)
+		t.Execute(res, providerIndex)
+	})
 
 	/*█████╗███████╗██████╗ ██╗   ██╗███████╗
 	██╔════╝██╔════╝██╔══██╗██║   ██║██╔════╝
@@ -127,25 +139,25 @@ func Serve() {
 	}).Handler(mux))
 }
 
-// type ProviderIndex struct {
-// 	Providers    []string
-// 	ProvidersMap map[string]string
-// }
+type ProviderIndex struct {
+	Providers    []string
+	ProvidersMap map[string]string
+}
 
-// var providersTemplate = `{{range $key,$value:=.Providers}}
-//     <p><a href="/auth?provider={{$value}}">Log in with {{index $.ProvidersMap $value}}</a></p>
-// {{end}}`
+var providersTemplate = `{{range $key,$value:=.Providers}}
+    <p><a href="/auth?provider={{$value}}">Log in with {{index $.ProvidersMap $value}}</a></p>
+{{end}}`
 
-// var userTemplate = `
-// <p><a href="/logout?provider={{.Provider}}">logout</a></p>
-// <p>Name: {{.Name}} [{{.LastName}}, {{.FirstName}}]</p>
-// <p>Email: {{.Email}}</p>
-// <p>NickName: {{.NickName}}</p>
-// <p>Location: {{.Location}}</p>
-// <p>AvatarURL: {{.AvatarURL}} <img src="{{.AvatarURL}}"></p>
-// <p>Description: {{.Description}}</p>
-// <p>UserID: {{.UserID}}</p>
-// <p>AccessToken: {{.AccessToken}}</p>
-// <p>ExpiresAt: {{.ExpiresAt}}</p>
-// <p>RefreshToken: {{.RefreshToken}}</p>
-// `
+var userTemplate = `
+<p><a href="/logout?provider={{.Provider}}">logout</a></p>
+<p>Name: {{.Name}} [{{.LastName}}, {{.FirstName}}]</p>
+<p>Email: {{.Email}}</p>
+<p>NickName: {{.NickName}}</p>
+<p>Location: {{.Location}}</p>
+<p>AvatarURL: {{.AvatarURL}} <img src="{{.AvatarURL}}"></p>
+<p>Description: {{.Description}}</p>
+<p>UserID: {{.UserID}}</p>
+<p>AccessToken: {{.AccessToken}}</p>
+<p>ExpiresAt: {{.ExpiresAt}}</p>
+<p>RefreshToken: {{.RefreshToken}}</p>
+`
