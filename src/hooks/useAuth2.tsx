@@ -41,31 +41,47 @@ export function AuthContextProvider({
 	const { isPending, mutateAsync } = api.useMutation("post", "/auth/refresh");
 
 	const { data: user } = api.useQuery("get", "/me", {
-		enabled: status === "authenticated",
+		headers: {
+			Authorization: `Bearer ${token}`,
+		},
+		enabled: status === "authenticated" && !!token,
 	});
+
+	console.log("token", token);
+	console.log("status", status);
 
 	const { resetQueries } = useQueryClient();
 	useEffect(() => {
 		async function getUser() {
 			const cookie = Cookies.get("refresh_token");
+			console.log({
+				token,
+				status,
+				isPending,
+				cookie,
+			});
 			if (!token && status === "unauthenticated" && !isPending && cookie) {
 				setStatus("loading");
-				const access_token = await mutateAsync({});
+				const { access_token } = await mutateAsync({});
 				if (access_token) {
+					console.log("access_token", access_token);
 					setStatus("authenticated");
 					setToken(access_token);
+					localStorage.setItem("token", access_token);
 				}
 			} else if (!cookie) {
 				setStatus("unauthenticated");
 				setToken(undefined);
-				resetQueries(api.queryOptions("get", "/me"));
+				localStorage.removeItem("token");
+
+				// resetQueries(api.queryOptions("get", "/me"));
 			}
 		}
 		getUser();
 	}, [token, status, isPending, mutateAsync, resetQueries]);
 
 	const signin = useCallback((provider = "google") => {
-		window.location.href = `http://localhost:8888/auth/login?provider=${provider}`;
+		window.location.href = `http://localhost:8888/auth?provider=${provider}`;
 	}, []);
 
 	const { mutate } = api.useMutation("post", "/logout", {
@@ -73,7 +89,8 @@ export function AuthContextProvider({
 			setToken(undefined);
 			setStatus("unauthenticated");
 			Cookies.remove("refresh_token");
-			resetQueries(api.queryOptions("get", "/me"));
+			localStorage.removeItem("token");
+			// resetQueries(api.queryOptions("get", "/me"));
 			mutate({});
 		},
 	});

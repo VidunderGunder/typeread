@@ -35,7 +35,7 @@ var jwtSecret = []byte("supersecretkey")
 var refreshSecret = []byte("superrefreshsecret")
 
 // Genererer JWT (access token)
-func generateJWT(userID string) (string, error) {
+func generateJWT(userID int) (string, error) {
 	claims := jwt.MapClaims{
 		"sub": userID,
 		"exp": time.Now().Add(time.Minute * 15).Unix(), // 15 min levetid
@@ -46,7 +46,7 @@ func generateJWT(userID string) (string, error) {
 }
 
 // Genererer Refresh Token
-func generateRefreshToken(userID string) (string, error) {
+func generateRefreshToken(userID int) (string, error) {
 	jti := uuid.New().String()                // Generer unikt ID
 	exp := time.Now().Add(time.Hour * 24 * 7) // 7 dager levetid
 	claims := jwt.MapClaims{
@@ -71,12 +71,12 @@ func generateRefreshToken(userID string) (string, error) {
 }
 
 // Middleware for å beskytte ruter med JWT
-func validateJWT(authHeader string) (string, error) {
+func validateJWT(authHeader string) (int, error) {
 	var tokenString string
 	if strings.HasPrefix(authHeader, "Bearer ") {
 		tokenString = strings.TrimPrefix(authHeader, "Bearer ")
 	} else {
-		return "", huma.Error401Unauthorized("Unauthorized: No token")
+		return 0, huma.Error401Unauthorized("Unauthorized: No token")
 
 	}
 
@@ -85,13 +85,13 @@ func validateJWT(authHeader string) (string, error) {
 	})
 
 	if err != nil {
-		return "", huma.Error401Unauthorized(fmt.Sprintf("Unauthorized: %v", err))
+		return 0, huma.Error401Unauthorized(fmt.Sprintf("Unauthorized: %v", err))
 	}
 	if !token.Valid {
-		return "", huma.Error401Unauthorized("Unauthorized: Token is not valid")
+		return 0, huma.Error401Unauthorized("Unauthorized: Token is not valid")
 	}
 
-	return token.Claims.(jwt.MapClaims)["sub"].(string), nil
+	return token.Claims.(jwt.MapClaims)["sub"].(int), nil
 }
 
 // Middleware for å beskytte ruter med JWT
@@ -156,7 +156,7 @@ func Serve() {
 		}
 
 		// Lagre bruker i databasen
-		db.CreateUser(&database.UserInput{
+		userId := db.UpsertUser(&database.UserInput{
 			FirstName:   gothUser.FirstName,
 			LastName:    gothUser.LastName,
 			NickName:    gothUser.NickName,
@@ -174,7 +174,8 @@ func Serve() {
 		})
 
 		// 🎟️ Generer tokens
-		refreshToken, _ := generateRefreshToken(gothUser.UserID)
+		refreshToken, _ := generateRefreshToken(userId)
+		fmt.Println(refreshToken)
 		// Sett refresh token i HTTP-only cookie
 		http.SetCookie(res, &http.Cookie{
 			Name:     "refresh_token",
@@ -222,7 +223,7 @@ func Serve() {
 			return nil, huma.Error401Unauthorized("Invalid token claims")
 		}
 
-		userID, ok := claims["sub"].(string)
+		userID, ok := claims["sub"].(int)
 		if !ok {
 			return nil, huma.Error401Unauthorized("Invalid user ID")
 		}

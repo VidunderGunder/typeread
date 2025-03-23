@@ -11,10 +11,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Refresh Access Token */
-        get: operations["refresh-token"];
+        get?: never;
         put?: never;
-        post?: never;
+        /** Refresh Access Token */
+        post: operations["refresh-token"];
         delete?: never;
         options?: never;
         head?: never;

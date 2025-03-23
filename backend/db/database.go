@@ -78,11 +78,12 @@ func DatabaseInit() dbops {
 
 	db.AutoMigrate(&UserTable{})
 	db.AutoMigrate(&UserProviderTable{})
+	db.AutoMigrate(&UserDataTable{})
 
 	return dbops{db}
 }
 
-func (d dbops) CreateUser(user *UserInput, provider *UserProviderInput) int {
+func (d dbops) UpsertUser(user *UserInput, provider *UserProviderInput) int {
 	userInput := UserTable{
 		Email:       user.Email,
 		Name:        user.Name,
@@ -95,8 +96,8 @@ func (d dbops) CreateUser(user *UserInput, provider *UserProviderInput) int {
 	}
 
 	var oldProvider UserProviderTable
-	d.db.Where("UId = ?", provider.UId).First(&UserProviderTable{})
-	if oldProvider.UserID != 0 {
+	result := d.db.Where("UId = ?", provider.UId).First(&oldProvider)
+	if result.Error != nil {
 		d.db.Create(&userInput)
 		d.db.Create(&UserProviderTable{
 			UId:               provider.UId,
@@ -125,7 +126,7 @@ func (d dbops) GetUser(id string) (*UserTable, error) {
 	return &user, nil
 }
 
-func (d dbops) IsRefreshTokenValid(id string, refreshToken string) bool {
+func (d dbops) IsRefreshTokenValid(id int, refreshToken string) bool {
 	var user UserTable
 	result := d.db.Where("id = ?", id).First(&user)
 	if result.Error != nil {
@@ -139,7 +140,7 @@ func (d dbops) IsRefreshTokenValid(id string, refreshToken string) bool {
 	return UserData.RefreshToken == refreshToken && UserData.RefreshTokenExpiresAt.After(time.Now())
 }
 
-func (d dbops) RevokeRefreshToken(id string) {
+func (d dbops) RevokeRefreshToken(id int) {
 	var user UserTable
 	result := d.db.Where("id = ?", id).First(&user)
 	if result.Error != nil {
@@ -155,7 +156,7 @@ func (d dbops) RevokeRefreshToken(id string) {
 	d.db.Save(&UserData)
 }
 
-func (d dbops) StoreRefreshToken(id string, refreshToken string, expiresAt time.Time) error {
+func (d dbops) StoreRefreshToken(id int, refreshToken string, expiresAt time.Time) error {
 	var user UserTable
 	result := d.db.Where("id = ?", id).First(&user)
 	if result.Error != nil {
