@@ -11,6 +11,7 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humago"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"github.com/markbates/goth/gothic"
 	"github.com/rs/cors"
 )
@@ -27,6 +28,7 @@ type GreetingOutput struct {
 
 var mux = http.NewServeMux()
 var api = humago.New(mux, huma.DefaultConfig("TypeRead API", "0.0.1"))
+var db = database.DatabaseInit()
 
 // 🔑 Hemmeligheter for signering av tokens
 var jwtSecret = []byte("supersecretkey")
@@ -45,13 +47,27 @@ func generateJWT(userID string) (string, error) {
 
 // Genererer Refresh Token
 func generateRefreshToken(userID string) (string, error) {
+	jti := uuid.New().String()                // Generer unikt ID
+	exp := time.Now().Add(time.Hour * 24 * 7) // 7 dager levetid
 	claims := jwt.MapClaims{
 		"sub": userID,
-		"exp": time.Now().Add(time.Hour * 24 * 7).Unix(), // 7 dager levetid
+		"exp": exp.Unix(),
+		"jti": jti,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(refreshSecret)
+	signedToken, err := token.SignedString(refreshSecret)
+	if err != nil {
+		return "", err
+	}
+
+	// Lagre jti i databasen for revokering
+	err = db.StoreRefreshToken(userID, jti, exp)
+	if err != nil {
+		return "", err
+	}
+
+	return signedToken, nil
 }
 
 // Middleware for å beskytte ruter med JWT
@@ -68,14 +84,16 @@ func validateJWT(ctx huma.Context, next func(huma.Context)) {
 		return jwtSecret, nil
 	})
 
-	if err != nil || !token.Valid {
-		huma.WriteErr(api, ctx, http.StatusUnauthorized,
-			"Unauthorized: Invalid token", fmt.Errorf("error detail"),
-		)
+	if err != nil {
+		huma.WriteErr(api, ctx, http.StatusUnauthorized, fmt.Sprintf("Unauthorized: %v", err), err)
+		return
+	}
+	if !token.Valid {
+		huma.WriteErr(api, ctx, http.StatusUnauthorized, "Unauthorized: Token is not valid", fmt.Errorf("invalid token"))
 		return
 	}
 
-	ctx = huma.WithValue(ctx, "userId", token.Claims.(jwt.MapClaims)["sub"])
+	ctx = huma.WithValue(ctx, "userID", token.Claims.(jwt.MapClaims)["sub"])
 
 	next(ctx)
 
@@ -88,7 +106,6 @@ type MeBody struct {
 }
 
 func Serve() {
-	db := database.DatabaseInit()
 
 	/*████╗ ██╗   ██╗████████╗██╗  ██╗
 	██╔══██╗██║   ██║╚══██╔══╝██║  ██║
@@ -157,7 +174,6 @@ func Serve() {
 		t.Execute(res, providerIndex)
 	})
 
-	// 🔄 Endpoint for å hente nytt access token
 	mux.HandleFunc("POST /auth/refresh", func(res http.ResponseWriter, req *http.Request) {
 		cookie, err := req.Cookie("refresh_token")
 		if err != nil {
@@ -174,13 +190,29 @@ func Serve() {
 			return
 		}
 
-		claims, _ := token.Claims.(jwt.MapClaims)
-		userID := claims["sub"].(string)
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if !ok {
+			http.Error(res, "Invalid token claims", http.StatusUnauthorized)
+			return
+		}
 
-		// Generer nytt access token
+		userID := claims["sub"].(string)
+		jti := claims["jti"].(string)
+
+		// 🚨 Sjekk at jti eksisterer i databasen!
+		if !db.IsRefreshTokenValid(userID, jti) {
+			http.Error(res, "Invalid refresh token", http.StatusUnauthorized)
+			return
+		}
+
+		// ❌ Fjern det gamle refresh-tokenet fra databasen (bruk refresh-token-rotasjon)
+		db.RevokeRefreshToken(userID, jti)
+
+		// 🔄 Generer nytt access og refresh token
 		newAccessToken, _ := generateJWT(userID)
 		newRefreshToken, _ := generateRefreshToken(userID)
-		// Sett refresh token i HTTP-only cookie
+
+		// Sett nytt refresh-token i HTTP-only cookie
 		http.SetCookie(res, &http.Cookie{
 			Name:     "refresh_token",
 			Value:    newRefreshToken,
@@ -189,7 +221,7 @@ func Serve() {
 			Path:     "/",
 		})
 
-		// Send det nye access tokenet til frontend
+		// Send nytt access-token
 		res.Header().Set("Content-Type", "application/json")
 		res.WriteHeader(http.StatusOK)
 		res.Write([]byte(fmt.Sprintf(`{"access_token": "%s"}`, newAccessToken)))
@@ -252,7 +284,7 @@ func Serve() {
 			http.MethodOptions,
 		},
 		AllowedHeaders: []string{
-			"Accept", "Authorization", "Content-Type", "X-CSRF-Token",
+			"Accept", "Authorization", "Content-Type",
 		},
 	}).Handler(mux))
 }
