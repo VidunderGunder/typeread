@@ -97,6 +97,16 @@ func Serve() {
 	██║  ██║╚██████╔╝   ██║   ██║  ██║
 	╚═╝  ╚═╝ ╚═════╝    ╚═╝   ╚═╝  ╚*/
 
+	m := map[string]string{
+		"google": "Google",
+	}
+	var keys []string
+	for k := range m {
+		keys = append(keys, k)
+	}
+
+	providerIndex := &ProviderIndex{Providers: keys, ProvidersMap: m}
+
 	// 🔥 Google OAuth callback
 	mux.HandleFunc("GET /auth/callback", func(res http.ResponseWriter, req *http.Request) {
 		gothUser, err := gothic.CompleteUserAuth(res, req)
@@ -135,7 +145,7 @@ func Serve() {
 		})
 
 		// Redirect til frontend
-		http.Redirect(res, req, "http://localhost:3000", http.StatusSeeOther)
+		http.Redirect(res, req, "http://localhost:5173", http.StatusSeeOther)
 	})
 
 	mux.HandleFunc("GET /auth", func(res http.ResponseWriter, req *http.Request) {
