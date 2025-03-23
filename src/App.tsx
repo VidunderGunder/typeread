@@ -10,12 +10,15 @@ import { cn } from "@/styles/utils";
 import { Wallpaper, WallpaperSelect } from "@/components/Wallpaper";
 import { Fullscreen } from "./components/Fullscreen";
 import { Logo } from "./components/Logo";
+import { useAuth } from "./hooks/useAuth2";
 
 export function App() {
+	const { signin } = useAuth();
 	return (
 		<>
 			<div className="absolute size-full bg-[#13161c]" />
 			<Wallpaper className="blur-sm" />
+
 			<div
 				className={cn(
 					"flex size-full select-none flex-col items-center justify-center gap-10 text-white focus-visible:outline-none focus-visible:ring-0",
@@ -34,6 +37,13 @@ export function App() {
 				</div>
 				<Logo className="absolute top-4 left-5" />
 				<Fullscreen className="absolute top-3 right-3" />
+				<button
+					onClick={() => signin()}
+					type="button"
+					className="absolute top-8 left-8"
+				>
+					Login
+				</button>
 				<UploadAfter className="absolute bottom-3" />
 				<Hotkeys className="absolute right-3 bottom-3" />
 				<WallpaperSelect className="absolute bottom-4 left-4" />

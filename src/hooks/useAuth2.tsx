@@ -65,7 +65,7 @@ export function AuthContextProvider({
 	}, [token, status, isPending, mutateAsync, resetQueries]);
 
 	const signin = useCallback((provider = "google") => {
-		window.location.href = `http://localhost:8888/login?provider=${provider}`;
+		window.location.href = `http://localhost:8888/auth/login?provider=${provider}`;
 	}, []);
 
 	const { mutate } = api.useMutation("post", "/logout", {
