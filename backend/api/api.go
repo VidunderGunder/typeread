@@ -91,7 +91,7 @@ func validateJWT(authHeader string) (int, error) {
 		return 0, huma.Error401Unauthorized("Unauthorized: Token is not valid")
 	}
 
-	return token.Claims.(jwt.MapClaims)["sub"].(int), nil
+	return int(token.Claims.(jwt.MapClaims)["sub"].(float64)), nil
 }
 
 // Middleware for å beskytte ruter med JWT
@@ -102,10 +102,9 @@ func validateJWTMiddleware(ctx huma.Context, next func(huma.Context)) {
 		huma.WriteErr(api, ctx, http.StatusUnauthorized, err.Error(), err)
 		return
 	}
+	newCtx := huma.WithValue(ctx, "userID", userID)
 
-	ctx = huma.WithValue(ctx, "userID", userID)
-
-	next(ctx)
+	next(newCtx)
 
 }
 
@@ -156,26 +155,10 @@ func Serve() {
 		}
 
 		// Lagre bruker i databasen
-		userId := db.UpsertUser(&database.UserInput{
-			FirstName:   gothUser.FirstName,
-			LastName:    gothUser.LastName,
-			NickName:    gothUser.NickName,
-			Description: gothUser.Description,
-			AvatarURL:   gothUser.AvatarURL,
-			Location:    gothUser.Location,
-		}, &database.UserProviderInput{
-			UId:               gothUser.UserID,
-			Provider:          gothUser.Provider,
-			AccessToken:       gothUser.AccessToken,
-			AccessTokenSecret: gothUser.AccessTokenSecret,
-			RefreshToken:      gothUser.RefreshToken,
-			ExpiresAt:         gothUser.ExpiresAt,
-			IDToken:           gothUser.IDToken,
-		})
+		userId := db.UpsertUser(gothUser)
 
 		// 🎟️ Generer tokens
 		refreshToken, _ := generateRefreshToken(userId)
-		fmt.Println(refreshToken)
 		// Sett refresh token i HTTP-only cookie
 		http.SetCookie(res, &http.Cookie{
 			Name:     "refresh_token",
@@ -183,6 +166,8 @@ func Serve() {
 			Expires:  time.Now().Add(time.Hour * 24 * 7),
 			HttpOnly: true,
 			Path:     "/",
+			Secure:   true,
+			SameSite: http.SameSiteNoneMode,
 		})
 
 		// Redirect til frontend
@@ -203,10 +188,6 @@ func Serve() {
 	}) (*RefreshTokenOutput, error) {
 
 		cookie := input.Cookie
-		if !cookie.Expires.After(time.Now()) {
-			return nil, huma.Error401Unauthorized("No refresh token")
-		}
-
 		token, err := jwt.Parse(cookie.Value, func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, huma.Error401Unauthorized("Invalid signing method")
@@ -223,10 +204,12 @@ func Serve() {
 			return nil, huma.Error401Unauthorized("Invalid token claims")
 		}
 
-		userID, ok := claims["sub"].(int)
+		userID, ok := claims["sub"].(float64)
 		if !ok {
 			return nil, huma.Error401Unauthorized("Invalid user ID")
 		}
+
+		var id int = int(userID)
 
 		jti, ok := claims["jti"].(string)
 		if !ok {
@@ -234,16 +217,16 @@ func Serve() {
 		}
 
 		// 🚨 Sjekk at jti eksisterer i databasen!
-		if !db.IsRefreshTokenValid(userID, jti) {
+		if !db.IsRefreshTokenValid(jti) {
 			return nil, huma.Error401Unauthorized("Invalid refresh token")
 		}
 
 		// ❌ Fjern det gamle refresh-tokenet fra databasen (bruk refresh-token-rotasjon)
-		db.RevokeRefreshToken(userID)
+		db.RevokeRefreshToken(id)
 
 		// 🔄 Generer nytt access og refresh token
-		newAccessToken, _ := generateJWT(userID)
-		newRefreshToken, _ := generateRefreshToken(userID)
+		newAccessToken, _ := generateJWT(id)
+		newRefreshToken, _ := generateRefreshToken(id)
 
 		resp := &RefreshTokenOutput{
 			Cookie: http.Cookie{
@@ -296,22 +279,20 @@ func Serve() {
 		return res, nil
 	})
 
-	// 🔐 Beskyttet route
-
+	// Register the handler after UseMiddleware() for the middleware to take effect
 	api.UseMiddleware(validateJWTMiddleware)
-
 	huma.Register(api, huma.Operation{
 		OperationID: "your-operation-name",
 		Method:      http.MethodGet,
 		Path:        "/me",
 		Summary:     "Get user info",
 	}, func(ctx context.Context, req *struct{}) (*Me, error) {
-		userID := ctx.Value("userID") // Hent userID fra kontekst
-		if userID == nil {
+		userID := ctx.Value("userID").(int)
+		if userID == 0 {
 			return nil, fmt.Errorf("Unauthorized")
 		}
+		user, err := db.GetUser(userID)
 
-		user, err := db.GetUser(userID.(string))
 		if err != nil {
 			return nil, err
 		}

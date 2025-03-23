@@ -6,7 +6,6 @@ import {
 	useState,
 } from "react";
 import type { components } from "../api/schema";
-import Cookies from "js-cookie";
 import { api } from "@/api";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -35,10 +34,16 @@ export function useAuth() {
 export function AuthContextProvider({
 	children,
 }: { children: React.ReactNode }) {
-	const [status, setStatus] = useState<AuthState["status"]>("unauthenticated");
+	const [status, setStatus] = useState<AuthState["status"]>("loading");
 	const [token, setToken] = useState<string | undefined>();
 
-	const { isPending, mutateAsync } = api.useMutation("post", "/auth/refresh");
+	const { isPending, mutateAsync } = api.useMutation("post", "/auth/refresh", {
+		onError: () => {
+			setToken(undefined);
+			setStatus("unauthenticated");
+			localStorage.removeItem("token");
+		},
+	});
 
 	const { data: user } = api.useQuery("get", "/me", {
 		headers: {
@@ -47,34 +52,24 @@ export function AuthContextProvider({
 		enabled: status === "authenticated" && !!token,
 	});
 
-	console.log("token", token);
-	console.log("status", status);
-
 	const { resetQueries } = useQueryClient();
 	useEffect(() => {
 		async function getUser() {
-			const cookie = Cookies.get("refresh_token");
-			console.log({
-				token,
-				status,
-				isPending,
-				cookie,
-			});
-			if (!token && status === "unauthenticated" && !isPending && cookie) {
+			if (!token && status === "loading" && !isPending) {
 				setStatus("loading");
-				const { access_token } = await mutateAsync({});
+				const { access_token } = await mutateAsync({ credentials: "include" });
+				console.log("access_token", access_token);
 				if (access_token) {
 					console.log("access_token", access_token);
 					setStatus("authenticated");
 					setToken(access_token);
 					localStorage.setItem("token", access_token);
+				} else {
+					setStatus("unauthenticated");
+					setToken(undefined);
+					setStatus("unauthenticated");
+					localStorage.removeItem("token");
 				}
-			} else if (!cookie) {
-				setStatus("unauthenticated");
-				setToken(undefined);
-				localStorage.removeItem("token");
-
-				// resetQueries(api.queryOptions("get", "/me"));
 			}
 		}
 		getUser();
@@ -88,7 +83,6 @@ export function AuthContextProvider({
 		onSuccess: () => {
 			setToken(undefined);
 			setStatus("unauthenticated");
-			Cookies.remove("refresh_token");
 			localStorage.removeItem("token");
 			// resetQueries(api.queryOptions("get", "/me"));
 			mutate({});

@@ -1,8 +1,12 @@
 package database
 
 import (
+	"errors"
+	"fmt"
+	"log"
 	"time"
 
+	"github.com/markbates/goth"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -83,8 +87,8 @@ func DatabaseInit() dbops {
 	return dbops{db}
 }
 
-func (d dbops) UpsertUser(user *UserInput, provider *UserProviderInput) int {
-	userInput := UserTable{
+func (d dbops) UpsertUser(user goth.User) int {
+	userInput := &UserTable{
 		Email:       user.Email,
 		Name:        user.Name,
 		FirstName:   user.FirstName,
@@ -94,30 +98,42 @@ func (d dbops) UpsertUser(user *UserInput, provider *UserProviderInput) int {
 		AvatarURL:   user.AvatarURL,
 		Location:    user.Location,
 	}
-
-	var oldProvider UserProviderTable
-	result := d.db.Where("UId = ?", provider.UId).First(&oldProvider)
-	if result.Error != nil {
-		d.db.Create(&userInput)
-		d.db.Create(&UserProviderTable{
-			UId:               provider.UId,
-			Provider:          provider.Provider,
-			AccessToken:       provider.AccessToken,
-			AccessTokenSecret: provider.AccessTokenSecret,
-			RefreshToken:      provider.RefreshToken,
-			ExpiresAt:         provider.ExpiresAt,
-			IDToken:           provider.IDToken,
-			UserID:            int(userInput.ID),
-		})
-
-		return int(userInput.ID)
-	} else {
-		return int(oldProvider.UserID)
+	provider := &UserProviderTable{
+		UId:               user.UserID,
+		Provider:          user.Provider,
+		AccessToken:       user.AccessToken,
+		AccessTokenSecret: user.AccessTokenSecret,
+		RefreshToken:      user.RefreshToken,
+		ExpiresAt:         user.ExpiresAt,
+		IDToken:           user.IDToken,
 	}
 
+	fmt.Println(userInput)
+
+	var oldProvider UserProviderTable
+	result := d.db.Where("uid = ?", user.UserID).First(&oldProvider)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		// Oppretter brukeren hvis den ikke finnes
+		d.db.Create(&userInput)
+
+		provider.UserID = int(userInput.ID)
+		provider.ID = oldProvider.ID
+		d.db.Save(&provider)
+
+		return int(userInput.ID)
+	} else if result.Error != nil {
+		log.Printf("Database error: %v", result.Error)
+		return 0 // Eller annen feilhåndtering
+	} else {
+		provider.UserID = oldProvider.UserID
+		provider.ID = oldProvider.ID
+		d.db.Save(&provider)
+	}
+
+	return int(oldProvider.UserID)
 }
 
-func (d dbops) GetUser(id string) (*UserTable, error) {
+func (d dbops) GetUser(id int) (*UserTable, error) {
 	var user UserTable
 	result := d.db.Where("id = ?", id).First(&user)
 	if result.Error != nil {
@@ -126,14 +142,9 @@ func (d dbops) GetUser(id string) (*UserTable, error) {
 	return &user, nil
 }
 
-func (d dbops) IsRefreshTokenValid(id int, refreshToken string) bool {
-	var user UserTable
-	result := d.db.Where("id = ?", id).First(&user)
-	if result.Error != nil {
-		return false
-	}
+func (d dbops) IsRefreshTokenValid(refreshToken string) bool {
 	var UserData UserDataTable
-	result = d.db.Where("user_id = ?", user.ID).First(&UserData)
+	result := d.db.Where("refresh_token = ?", refreshToken).First(&UserData)
 	if result.Error != nil {
 		return false
 	}
@@ -162,15 +173,18 @@ func (d dbops) StoreRefreshToken(id int, refreshToken string, expiresAt time.Tim
 	if result.Error != nil {
 		return result.Error
 	}
-	var UserData UserDataTable
-	result = d.db.Where("user_id = ?", user.ID).First(&UserData)
-	if result.Error != nil {
-		return result.Error
+
+	userData := UserDataTable{}
+	d.db.Where("user_id = ?", user.ID).First(&userData)
+
+	userData = UserDataTable{
+		ID:                    userData.ID,
+		UserID:                int(user.ID),
+		RefreshToken:          refreshToken,
+		RefreshTokenExpiresAt: expiresAt,
 	}
-	UserData.RefreshToken = refreshToken
-	UserData.RefreshTokenExpiresAt = expiresAt
-	UserData.UserID = int(user.ID)
-	d.db.Save(&UserData)
+
+	d.db.Save(&userData)
 
 	return nil
 
