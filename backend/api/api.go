@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"text/template"
 	"time"
 	database "typeread/db"
 
@@ -137,6 +138,15 @@ func Serve() {
 		http.Redirect(res, req, "http://localhost:3000", http.StatusSeeOther)
 	})
 
+	mux.HandleFunc("GET /auth", func(res http.ResponseWriter, req *http.Request) {
+		gothic.BeginAuthHandler(res, req)
+	})
+
+	mux.HandleFunc("GET /providers-example", func(res http.ResponseWriter, req *http.Request) {
+		t, _ := template.New("foo").Parse(providersTemplate)
+		t.Execute(res, providerIndex)
+	})
+
 	// 🔄 Endpoint for å hente nytt access token
 	mux.HandleFunc("POST /auth/refresh", func(res http.ResponseWriter, req *http.Request) {
 		cookie, err := req.Cookie("refresh_token")
@@ -236,3 +246,12 @@ func Serve() {
 		},
 	}).Handler(mux))
 }
+
+type ProviderIndex struct {
+	Providers    []string
+	ProvidersMap map[string]string
+}
+
+var providersTemplate = `{{range $key,$value:=.Providers}}
+    <p><a href="/auth?provider={{$value}}">Log in with {{index $.ProvidersMap $value}}</a></p>
+{{end}}`
