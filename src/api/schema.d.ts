@@ -11,10 +11,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
-        put?: never;
         /** Refresh Access Token */
-        post: operations["refresh-token"];
+        get: operations["refresh-token"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -122,12 +122,21 @@ export interface components {
             /** @description Greeting message */
             message: string;
         };
-        MeBodyBody: {
+        MeBody: {
             /**
              * Format: uri
              * @description A URL to the JSON Schema for this object.
              */
             readonly $schema?: string;
+            AvatarURL: string;
+            Description: string;
+            FirstName: string;
+            LastName: string;
+            Location: string;
+            NickName: string;
+            email: string;
+            /** Format: int64 */
+            id: number;
             name: string;
         };
         RefreshTokenOutputBody: {
@@ -260,7 +269,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["MeBodyBody"];
+                    "application/json": components["schemas"]["MeBody"];
                 };
             };
             /** @description Error */

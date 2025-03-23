@@ -6,4 +6,5 @@ const fetchClient = createFetchClient<paths>({
 	baseUrl: "http://localhost:8888/",
 });
 
+
 export const api = createClient(fetchClient);

@@ -4,7 +4,6 @@ go 1.24.1
 
 require (
 	github.com/danielgtaylor/huma/v2 v2.31.0
-	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/sessions v1.1.1

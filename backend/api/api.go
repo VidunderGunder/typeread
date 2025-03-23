@@ -109,9 +109,17 @@ func validateJWTMiddleware(ctx huma.Context, next func(huma.Context)) {
 
 }
 
-type MeBody struct {
+type Me struct {
 	Body struct {
-		Name string `json:"name"`
+		ID          uint   `json:"id" validate:"optional"`
+		Email       string `json:"email"`
+		Name        string `json:"name"`
+		FirstName   string
+		LastName    string
+		NickName    string
+		Description string
+		AvatarURL   string
+		Location    string
 	}
 }
 
@@ -296,7 +304,7 @@ func Serve() {
 		Method:      http.MethodGet,
 		Path:        "/me",
 		Summary:     "Get user info",
-	}, func(ctx context.Context, req *struct{}) (*MeBody, error) {
+	}, func(ctx context.Context, req *struct{}) (*Me, error) {
 		userID := ctx.Value("userID") // Hent userID fra kontekst
 		if userID == nil {
 			return nil, fmt.Errorf("Unauthorized")
@@ -306,8 +314,17 @@ func Serve() {
 		if err != nil {
 			return nil, err
 		}
-		resp := &MeBody{}
+		resp := &Me{}
+		resp.Body.ID = user.ID
+		resp.Body.Email = user.Email
 		resp.Body.Name = user.Name
+		resp.Body.FirstName = user.FirstName
+		resp.Body.LastName = user.LastName
+		resp.Body.NickName = user.NickName
+		resp.Body.Description = user.Description
+		resp.Body.AvatarURL = user.AvatarURL
+		resp.Body.Location = user.Location
+
 		return resp, nil
 	})
 

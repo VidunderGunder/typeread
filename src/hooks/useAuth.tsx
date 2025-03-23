@@ -1,6 +1,8 @@
 import { atom, useAtom } from "jotai";
 import { useEffect } from "react";
 
+
+
 export type AuthState = {
 	isAuthenticated: boolean;
 	token?: string;
