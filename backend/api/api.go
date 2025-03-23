@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"text/template"
+	"strings"
 	"time"
 	database "typeread/db"
 
@@ -71,29 +71,39 @@ func generateRefreshToken(userID string) (string, error) {
 }
 
 // Middleware for å beskytte ruter med JWT
-func validateJWT(ctx huma.Context, next func(huma.Context)) {
-	cookie, err := huma.ReadCookie(ctx, "auth_token")
-	if err != nil {
-		huma.WriteErr(api, ctx, http.StatusUnauthorized,
-			"Unauthorized: No token", fmt.Errorf("error detail"),
-		)
-		return
+func validateJWT(authHeader string) (string, error) {
+	var tokenString string
+	if strings.HasPrefix(authHeader, "Bearer ") {
+		tokenString = strings.TrimPrefix(authHeader, "Bearer ")
+	} else {
+		return "", huma.Error401Unauthorized("Unauthorized: No token")
+
 	}
 
-	token, err := jwt.Parse(cookie.Value, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return jwtSecret, nil
 	})
 
 	if err != nil {
-		huma.WriteErr(api, ctx, http.StatusUnauthorized, fmt.Sprintf("Unauthorized: %v", err), err)
-		return
+		return "", huma.Error401Unauthorized(fmt.Sprintf("Unauthorized: %v", err))
 	}
 	if !token.Valid {
-		huma.WriteErr(api, ctx, http.StatusUnauthorized, "Unauthorized: Token is not valid", fmt.Errorf("invalid token"))
+		return "", huma.Error401Unauthorized("Unauthorized: Token is not valid")
+	}
+
+	return token.Claims.(jwt.MapClaims)["sub"].(string), nil
+}
+
+// Middleware for å beskytte ruter med JWT
+func validateJWTMiddleware(ctx huma.Context, next func(huma.Context)) {
+	header := ctx.Header("Authorization")
+	userID, err := validateJWT(header)
+	if err != nil {
+		huma.WriteErr(api, ctx, http.StatusUnauthorized, err.Error(), err)
 		return
 	}
 
-	ctx = huma.WithValue(ctx, "userID", token.Claims.(jwt.MapClaims)["sub"])
+	ctx = huma.WithValue(ctx, "userID", userID)
 
 	next(ctx)
 
@@ -105,6 +115,21 @@ type MeBody struct {
 	}
 }
 
+type AuthParam struct {
+	Authorization string `header:"Authorization"`
+}
+
+type CookieParam struct {
+	Cookie http.Cookie `cookie:"refresh_token"`
+}
+
+type RefreshTokenOutput struct {
+	Body struct {
+		AccessToken string `json:"access_token"`
+	}
+	Cookie http.Cookie `cookie:"refresh_token"`
+}
+
 func Serve() {
 
 	/*████╗ ██╗   ██╗████████╗██╗  ██╗
@@ -113,16 +138,6 @@ func Serve() {
 	██╔══██║██║   ██║   ██║   ██╔══██║
 	██║  ██║╚██████╔╝   ██║   ██║  ██║
 	╚═╝  ╚═╝ ╚═════╝    ╚═╝   ╚═╝  ╚*/
-
-	m := map[string]string{
-		"google": "Google",
-	}
-	var keys []string
-	for k := range m {
-		keys = append(keys, k)
-	}
-
-	providerIndex := &ProviderIndex{Providers: keys, ProvidersMap: m}
 
 	// 🔥 Google OAuth callback
 	mux.HandleFunc("GET /auth/callback", func(res http.ResponseWriter, req *http.Request) {
@@ -169,62 +184,92 @@ func Serve() {
 		gothic.BeginAuthHandler(res, req)
 	})
 
-	mux.HandleFunc("GET /providers-example", func(res http.ResponseWriter, req *http.Request) {
-		t, _ := template.New("foo").Parse(providersTemplate)
-		t.Execute(res, providerIndex)
-	})
+	huma.Register(api, huma.Operation{
+		OperationID: "refresh-token",
+		Method:      http.MethodPost,
+		Path:        "/auth/refresh",
+		Summary:     "Refresh Access Token",
+	}, func(ctx context.Context, input *struct {
+		CookieParam
+	}) (*RefreshTokenOutput, error) {
 
-	mux.HandleFunc("POST /auth/refresh", func(res http.ResponseWriter, req *http.Request) {
-		cookie, err := req.Cookie("refresh_token")
-		if err != nil {
-			http.Error(res, "No refresh token", http.StatusUnauthorized)
-			return
+		cookie := input.Cookie
+		if !cookie.Expires.After(time.Now()) {
+			return nil, huma.Error401Unauthorized("No refresh token")
 		}
 
 		token, err := jwt.Parse(cookie.Value, func(token *jwt.Token) (interface{}, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, huma.Error401Unauthorized("Invalid signing method")
+			}
 			return refreshSecret, nil
 		})
 
 		if err != nil || !token.Valid {
-			http.Error(res, "Invalid refresh token", http.StatusUnauthorized)
-			return
+			return nil, huma.Error401Unauthorized("Invalid refresh token")
 		}
 
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok {
-			http.Error(res, "Invalid token claims", http.StatusUnauthorized)
-			return
+			return nil, huma.Error401Unauthorized("Invalid token claims")
 		}
 
-		userID := claims["sub"].(string)
-		jti := claims["jti"].(string)
+		userID, ok := claims["sub"].(string)
+		if !ok {
+			return nil, huma.Error401Unauthorized("Invalid user ID")
+		}
+
+		jti, ok := claims["jti"].(string)
+		if !ok {
+			return nil, huma.Error401Unauthorized("Invalid token ID")
+		}
 
 		// 🚨 Sjekk at jti eksisterer i databasen!
 		if !db.IsRefreshTokenValid(userID, jti) {
-			http.Error(res, "Invalid refresh token", http.StatusUnauthorized)
-			return
+			return nil, huma.Error401Unauthorized("Invalid refresh token")
 		}
 
 		// ❌ Fjern det gamle refresh-tokenet fra databasen (bruk refresh-token-rotasjon)
-		db.RevokeRefreshToken(userID, jti)
+		db.RevokeRefreshToken(userID)
 
 		// 🔄 Generer nytt access og refresh token
 		newAccessToken, _ := generateJWT(userID)
 		newRefreshToken, _ := generateRefreshToken(userID)
 
-		// Sett nytt refresh-token i HTTP-only cookie
-		http.SetCookie(res, &http.Cookie{
-			Name:     "refresh_token",
-			Value:    newRefreshToken,
-			Expires:  time.Now().Add(time.Hour * 24 * 7),
-			HttpOnly: true,
-			Path:     "/",
-		})
+		resp := &RefreshTokenOutput{
+			Cookie: http.Cookie{
+				Name:     "refresh_token",
+				Value:    newRefreshToken,
+				Expires:  time.Now().Add(time.Hour * 24 * 7),
+				HttpOnly: true,
+				Path:     "/",
+			},
+			Body: struct {
+				AccessToken string `json:"access_token"`
+			}{
+				AccessToken: newAccessToken,
+			},
+		}
 
-		// Send nytt access-token
-		res.Header().Set("Content-Type", "application/json")
-		res.WriteHeader(http.StatusOK)
-		res.Write([]byte(fmt.Sprintf(`{"access_token": "%s"}`, newAccessToken)))
+		return resp, nil
+	})
+
+	huma.Register(api, huma.Operation{
+		OperationID: "logout",
+		Method:      http.MethodPost,
+		Path:        "/logout",
+		Summary:     "Logout",
+	}, func(ctx context.Context, input *struct {
+		AuthParam
+	}) (*BaseOutput, error) {
+
+		userID, err := validateJWT(input.Authorization)
+		if err != nil {
+			return &BaseOutput{Body: "Is logg out"}, nil
+		}
+		db.RevokeRefreshToken(userID)
+
+		return &BaseOutput{Body: "Logged out"}, nil
 	})
 
 	/*████╗  ██████╗ ██╗   ██╗████████╗███████╗███████╗
@@ -233,12 +278,6 @@ func Serve() {
 	██╔══██╗██║   ██║██║   ██║   ██║   ██╔══╝  ╚════██║
 	██║  ██║╚██████╔╝╚██████╔╝   ██║   ███████╗███████║
 	╚═╝  ╚═╝ ╚═════╝  ╚═════╝    ╚═╝   ╚══════╝╚═════*/
-
-	mux.HandleFunc("/", func(res http.ResponseWriter, req *http.Request) {
-		session, err := gothic.Store.Get(req, "_gothic_session")
-		fmt.Println(err)
-		fmt.Println(session.Values)
-	})
 
 	huma.Get(api, "/greeting/{name}", func(ctx context.Context, req *struct {
 		Name string `path:"name" maxLength:"30" example:"world" doc:"Name to greet"`
@@ -250,7 +289,8 @@ func Serve() {
 
 	// 🔐 Beskyttet route
 
-	api.UseMiddleware(validateJWT)
+	api.UseMiddleware(validateJWTMiddleware)
+
 	huma.Register(api, huma.Operation{
 		OperationID: "your-operation-name",
 		Method:      http.MethodGet,
@@ -288,12 +328,3 @@ func Serve() {
 		},
 	}).Handler(mux))
 }
-
-type ProviderIndex struct {
-	Providers    []string
-	ProvidersMap map[string]string
-}
-
-var providersTemplate = `{{range $key,$value:=.Providers}}
-    <p><a href="/auth?provider={{$value}}">Log in with {{index $.ProvidersMap $value}}</a></p>
-{{end}}`

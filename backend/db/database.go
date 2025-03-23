@@ -139,7 +139,7 @@ func (d dbops) IsRefreshTokenValid(id string, refreshToken string) bool {
 	return UserData.RefreshToken == refreshToken && UserData.RefreshTokenExpiresAt.After(time.Now())
 }
 
-func (d dbops) RevokeRefreshToken(id string, refreshToken string) {
+func (d dbops) RevokeRefreshToken(id string) {
 	var user UserTable
 	result := d.db.Where("id = ?", id).First(&user)
 	if result.Error != nil {
