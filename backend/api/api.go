@@ -89,27 +89,6 @@ type MeBody struct {
 func Serve() {
 	db := database.DatabaseInit()
 
-	/*████╗  ██████╗ ██╗   ██╗████████╗███████╗███████╗
-	██╔══██╗██╔═══██╗██║   ██║╚══██╔══╝██╔════╝██╔════╝
-	██████╔╝██║   ██║██║   ██║   ██║   █████╗  ███████╗
-	██╔══██╗██║   ██║██║   ██║   ██║   ██╔══╝  ╚════██║
-	██║  ██║╚██████╔╝╚██████╔╝   ██║   ███████╗███████║
-	╚═╝  ╚═╝ ╚═════╝  ╚═════╝    ╚═╝   ╚══════╝╚═════*/
-
-	mux.HandleFunc("/", func(res http.ResponseWriter, req *http.Request) {
-		session, err := gothic.Store.Get(req, "_gothic_session")
-		fmt.Println(err)
-		fmt.Println(session.Values)
-	})
-
-	huma.Get(api, "/greeting/{name}", func(ctx context.Context, req *struct {
-		Name string `path:"name" maxLength:"30" example:"world" doc:"Name to greet"`
-	}) (*GreetingOutput, error) {
-		res := &GreetingOutput{}
-		res.Body.Message = fmt.Sprintf("Hello, %s!", req.Name)
-		return res, nil
-	})
-
 	/*████╗ ██╗   ██╗████████╗██╗  ██╗
 	██╔══██╗██║   ██║╚══██╔══╝██║  ██║
 	███████║██║   ██║   ██║   ███████║
@@ -149,7 +128,7 @@ func Serve() {
 		http.SetCookie(res, &http.Cookie{
 			Name:     "refresh_token",
 			Value:    refreshToken,
-			Expires:  time.Now().Add(time.Minute * 15),
+			Expires:  time.Now().Add(time.Hour * 24 * 7),
 			HttpOnly: true,
 			Path:     "/",
 		})
@@ -185,7 +164,7 @@ func Serve() {
 		http.SetCookie(res, &http.Cookie{
 			Name:     "refresh_token",
 			Value:    newRefreshToken,
-			Expires:  time.Now().Add(time.Minute * 15),
+			Expires:  time.Now().Add(time.Hour * 24 * 7),
 			HttpOnly: true,
 			Path:     "/",
 		})
@@ -194,6 +173,27 @@ func Serve() {
 		res.Header().Set("Content-Type", "application/json")
 		res.WriteHeader(http.StatusOK)
 		res.Write([]byte(fmt.Sprintf(`{"access_token": "%s"}`, newAccessToken)))
+	})
+
+	/*████╗  ██████╗ ██╗   ██╗████████╗███████╗███████╗
+	██╔══██╗██╔═══██╗██║   ██║╚══██╔══╝██╔════╝██╔════╝
+	██████╔╝██║   ██║██║   ██║   ██║   █████╗  ███████╗
+	██╔══██╗██║   ██║██║   ██║   ██║   ██╔══╝  ╚════██║
+	██║  ██║╚██████╔╝╚██████╔╝   ██║   ███████╗███████║
+	╚═╝  ╚═╝ ╚═════╝  ╚═════╝    ╚═╝   ╚══════╝╚═════*/
+
+	mux.HandleFunc("/", func(res http.ResponseWriter, req *http.Request) {
+		session, err := gothic.Store.Get(req, "_gothic_session")
+		fmt.Println(err)
+		fmt.Println(session.Values)
+	})
+
+	huma.Get(api, "/greeting/{name}", func(ctx context.Context, req *struct {
+		Name string `path:"name" maxLength:"30" example:"world" doc:"Name to greet"`
+	}) (*GreetingOutput, error) {
+		res := &GreetingOutput{}
+		res.Body.Message = fmt.Sprintf("Hello, %s!", req.Name)
+		return res, nil
 	})
 
 	// 🔐 Beskyttet route
