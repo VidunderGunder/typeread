@@ -50,8 +50,7 @@ export function AuthContextProvider({
 	const { resetQueries } = useQueryClient();
 
 	const getToken = useCallback(async () => {
-		console.log(!token && status === "loading" && !error);
-		if (!token && status === "loading" && !error) {
+		if (!error) {
 			setStatus("loading");
 			const res = await fetch("http://localhost:8888/auth/refresh", {
 				method: "GET",
@@ -77,7 +76,8 @@ export function AuthContextProvider({
 				setError(true);
 			}
 		}
-	}, [status, token, error, fetchUser]);
+	}, [error, fetchUser]);
+	
 
 	useEffect(() => {
 		getToken().then((expires) => {
