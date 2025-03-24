@@ -359,17 +359,11 @@ export function UseInit() {
 		async function downloadProcessAndSave() {
 			try {
 				const res = await fetch(epubUrl);
-
-				console.log(res);
-
 				const file: File = await res.blob().then((blob) => {
 					return new File([blob], epubUrl, {
 						type: "application/epub+zip",
 					});
 				});
-
-				console.log(file);
-
 				const newBook = await processEpub(file);
 
 				let exists = false;
