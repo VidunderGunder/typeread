@@ -103,7 +103,22 @@ export function WallpaperSelect({
 
 	return (
 		<div
-			className={cn("flex flex-col items-center gap-2", className)}
+			className={cn(
+				"flex flex-col items-center gap-2 [overflow-y:overlay]",
+
+				"[&::-webkit-scrollbar-thumb]:bg-[#8a8a8aad]",
+				"[&::-webkit-scrollbar-thumb]:rounded-full",
+
+				"[&::-webkit-scrollbar-track]:bg-transparent",
+				"[&::-webkit-scrollbar-track]:rounded-full",
+
+				"[&::-webkit-scrollbar]:w-1",
+				"[&::-webkit-scrollbar]:rounded-full",
+
+				"p-[2px]",
+
+				className,
+			)}
 			{...props}
 		>
 			{wallpaperKeys.map((key) => (
@@ -118,7 +133,7 @@ export function WallpaperSelect({
 						setWallpaper(key);
 					}}
 					className={cn(
-						"relative size-10 cursor-pointer overflow-hidden rounded transition-all duration-200 focus:outline-none",
+						"relative aspect-square size-10 min-h-10 cursor-pointer overflow-hidden rounded transition-all duration-200 focus:outline-none",
 						wallpaper === key
 							? "ring-2 ring-white/75"
 							: "opacity-75 hover:opacity-100",
@@ -127,7 +142,7 @@ export function WallpaperSelect({
 					<img
 						src={wallpapers[key]}
 						alt={`${key} wallpaper`}
-						className="h-full w-full object-cover"
+						className="size-full object-cover"
 					/>
 				</button>
 			))}

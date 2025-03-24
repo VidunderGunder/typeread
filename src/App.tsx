@@ -36,7 +36,7 @@ export function App() {
 				<Fullscreen className="absolute top-3 right-3" />
 				<UploadAfter className="absolute bottom-3" />
 				<Hotkeys className="absolute right-3 bottom-3" />
-				<WallpaperSelect className="absolute bottom-4 left-4" />
+				<WallpaperSelect className="absolute bottom-4 left-4 max-h-[calc(100dvh-120px)]" />
 			</div>
 			<UseInit />
 		</>
