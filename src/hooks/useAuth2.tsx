@@ -50,13 +50,12 @@ export function AuthContextProvider({
 	const { resetQueries } = useQueryClient();
 
 	const getToken = useCallback(async () => {
-		if (!error) {
 			setStatus("loading");
+			try {
 			const res = await fetch("http://localhost:8888/auth/refresh", {
 				method: "GET",
 				credentials: "include",
 			});
-			try {
 				const { access_token, expires_in } = (await res.json()) as {
 					access_token: string;
 					expires_in: number;
@@ -75,7 +74,6 @@ export function AuthContextProvider({
 				setToken(undefined);
 				setError(true);
 			}
-		}
 	}, [error, fetchUser]);
 	
 
