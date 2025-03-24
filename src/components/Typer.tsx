@@ -52,6 +52,8 @@ export function Typer({ className, ...props }: TyperProps) {
 
 	const isFinished = useTyperState() === "finished";
 
+	const [searchEngine] = useAtom(searchEngineAtom);
+
 	if (mode === "book" && !bookText)
 		return (
 			<div className={cn("", className)}>
@@ -104,8 +106,6 @@ export function Typer({ className, ...props }: TyperProps) {
 
 		inputValueRef.current = newValue;
 	};
-
-	const [searchEngine] = useAtom(searchEngineAtom);
 
 	/**
 	 * Googles the given word in a new tab

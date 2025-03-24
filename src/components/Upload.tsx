@@ -1,10 +1,9 @@
 import { type ReactNode, useRef, useState, type ComponentProps } from "react";
 import { cn } from "@/styles/utils";
-import ePub from "epubjs";
-import type Section from "epubjs/types/section";
 import { useAtom, useAtomValue } from "jotai";
-import { bookTextAtom, modeAtom, booksAtom, useBook, type Book } from "@/jotai";
+import { bookTextAtom, modeAtom, booksAtom, useBook } from "@/jotai";
 import { AnimatePresence, motion } from "motion/react";
+import { processEpub } from "@/utils/file";
 
 export type UploadProps = {
 	children?: ReactNode;
@@ -18,73 +17,23 @@ export function Upload({ className, children, ...props }: UploadProps) {
 	const [books, setBooks] = useAtom(booksAtom);
 	const { setBook } = useBook();
 
-	async function processFile(file: File) {
-		const buffer = await file.arrayBuffer();
-		const epub = ePub(buffer);
-		await epub.ready;
-
-		const title = epub.packaging.metadata.title ?? file.name;
-
-		const sectionPromises: Promise<string>[] = [];
-		let chapterTitles: string[] = [];
-
-		epub.spine.each((section: Section) => {
-			const sectionPromise = (async () => {
-				const chapter = await epub.load(section.href);
-				if (!(chapter instanceof Document) || !chapter.body?.textContent) {
-					return "";
-				}
-				chapterTitles.push(chapter.title || "No Chapter Title");
-				return chapter.body.textContent
-					.trim()
-					.replace(/\s+/g, " ")
-					.replace(/[“”«»]/g, '"')
-					.replace(/[‘’]/g, "'");
-			})();
-			sectionPromises.push(sectionPromise);
-		});
-
-		let nextChapterIndex = 0;
-		const chapterIndicies: number[] = [];
-
-		const content = await Promise.all(sectionPromises);
-		const chapters = content.filter((text, i) => {
-			const hasText = !!text;
-			if (!hasText) {
-				// TODO: Remove corresponding chapterTitle
-				chapterTitles = chapterTitles.filter((_, j) => j !== i);
-			}
-			return hasText;
-		});
-		for (const chapter of chapters) {
-			chapterIndicies.push(nextChapterIndex);
-			nextChapterIndex += chapter.length - 1;
-		}
-		const text = chapters.join(" ");
+	async function processFileAndSave(file: File) {
+		const newBook = await processEpub(file);
 
 		const exists = books.some(
-			(book) => book.title === title || book.text === text,
+			(book) => book.title === newBook.title || book.text === newBook.text,
 		);
 
 		if (exists) return;
 
-		const newBook: Book = {
-			title,
-			index: 0,
-			cover: "",
-			chapterIndicies,
-			text,
-		};
-
 		setBooks((prev) => [...prev, newBook]);
-
 		setBook(newBook);
 	}
 
 	async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
 		const file = e.target.files?.[0];
 		if (!file) return;
-		await processFile(file);
+		await processFileAndSave(file);
 	}
 
 	async function handleDrop(e: React.DragEvent<HTMLDivElement>) {
@@ -92,7 +41,7 @@ export function Upload({ className, children, ...props }: UploadProps) {
 		e.stopPropagation();
 		setIsDrag(false);
 		if (e.dataTransfer.files?.[0]) {
-			await processFile(e.dataTransfer.files[0]);
+			await processFileAndSave(e.dataTransfer.files[0]);
 		}
 	}
 

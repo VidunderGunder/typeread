@@ -34,20 +34,20 @@ const authAtom = atom<Auth>({ isAuthenticated: false });
 export function useAuth() {
 	const [auth, setAuth] = useAtom(authAtom);
 
-	console.log(auth);
+	// console.log(auth);
 
 	useEffect(() => {
 		setAuth((prev) => {
 			const newAuth = { ...prev };
 
-			console.log("COOKIE", document.cookie);
+			// console.log("COOKIE", document.cookie);
 
-			function getCookie(key: string) {
-				const b = document.cookie.match("(^|;)\\s*" + key + "\\s*=\\s*([^;]+)");
-				return b ? b.pop() : "";
-			}
+			// function getCookie(key: string) {
+			// 	const b = document.cookie.match("(^|;)\\s*" + key + "\\s*=\\s*([^;]+)");
+			// 	return b ? b.pop() : "";
+			// }
 
-			console.log(getCookie("_gothic_session"));
+			// console.log(getCookie("_gothic_session"));
 
 			const cookieEntry = document.cookie
 				.split("; ")
