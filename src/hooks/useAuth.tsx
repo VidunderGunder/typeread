@@ -1,53 +1,88 @@
 import { atom, useAtom } from "jotai";
 import { useEffect } from "react";
 
-export type AuthState = {
+export type User = {
+	RawData: Record<string, unknown>;
+	Provider: string;
+	Email: string;
+	Name: string;
+	FirstName: string;
+	LastName: string;
+	NickName: string;
+	Description: string;
+	UserID: string;
+	AvatarURL: string;
+	Location: string;
+	AccessToken: string;
+	AccessTokenSecret: string;
+	RefreshToken: string;
+	ExpiresAt: Date;
+	IDToken: string;
+};
+
+export type Auth = {
 	isAuthenticated: boolean;
+	code?: string;
 	token?: string;
-	user?: unknown; // TODO
+	state?: string;
 	error?: string;
 };
 
-const authAtom = atom<AuthState>({ isAuthenticated: false });
+const authAtom = atom<Auth>({ isAuthenticated: false });
+const userAtom = atom<User | null>(null);
 
 export function useAuth() {
 	const [auth, setAuth] = useAtom(authAtom);
 
+	console.log(auth);
+
 	useEffect(() => {
-		const cookieEntry = document.cookie
-			.split("; ")
-			.find((row) => row.startsWith("_gothic_session="));
-		if (cookieEntry) {
-			const cookieValue = cookieEntry.split("=")[1];
-			setAuth((prev) => ({
-				...prev,
-				isAuthenticated: true,
-				token: cookieValue,
-			}));
-		}
+		setAuth((prev) => {
+			const newAuth = { ...prev };
 
-		const params = new URLSearchParams(window.location.search);
-		const state = params.get("state");
-		const code = params.get("code");
+			console.log("COOKIE", document.cookie);
 
-		const allParamKeys = params.keys();
-		const allParams = [];
+			function getCookie(key: string) {
+				const b = document.cookie.match("(^|;)\\s*" + key + "\\s*=\\s*([^;]+)");
+				return b ? b.pop() : "";
+			}
 
-		for (const key of allParamKeys) {
-			allParams.push(`${key}: ${params.get(key)}`);
-		}
+			console.log(getCookie("_gothic_session"));
 
-		if (state && code) {
-			setAuth((prev) => ({ ...prev, isAuthenticated: true, token: code }));
+			const cookieEntry = document.cookie
+				.split("; ")
+				.find((row) => row.startsWith("_gothic_session="));
+			if (cookieEntry) {
+				const cookieValue = cookieEntry.split("=")[1];
+				newAuth.isAuthenticated = true;
+				newAuth.token = cookieValue;
+			}
+
+			const params = new URLSearchParams(window.location.search);
+			const code = params.get("code");
+			const state = params.get("state");
+
+			const allParamKeys = params.keys();
+			const allParams = [];
+
+			for (const key of allParamKeys) {
+				allParams.push(`${key}: ${params.get(key)}`);
+			}
+
+			if (state && code) {
+				newAuth.isAuthenticated = true;
+				newAuth.code = code;
+				newAuth.state = state;
+			}
 
 			// window.history.replaceState({}, document.title, window.location.pathname);
-		}
+
+			return newAuth;
+		});
 	}, [setAuth]);
 
 	return auth;
 }
-
-// http://localhost:5173/?state=R2hCi6gsUP_SufD7G-DaNvBIXOupHRY47Tzm0sBvHMwoP8tFNfd40b9iGogpYg-pXlXBjLTwi4sdmLj-Hu3j-w%3D%3D&code=4%2F0AQSTgQHepufgBG8aQo0mjKS5dyR2uUBfBruVrljLx3wdT9vx2r26H3O2_3i-lq7eRxtytA&scope=email+openid+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email&authuser=0&prompt=none
 
 export function signin() {
 	window.location.href = "http://localhost:8888/login?provider=google";
