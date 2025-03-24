@@ -29,7 +29,7 @@ export type Auth = {
 };
 
 const authAtom = atom<Auth>({ isAuthenticated: false });
-const userAtom = atom<User | null>(null);
+// const userAtom = atom<User | null>(null);
 
 export function useAuth() {
 	const [auth, setAuth] = useAtom(authAtom);
