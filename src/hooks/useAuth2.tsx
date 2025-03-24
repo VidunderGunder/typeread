@@ -82,9 +82,12 @@ export function AuthContextProvider({
 	useEffect(() => {
 		getToken().then((expires) => {
 			if (expires) {
-				const timer = setInterval(() => {
-					getToken();
-				}, expires * 1000);
+				const timer = setInterval(
+					() => {
+						getToken();
+					},
+					(expires - 60) * 1000,
+				);
 				return () => {
 					clearInterval(timer);
 				};
