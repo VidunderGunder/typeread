@@ -8,6 +8,7 @@ import { QueryClient } from "@tanstack/react-query";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { AuthContextProvider } from "./hooks/useAuth2";
 
 if (import.meta.env.DEV) {
 	import("react-scan").then(({ scan }) => {
@@ -36,12 +37,14 @@ if (root) {
 				client={queryClient}
 				persistOptions={{ persister }}
 			>
-				<App />
-				{import.meta.env.DEV && (
-					<div className="absolute top-16 right-[5px]">
-						<ReactQueryDevtools buttonPosition="relative" />
-					</div>
-				)}
+				<AuthContextProvider>
+					<App />
+					{import.meta.env.DEV && (
+						<div className="absolute top-16 right-[5px]">
+							<ReactQueryDevtools buttonPosition="relative" />
+						</div>
+					)}
+				</AuthContextProvider>
 			</PersistQueryClientProvider>
 		</StrictMode>,
 	);
