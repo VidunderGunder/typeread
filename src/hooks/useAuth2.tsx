@@ -74,7 +74,7 @@ export function AuthContextProvider({
 				setToken(undefined);
 				setError(true);
 			}
-	}, [error, fetchUser]);
+	}, [ fetchUser]);
 	
 
 	useEffect(() => {
