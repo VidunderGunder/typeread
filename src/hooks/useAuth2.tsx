@@ -1,8 +1,10 @@
 import {
 	createContext,
+	use,
 	useCallback,
 	useContext,
 	useEffect,
+	useRef,
 	useState,
 } from "react";
 import type { components } from "../api/schema";
@@ -36,44 +38,59 @@ export function AuthContextProvider({
 }: { children: React.ReactNode }) {
 	const [status, setStatus] = useState<AuthState["status"]>("loading");
 	const [token, setToken] = useState<string | undefined>();
+	const [error, setError] = useState(false);
 
-	const { isPending, mutateAsync } = api.useMutation("post", "/auth/refresh", {
-		onError: () => {
-			setToken(undefined);
-			setStatus("unauthenticated");
-			localStorage.removeItem("token");
-		},
-	});
-
-	const { data: user } = api.useQuery("get", "/me", {
+	const { data: user, refetch: fetchUser } = api.useQuery("get", "/me", {
 		headers: {
 			Authorization: `Bearer ${token}`,
 		},
-		enabled: status === "authenticated" && !!token,
+		enabled: false,
 	});
 
 	const { resetQueries } = useQueryClient();
-	useEffect(() => {
-		async function getUser() {
-			if (!token && status === "loading" && !isPending) {
-				setStatus("loading");
-				const { access_token } = await mutateAsync({ credentials: "include" });
-				console.log("access_token", access_token);
+
+	const getToken = useCallback(async () => {
+		console.log(!token && status === "loading" && !error);
+		if (!token && status === "loading" && !error) {
+			setStatus("loading");
+			const res = await fetch("http://localhost:8888/auth/refresh", {
+				method: "GET",
+				credentials: "include",
+			});
+			try {
+				const { access_token, expires_in } = (await res.json()) as {
+					access_token: string;
+					expires_in: number;
+				};
 				if (access_token) {
-					console.log("access_token", access_token);
 					setStatus("authenticated");
 					setToken(access_token);
-					localStorage.setItem("token", access_token);
-				} else {
-					setStatus("unauthenticated");
-					setToken(undefined);
-					setStatus("unauthenticated");
-					localStorage.removeItem("token");
+					fetchUser();
+					return expires_in;
 				}
+
+				setStatus("unauthenticated");
+				setToken(undefined);
+			} catch {
+				setStatus("unauthenticated");
+				setToken(undefined);
+				setError(true);
 			}
 		}
-		getUser();
-	}, [token, status, isPending, mutateAsync, resetQueries]);
+	}, [status, token, error, fetchUser]);
+
+	useEffect(() => {
+		getToken().then((expires) => {
+			if (expires) {
+				const timer = setInterval(() => {
+					getToken();
+				}, expires * 1000);
+				return () => {
+					clearInterval(timer);
+				};
+			}
+		});
+	}, [getToken]);
 
 	const signin = useCallback((provider = "google") => {
 		window.location.href = `http://localhost:8888/auth?provider=${provider}`;
@@ -85,7 +102,6 @@ export function AuthContextProvider({
 			setStatus("unauthenticated");
 			localStorage.removeItem("token");
 			// resetQueries(api.queryOptions("get", "/me"));
-			mutate({});
 		},
 	});
 

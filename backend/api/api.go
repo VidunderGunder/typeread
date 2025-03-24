@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -35,14 +36,17 @@ var jwtSecret = []byte("supersecretkey")
 var refreshSecret = []byte("superrefreshsecret")
 
 // Genererer JWT (access token)
-func generateJWT(userID int) (string, error) {
+func generateJWT(userID int) (int, string, error) {
+	exp := time.Now().Add(time.Minute * 15)
 	claims := jwt.MapClaims{
 		"sub": userID,
-		"exp": time.Now().Add(time.Minute * 15).Unix(), // 15 min levetid
+		"exp": exp.Unix(), // 15 min levetid
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(jwtSecret)
+
+	tokenString, err := token.SignedString(jwtSecret)
+	return exp.Second(), tokenString, err
 }
 
 // Genererer Refresh Token
@@ -134,7 +138,6 @@ type RefreshTokenOutput struct {
 	Body struct {
 		AccessToken string `json:"access_token"`
 	}
-	Cookie http.Cookie `cookie:"refresh_token"`
 }
 
 func Serve() {
@@ -178,72 +181,79 @@ func Serve() {
 		gothic.BeginAuthHandler(res, req)
 	})
 
-	huma.Register(api, huma.Operation{
-		OperationID: "refresh-token",
-		Method:      http.MethodPost,
-		Path:        "/auth/refresh",
-		Summary:     "Refresh Access Token",
-	}, func(ctx context.Context, input *struct {
-		CookieParam
-	}) (*RefreshTokenOutput, error) {
+	mux.HandleFunc("GET /auth/refresh", func(w http.ResponseWriter, req *http.Request) {
+		// 🔍 Hent cookie fra request
+		cookie, err := req.Cookie("refresh_token")
+		if err != nil {
+			http.Error(w, "Refresh token not found", http.StatusUnauthorized)
+			return
+		}
 
-		cookie := input.Cookie
+		// 🔑 Parse JWT-tokenet fra cookie
 		token, err := jwt.Parse(cookie.Value, func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, huma.Error401Unauthorized("Invalid signing method")
+				return nil, fmt.Errorf("Invalid signing method")
 			}
 			return refreshSecret, nil
 		})
 
 		if err != nil || !token.Valid {
-			return nil, huma.Error401Unauthorized("Invalid refresh token")
+			http.Error(w, "Invalid refresh token", http.StatusUnauthorized)
+			return
 		}
 
+		// 📜 Hent claims fra token
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok {
-			return nil, huma.Error401Unauthorized("Invalid token claims")
+			http.Error(w, "Invalid token claims", http.StatusUnauthorized)
+			return
 		}
 
 		userID, ok := claims["sub"].(float64)
 		if !ok {
-			return nil, huma.Error401Unauthorized("Invalid user ID")
+			http.Error(w, "Invalid user ID", http.StatusUnauthorized)
+			return
 		}
-
-		var id int = int(userID)
 
 		jti, ok := claims["jti"].(string)
 		if !ok {
-			return nil, huma.Error401Unauthorized("Invalid token ID")
+			http.Error(w, "Invalid token ID", http.StatusUnauthorized)
+			return
 		}
 
 		// 🚨 Sjekk at jti eksisterer i databasen!
 		if !db.IsRefreshTokenValid(jti) {
-			return nil, huma.Error401Unauthorized("Invalid refresh token")
+			http.Error(w, "Invalid refresh token", http.StatusUnauthorized)
+			return
 		}
 
 		// ❌ Fjern det gamle refresh-tokenet fra databasen (bruk refresh-token-rotasjon)
-		db.RevokeRefreshToken(id)
+		db.RevokeRefreshToken(int(userID))
 
 		// 🔄 Generer nytt access og refresh token
-		newAccessToken, _ := generateJWT(id)
-		newRefreshToken, _ := generateRefreshToken(id)
+		expiresIn, newAccessToken, _ := generateJWT(int(userID))
+		newRefreshToken, _ := generateRefreshToken(int(userID))
 
-		resp := &RefreshTokenOutput{
-			Cookie: http.Cookie{
-				Name:     "refresh_token",
-				Value:    newRefreshToken,
-				Expires:  time.Now().Add(time.Hour * 24 * 7),
-				HttpOnly: true,
-				Path:     "/",
-			},
-			Body: struct {
-				AccessToken string `json:"access_token"`
-			}{
-				AccessToken: newAccessToken,
-			},
-		}
+		Expires := time.Now().Add(time.Hour * 24 * 7)
 
-		return resp, nil
+		// 🍪 Oppdater refresh-token i cookie
+		http.SetCookie(w, &http.Cookie{
+			Name:     "refresh_token",
+			Value:    newRefreshToken,
+			Expires:  Expires,
+			HttpOnly: true,
+			Path:     "/",
+			Secure:   true,
+			SameSite: http.SameSiteNoneMode,
+		})
+
+		// 📤 Send nytt access token som JSON-respons
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"access_token": newAccessToken,
+			"expiresIn":    expiresIn,
+		})
 	})
 
 	huma.Register(api, huma.Operation{

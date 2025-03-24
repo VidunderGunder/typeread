@@ -2,7 +2,6 @@ package database
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"time"
 
@@ -107,8 +106,6 @@ func (d dbops) UpsertUser(user goth.User) int {
 		ExpiresAt:         user.ExpiresAt,
 		IDToken:           user.IDToken,
 	}
-
-	fmt.Println(userInput)
 
 	var oldProvider UserProviderTable
 	result := d.db.Where("uid = ?", user.UserID).First(&oldProvider)
