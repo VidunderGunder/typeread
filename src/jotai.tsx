@@ -57,9 +57,9 @@ export const searchEngineAtom = atomWithStorage<SearchEngine>(
 	"Google",
 );
 
-export const amounts = [10, 25, 50, 100] as const;
-export type Amount = (typeof amounts)[number];
-export const amountAtom = atomWithStorage<Amount>("amount", 25);
+export const wordsPerChunks = [10, 25, 50, 100] as const;
+export type WordsPerChunk = (typeof wordsPerChunks)[number];
+export const wordsPerChunkAtom = atomWithStorage<WordsPerChunk>("amount", 25);
 
 export const wallpaperAtom = atomWithStorage<string>("wallpaper", "mushrooms");
 
@@ -109,6 +109,44 @@ export const bookChapterIndiciesAtom = atomWithStorage<number[]>(
 	[],
 );
 export const bookTextAtom = atomWithStorage<string>("book-text", "");
+
+type Chunks = {
+	last: string;
+	current: string;
+	next: string;
+};
+export const chunksAtom = atom<Chunks>((get) => {
+	const index = get(bookIndexAtom);
+
+	const text = get(bookTextAtom);
+	const wordsPerChunk = get(wordsPerChunkAtom);
+
+	const lastIndex = getBackIndex({
+		text,
+		words: wordsPerChunk,
+		currentIndex: index,
+	});
+	const nextIndex = getNextIndex({
+		text,
+		words: wordsPerChunk,
+		currentIndex: index,
+	});
+	const nextNextIndex = getNextIndex({
+		text,
+		words: wordsPerChunk,
+		currentIndex: nextIndex,
+	});
+
+	const current = text.substring(index, nextIndex);
+	const last = text.substring(lastIndex, index);
+	const next = text.substring(nextIndex, nextNextIndex);
+
+	return {
+		last,
+		current,
+		next,
+	};
+});
 
 export const modes = ["words", "code", "book"] as const;
 export type Mode = (typeof modes)[number];
@@ -189,7 +227,7 @@ export function useInit() {
 	const resetMisses = useResetAtom(missesAtom);
 	const resetProblemWords = useResetAtom(problemWordsAtom);
 	const resetWpm = useResetAtom(wpmAtom);
-	const amount = useAtomValue(amountAtom);
+	const amount = useAtomValue(wordsPerChunkAtom);
 	const mode = useAtomValue(modeAtom);
 	const [bookIndex, setBookIndex] = useAtom(bookIndexAtom);
 	const bookText = useAtomValue(bookTextAtom);
@@ -222,7 +260,7 @@ export function useInit() {
 							? getBackIndex({
 									text: bookText,
 									currentIndex: bookIndex,
-									chunk: a,
+									words: a,
 								})
 							: 0,
 					stay: bookIndex,
@@ -231,7 +269,7 @@ export function useInit() {
 							? getNextIndex({
 									text: bookText,
 									currentIndex: bookIndex,
-									chunk: a,
+									words: a,
 								})
 							: 0,
 				} satisfies Record<typeof direction, number>;

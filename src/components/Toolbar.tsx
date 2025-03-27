@@ -1,7 +1,7 @@
 import type { ComponentProps } from "react";
 import { cn } from "@/styles/utils";
 import { useAtom } from "jotai";
-import { amountAtom, amounts, modeAtom, modes } from "@/jotai";
+import { wordsPerChunkAtom, modeAtom, modes } from "@/jotai";
 
 export type ToolbarProps = {
 	//
@@ -52,12 +52,12 @@ function ModeSelector() {
 }
 
 function ChunkSelector() {
-	const [amount, setAmount] = useAtom(amountAtom);
+	const [amount, setAmount] = useAtom(wordsPerChunkAtom);
 
 	return (
 		<div className="rounded-xl bg-black/60 p-1">
 			<div className="flex">
-				{amounts.map((a) => {
+			.map((a) => {
 					return (
 						<button
 							type="button"
