@@ -121,29 +121,31 @@ export function Typer({ className, ...props }: TyperProps) {
 				className={cn("max-w-[min(65dvw,800px)] font-bold text-xl", className)}
 				{...props}
 			>
-				<input
-					ref={focusTrapRef}
-					type="text"
-					onBlur={(e) => {
-						e.currentTarget.focus();
-					}}
-					// biome-ignore lint/a11y/noAutofocus: <explanation>
-					autoFocus
-					tabIndex={0}
-					// Native inputs are not handled correctly unless the input is considered visible by the browser
-					className="absolute right-[9999px] size-[1px] text-transparent outline-none ring-0 focus-visible:outline-none"
-					onKeyDown={(e) => {
-						if (
-							["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(
-								e.key,
-							)
-						) {
-							e.preventDefault();
-						}
-					}}
-					value={controlledValue}
-					onChange={handleChange}
-				/>
+				<div className="pointer-events-none flex h-[0px] w-full justify-start opacity-0">
+					<input
+						ref={focusTrapRef}
+						type="text"
+						onBlur={(e) => {
+							e.currentTarget.focus();
+						}}
+						// biome-ignore lint/a11y/noAutofocus: <explanation>
+						autoFocus
+						tabIndex={0}
+						// Native inputs are not handled correctly unless the input is considered visible by the browser
+						className="size-[1px]"
+						onKeyDown={(e) => {
+							if (
+								["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(
+									e.key,
+								)
+							) {
+								e.preventDefault();
+							}
+						}}
+						value={controlledValue}
+						onChange={handleChange}
+					/>
+				</div>
 				{splitIntoGroups(chars)?.map((group, groupIndex) => {
 					if (group.type === "space") {
 						const charIndex = group.indices[0];
