@@ -1,93 +1,117 @@
-import { atom, useAtom } from "jotai";
-import { useEffect } from "react";
+import {
+	createContext,
+	useCallback,
+	useContext,
+	useEffect,
+	useState,
+} from "react";
+import type { components } from "../api/schema";
+import { api } from "@/api";
 
-export type User = {
-	RawData: Record<string, unknown>;
-	Provider: string;
-	Email: string;
-	Name: string;
-	FirstName: string;
-	LastName: string;
-	NickName: string;
-	Description: string;
-	UserID: string;
-	AvatarURL: string;
-	Location: string;
-	AccessToken: string;
-	AccessTokenSecret: string;
-	RefreshToken: string;
-	ExpiresAt: Date;
-	IDToken: string;
-};
+export type User = components["schemas"]["MeBody"];
 
-export type Auth = {
-	isAuthenticated: boolean;
-	code?: string;
+export type AuthState = {
+	status: "loading" | "unauthenticated" | "authenticated";
+	user?: User;
 	token?: string;
-	state?: string;
-	error?: string;
+	signin: (provider?: "google") => void;
+	signout: () => void;
+	error: boolean;
 };
 
-const authAtom = atom<Auth>({ isAuthenticated: false });
-// const userAtom = atom<User | null>(null);
+const AuthContext = createContext<AuthState>({
+	status: "unauthenticated",
+	signin: () => {},
+	signout: () => {},
+	error: false,
+});
 
 export function useAuth() {
-	const [auth, setAuth] = useAtom(authAtom);
+	const auth = useContext(AuthContext);
 
-	// console.log(auth);
+	return { ...auth };
+}
+
+export function AuthContextProvider({
+	children,
+}: { children: React.ReactNode }) {
+	const [status, setStatus] = useState<AuthState["status"]>("loading");
+	const [token, setToken] = useState<string | undefined>();
+	const [error, setError] = useState(false);
+
+	const { data: user, refetch: fetchUser } = api.useQuery("get", "/me", {
+		headers: {
+			Authorization: `Bearer ${token}`,
+		},
+		enabled: false,
+	});
+
+	const getToken = useCallback(async () => {
+		setStatus("loading");
+		try {
+			const res = await fetch("http://localhost:8888/auth/refresh", {
+				method: "GET",
+				credentials: "include",
+			});
+			const { access_token, expires_in } = (await res.json()) as {
+				access_token: string;
+				expires_in: number;
+			};
+			if (access_token) {
+				setStatus("authenticated");
+				setToken(access_token);
+				fetchUser();
+				return expires_in;
+			}
+
+			setStatus("unauthenticated");
+			setToken(undefined);
+		} catch {
+			setStatus("unauthenticated");
+			setToken(undefined);
+			setError(true);
+		}
+	}, [fetchUser]);
 
 	useEffect(() => {
-		setAuth((prev) => {
-			const newAuth = { ...prev };
-
-			// console.log("COOKIE", document.cookie);
-
-			// function getCookie(key: string) {
-			// 	const b = document.cookie.match("(^|;)\\s*" + key + "\\s*=\\s*([^;]+)");
-			// 	return b ? b.pop() : "";
-			// }
-
-			// console.log(getCookie("_gothic_session"));
-
-			const cookieEntry = document.cookie
-				.split("; ")
-				.find((row) => row.startsWith("_gothic_session="));
-			if (cookieEntry) {
-				const cookieValue = cookieEntry.split("=")[1];
-				newAuth.isAuthenticated = true;
-				newAuth.token = cookieValue;
+		getToken().then((expires) => {
+			if (expires) {
+				const timer = setInterval(
+					() => {
+						getToken();
+					},
+					(expires - 60) * 1000,
+				);
+				return () => {
+					clearInterval(timer);
+				};
 			}
-
-			const params = new URLSearchParams(window.location.search);
-			const code = params.get("code");
-			const state = params.get("state");
-
-			const allParamKeys = params.keys();
-			const allParams = [];
-
-			for (const key of allParamKeys) {
-				allParams.push(`${key}: ${params.get(key)}`);
-			}
-
-			if (state && code) {
-				newAuth.isAuthenticated = true;
-				newAuth.code = code;
-				newAuth.state = state;
-			}
-
-			// window.history.replaceState({}, document.title, window.location.pathname);
-
-			return newAuth;
 		});
-	}, [setAuth]);
+	}, [getToken]);
 
-	return auth;
-}
+	const signin = useCallback((provider = "google") => {
+		window.location.href = `http://localhost:8888/auth?provider=${provider}`;
+	}, []);
 
-export function signin() {
-	window.location.href = "http://localhost:8888/login?provider=google";
-}
+	const { mutate } = api.useMutation("post", "/logout", {
+		onSuccess: () => {
+			setToken(undefined);
+			setStatus("unauthenticated");
+			localStorage.removeItem("token");
+			// resetQueries(api.queryOptions("get", "/me"));
+		},
+	});
 
-export function signout() {
-	window.location.href = "http://localhost:8888/logout?provider=google";
+	const signout = useCallback(() => {
+		setStatus("loading");
+		mutate({});
+	}, [mutate]);
+
+	return (
+		<AuthContext.Provider
+			value={{ status, token, user, signin, signout, error }}
+		>
+			{children}
+		</AuthContext.Provider>
+	);
 }

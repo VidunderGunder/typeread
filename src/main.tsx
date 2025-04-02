@@ -8,7 +8,7 @@ import { QueryClient } from "@tanstack/react-query";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { AuthContextProvider } from "./hooks/useAuth2";
+import { AuthContextProvider } from "./hooks/useAuth";
 
 if (import.meta.env.DEV) {
 	import("react-scan").then(({ scan }) => {
