@@ -6,7 +6,7 @@ import { Icon } from "@iconify/react/dist/iconify.js";
 import { Modal } from "./Modal";
 import { useAtom } from "jotai";
 import { type SearchEngine, searchEngineAtom, searchEngines } from "@/jotai";
-import { signin, signout, useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 
 export type ProfileProps = {
 	//
@@ -45,19 +45,21 @@ export function Profile({ className, ...props }: ProfileProps) {
 				children={<SearchEngineSelect />}
 				footer={
 					<CommandsWrapper className="justify-end p-4">
-						{auth.isAuthenticated ? (
+						{auth.status === "authenticated" ? (
 							<Command
 								label="Sign out"
 								flip
 								keyboard_key="KeyO"
-								handler={signout}
+								handler={auth.signout}
 							/>
 						) : (
 							<Command
 								label="Sign in"
 								flip
 								keyboard_key="Enter"
-								handler={signin}
+								handler={() => {
+									auth.signin();
+								}}
 							/>
 						)}
 					</CommandsWrapper>
