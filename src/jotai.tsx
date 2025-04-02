@@ -29,6 +29,8 @@ import type { WallpaperKey } from "./components/Wallpaper";
 export const disableEscapeAtom = atomWithStorage("disable-escape", false);
 export const disableTyperAtom = atom(false);
 
+export const muteAtom = atom(true);
+
 export const searchEngines = [
 	"Google",
 	"DuckDuckGo",
@@ -62,7 +64,7 @@ export const wordsPerChunks = [10, 25, 50, 100] as const;
 export type WordsPerChunk = (typeof wordsPerChunks)[number];
 export const wordsPerChunkAtom = atomWithStorage<WordsPerChunk>("amount", 25);
 
-export const wallpaperAtom = atomWithStorage<WallpaperKey>(
+export const wallpaperAtom = atomWithStorage<WallpaperKey | "">(
 	"wallpaper",
 	"fireplace",
 );

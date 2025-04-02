@@ -10,6 +10,8 @@ import { cn } from "@/styles/utils";
 import { Wallpaper, WallpaperSelect } from "@/components/Wallpaper";
 import { Fullscreen } from "./components/Fullscreen";
 import { Logo } from "./components/Logo";
+import { AudioToggleButton } from "./components/AudioToggleButton";
+import { BackgroundAudioPlayer } from "./components/BackgroundAudioPlayer";
 
 export function App() {
 	return (
@@ -37,8 +39,10 @@ export function App() {
 				<UploadAfter className="absolute bottom-3" />
 				<Hotkeys className="absolute right-3 bottom-3" />
 				<WallpaperSelect className="absolute bottom-4 left-4 max-h-[calc(100dvh-120px)]" />
+				<AudioToggleButton className="absolute top-3 right-[48px]" />
 			</div>
 			<UseInit />
+			<BackgroundAudioPlayer />
 		</>
 	);
 }
