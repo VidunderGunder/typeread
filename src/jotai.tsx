@@ -12,6 +12,7 @@ import { useCallback, useEffect } from "react";
 import { modeMap } from "./utils/constants";
 import { getBackIndex, getNextIndex } from "./utils/book";
 import { booksDefault } from "./default";
+import { processEpub } from "./utils/file";
 
 // ASCII Text Generator:
 // https://patorjk.com/software/taag/#p=display&f=Elite&t=Hello%20World
@@ -56,9 +57,9 @@ export const searchEngineAtom = atomWithStorage<SearchEngine>(
 	"Google",
 );
 
-export const amounts = [10, 25, 50, 100] as const;
-export type Amount = (typeof amounts)[number];
-export const amountAtom = atomWithStorage<Amount>("amount", 25);
+export const wordsPerChunks = [10, 25, 50, 100] as const;
+export type WordsPerChunk = (typeof wordsPerChunks)[number];
+export const wordsPerChunkAtom = atomWithStorage<WordsPerChunk>("amount", 25);
 
 export const wallpaperAtom = atomWithStorage<string>("wallpaper", "mushrooms");
 
@@ -98,28 +99,54 @@ export type Book = {
 	text: string;
 };
 
-export const booksAtom = atomWithStorage<Book[]>("books", booksDefault);
+export const booksAtom = atomWithStorage<Book[]>("books", []);
 
-export const bookTitleAtom = atomWithStorage<string>(
-	"book-title",
-	booksDefault[0].title,
-);
-export const bookIndexAtom = atomWithStorage<number>(
-	"book-index",
-	booksDefault[0].index,
-);
-export const bookCoverAtom = atomWithStorage<string>(
-	"book-cover",
-	booksDefault[0].cover,
-);
+export const bookTitleAtom = atomWithStorage<string>("book-title", "");
+export const bookIndexAtom = atomWithStorage<number>("book-index", 0);
+export const bookCoverAtom = atomWithStorage<string>("book-cover", "");
 export const bookChapterIndiciesAtom = atomWithStorage<number[]>(
 	"book-chapter-indicies",
-	booksDefault[0].chapterIndicies,
+	[],
 );
-export const bookTextAtom = atomWithStorage<string>(
-	"book-text",
-	booksDefault[0].text,
-);
+export const bookTextAtom = atomWithStorage<string>("book-text", "");
+
+type Chunks = {
+	last: string;
+	current: string;
+	next: string;
+};
+export const chunksAtom = atom<Chunks>((get) => {
+	const index = get(bookIndexAtom);
+
+	const text = get(bookTextAtom);
+	const wordsPerChunk = get(wordsPerChunkAtom);
+
+	const lastIndex = getBackIndex({
+		text,
+		words: wordsPerChunk,
+		currentIndex: index,
+	});
+	const nextIndex = getNextIndex({
+		text,
+		words: wordsPerChunk,
+		currentIndex: index,
+	});
+	const nextNextIndex = getNextIndex({
+		text,
+		words: wordsPerChunk,
+		currentIndex: nextIndex,
+	});
+
+	const current = text.substring(index, nextIndex);
+	const last = text.substring(lastIndex, index);
+	const next = text.substring(nextIndex, nextNextIndex);
+
+	return {
+		last,
+		current,
+		next,
+	};
+});
 
 export const modes = ["words", "code", "book"] as const;
 export type Mode = (typeof modes)[number];
@@ -200,7 +227,7 @@ export function useInit() {
 	const resetMisses = useResetAtom(missesAtom);
 	const resetProblemWords = useResetAtom(problemWordsAtom);
 	const resetWpm = useResetAtom(wpmAtom);
-	const amount = useAtomValue(amountAtom);
+	const amount = useAtomValue(wordsPerChunkAtom);
 	const mode = useAtomValue(modeAtom);
 	const [bookIndex, setBookIndex] = useAtom(bookIndexAtom);
 	const bookText = useAtomValue(bookTextAtom);
@@ -233,7 +260,7 @@ export function useInit() {
 							? getBackIndex({
 									text: bookText,
 									currentIndex: bookIndex,
-									chunk: a,
+									words: a,
 								})
 							: 0,
 					stay: bookIndex,
@@ -242,7 +269,7 @@ export function useInit() {
 							? getNextIndex({
 									text: bookText,
 									currentIndex: bookIndex,
-									chunk: a,
+									words: a,
 								})
 							: 0,
 				} satisfies Record<typeof direction, number>;
@@ -355,8 +382,47 @@ export function useInit() {
 	};
 }
 
+const epubUrl = "/alice.epub";
+
 export function UseInit() {
 	const { init } = useInit();
+	const [books, setBooks] = useAtom(booksAtom);
+	const { setBook } = useBook();
+
+	const hasBook = books.length > 0;
+
+	useEffect(() => {
+		if (hasBook) return;
+
+		async function downloadProcessAndSave() {
+			try {
+				const res = await fetch(epubUrl);
+				const file: File = await res.blob().then((blob) => {
+					return new File([blob], epubUrl, {
+						type: "application/epub+zip",
+					});
+				});
+				const newBook = await processEpub(file);
+
+				let exists = false;
+
+				setBooks((prev) => {
+					exists = prev.some(
+						(book) =>
+							book.title === newBook.title || book.text === newBook.text,
+					);
+					if (exists) return prev;
+					return [...prev, newBook];
+				});
+				if (exists) return;
+				setBook({ ...newBook, ...booksDefault[0] });
+			} catch (error) {
+				console.error("Failed to fetch ebook:", error);
+			}
+		}
+
+		downloadProcessAndSave();
+	}, [hasBook, setBook, setBooks]);
 
 	useEffect(() => {
 		init();

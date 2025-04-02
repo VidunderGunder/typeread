@@ -1,7 +1,8 @@
-import type { ComponentProps } from "react";
+import { useCallback, type ComponentProps } from "react";
 import { cn } from "@/styles/utils";
-import { useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import {
+	type Book,
 	bookChapterIndiciesAtom,
 	bookIndexAtom,
 	booksAtom,
@@ -25,6 +26,28 @@ export function BookTitle({ className, ...props }: BookTitleProps) {
 	const indicies = useAtomValue(bookChapterIndiciesAtom);
 	const books = useAtomValue(booksAtom);
 	const { setBook } = useBook();
+	const setBooks = useSetAtom(booksAtom);
+
+	const deleteBook = useCallback(
+		function deleteBook(title: string) {
+			let newBook: Book | undefined = undefined;
+
+			setBooks((prev) => {
+				if (prev.length === 1) {
+					alert(
+						"You cannot delete the last book. Please add a new book first.",
+					);
+					return prev;
+				}
+				const newBooks = prev.filter((book) => book.title !== title);
+				newBook = newBooks[0];
+				return newBooks;
+			});
+
+			if (newBook) setBook(newBook);
+		},
+		[setBooks, setBook],
+	);
 
 	const currentBookIndex = books.findIndex((book) => book.title === bookTitle);
 
@@ -53,22 +76,39 @@ export function BookTitle({ className, ...props }: BookTitleProps) {
 			)}
 			{...props}
 		>
-			<div className="relative flex items-center gap-4 font-black text-xl">
-				<select
-					value={currentBookIndex >= 0 ? currentBookIndex : 0}
-					onChange={handleChange}
-					className="cursor-pointer appearance-none rounded-lg bg-transparent px-3 py-1 pr-8 font-black text-white text-xl hover:bg-white/10"
+			<div className="flex gap-1">
+				<div className="relative flex items-center gap-4 font-black text-xl">
+					<select
+						value={currentBookIndex >= 0 ? currentBookIndex : 0}
+						onChange={handleChange}
+						className="cursor-pointer appearance-none rounded-lg px-3 py-1 pr-8 font-black text-white text-xl hover:bg-white/10"
+					>
+						{books.map((book, index) => (
+							<option key={book.title} value={index}>
+								{book.title}
+							</option>
+						))}
+					</select>
+					<Icon
+						icon="material-symbols:arrows-outward-rounded"
+						className="pointer-events-none absolute right-2 rotate-90"
+					/>
+				</div>
+				<button
+					type="button"
+					className="flex not-disabled:cursor-pointer items-center justify-center rounded-lg px-1.5 py-1 not-disabled:hover:bg-white/10"
+					onClick={() => {
+						const sure = confirm(
+							"Are you sure you want to delete this book and your progress? This cannot be undone.",
+						);
+						if (sure) deleteBook(bookTitle);
+					}}
 				>
-					{books.map((book, index) => (
-						<option key={book.title} value={index}>
-							{book.title}
-						</option>
-					))}
-				</select>
-				<Icon
-					icon="material-symbols:arrows-outward-rounded"
-					className="pointer-events-none absolute right-2 rotate-90"
-				/>
+					<Icon
+						icon="material-symbols:delete-forever-rounded"
+						className="size-6 text-white"
+					/>
+				</button>
 			</div>
 
 			<motion.div className="full relative flex h-[18px] w-full items-center justify-center overflow-clip rounded-full bg-black/60">

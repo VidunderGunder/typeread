@@ -4,11 +4,11 @@
 export function getBackIndex({
 	text,
 	currentIndex,
-	chunk,
+	words,
 }: {
 	text: string;
 	currentIndex: number;
-	chunk: number;
+	words: number;
 }): number {
 	// If at the very start, nothing to go back.
 	if (currentIndex <= 0) return 0;
@@ -22,7 +22,7 @@ export function getBackIndex({
 
 	let wordsCount = 0;
 	// Move backwards by CHUNK_SIZE words.
-	while (index > 0 && wordsCount < chunk) {
+	while (index > 0 && wordsCount < words) {
 		// Skip any separator characters (space or comma)
 		while (index > 0 && (text[index - 1] === " " || text[index - 1] === ",")) {
 			index--;
@@ -42,11 +42,11 @@ export function getBackIndex({
 export function getNextIndex({
 	text,
 	currentIndex,
-	chunk,
+	words,
 }: {
 	text: string;
 	currentIndex: number;
-	chunk: number;
+	words: number;
 }): number {
 	// If already at (or past) the end of text, return text length.
 	if (currentIndex >= text.length) return text.length;
@@ -73,7 +73,7 @@ export function getNextIndex({
 	// Count the first word that we have just finished.
 	let wordsCount = 0;
 	// Now move forward by CHUNK_SIZE - 1 additional words.
-	while (index < text.length && wordsCount < chunk) {
+	while (index < text.length && wordsCount < words) {
 		// Skip over the next word.
 		while (index < text.length && text[index] !== " " && text[index] !== ",") {
 			index++;

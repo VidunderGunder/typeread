@@ -52,6 +52,8 @@ export function Typer({ className, ...props }: TyperProps) {
 
 	const isFinished = useTyperState() === "finished";
 
+	const [searchEngine] = useAtom(searchEngineAtom);
+
 	if (mode === "book" && !bookText)
 		return (
 			<div className={cn("", className)}>
@@ -104,8 +106,6 @@ export function Typer({ className, ...props }: TyperProps) {
 
 		inputValueRef.current = newValue;
 	};
-
-	const [searchEngine] = useAtom(searchEngineAtom);
 
 	/**
 	 * Googles the given word in a new tab
@@ -203,8 +203,11 @@ export function Typer({ className, ...props }: TyperProps) {
 					return (
 						<span
 							key={["word", groupIndex].join("-")}
-							className="whitespace-nowrap"
+							className="relative whitespace-nowrap"
 						>
+							{group.isWrong && (
+								<div className="absolute inset-x-0 bottom-0 h-[1px] bg-red-600" />
+							)}
 							{isCurrentWord && (
 								<Command
 									className="hidden"
@@ -238,8 +241,8 @@ export function Typer({ className, ...props }: TyperProps) {
 											className={cn(
 												group.isWrong
 													? char.char === char.typed
-														? "rounded-2xl text-red-300"
-														: "rounded-2xl text-red-600/50"
+														? "rounded-2xl"
+														: "rounded-2xl text-[#8190b3]"
 													: "",
 											)}
 											char={char.char}
