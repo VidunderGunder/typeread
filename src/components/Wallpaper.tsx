@@ -15,7 +15,11 @@ import scifi from "@/../assets/images/scifi.jpg";
 import fantasy from "@/../assets/images/fantasy.jpg";
 import hobbit from "@/../assets/images/hobbit.jpg";
 
+import fireplaceThumbnail from "@/../assets/images/fireplace.jpg";
+import fireplaceVideo from "@/../assets/images/fireplace.mp4";
+
 export const wallpaperKeys = [
+	"fireplace",
 	"mushrooms",
 	"tree",
 	"cafe",
@@ -31,18 +35,61 @@ export const wallpaperKeys = [
 export type WallpaperKey = (typeof wallpaperKeys)[number];
 
 const wallpapers = {
-	mushrooms,
-	tree,
-	cafe,
-	sea,
-	field,
-	view,
-	volcanic,
-	asiaRain,
-	scifi,
-	fantasy,
-	hobbit,
-} as const satisfies Record<WallpaperKey, string>;
+	fireplace: {
+		thumbnail: fireplaceThumbnail,
+		src: fireplaceVideo,
+	},
+	mushrooms: {
+		thumbnail: undefined,
+		src: mushrooms,
+	},
+	tree: {
+		thumbnail: undefined,
+		src: tree,
+	},
+	cafe: {
+		thumbnail: undefined,
+		src: cafe,
+	},
+	sea: {
+		thumbnail: undefined,
+		src: sea,
+	},
+	field: {
+		thumbnail: undefined,
+		src: field,
+	},
+	view: {
+		thumbnail: undefined,
+		src: view,
+	},
+	volcanic: {
+		thumbnail: undefined,
+		src: volcanic,
+	},
+	asiaRain: {
+		thumbnail: undefined,
+		src: asiaRain,
+	},
+	scifi: {
+		thumbnail: undefined,
+		src: scifi,
+	},
+	fantasy: {
+		thumbnail: undefined,
+		src: fantasy,
+	},
+	hobbit: {
+		thumbnail: undefined,
+		src: hobbit,
+	},
+} as const satisfies Record<
+	WallpaperKey,
+	{
+		thumbnail?: string;
+		src: string;
+	}
+>;
 
 export type WallpaperProps = {
 	//
@@ -56,18 +103,37 @@ export function Wallpaper({ className, ...props }: WallpaperProps) {
 	let src = "";
 
 	if (wallpaper in wallpapers) {
-		src = wallpapers[wallpaper as WallpaperKey];
+		src = wallpapers[wallpaper as WallpaperKey].src;
 	} else {
 		src = wallpaper;
 	}
 
+	const isVideo = src.endsWith(".mp4") || src.endsWith(".webm");
+
 	return (
-		<div className={cn("absolute inset-0 z-0 size-full", className)} {...props}>
-			<img
-				src={src}
-				alt="wallpaper"
-				className="absolute size-full object-cover"
-			/>
+		<div
+			className={cn(
+				"absolute inset-0 z-0 size-full",
+				wallpaper === "fireplace" && "brightness-75",
+				className,
+			)}
+			{...props}
+		>
+			{isVideo ? (
+				<video
+					src={src}
+					autoPlay
+					muted
+					loop
+					className="absolute size-full object-cover"
+				/>
+			) : (
+				<img
+					src={src}
+					alt="wallpaper"
+					className="absolute size-full object-cover"
+				/>
+			)}
 			<div className="absolute size-full bg-black/40" />
 		</div>
 	);
@@ -140,7 +206,7 @@ export function WallpaperSelect({
 					)}
 				>
 					<img
-						src={wallpapers[key]}
+						src={wallpapers[key].thumbnail ?? wallpapers[key].src}
 						alt={`${key} wallpaper`}
 						className="size-full object-cover"
 					/>

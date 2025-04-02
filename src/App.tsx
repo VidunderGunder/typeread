@@ -15,7 +15,7 @@ export function App() {
 	return (
 		<>
 			<div className="absolute size-full bg-[#13161c]" />
-			<Wallpaper className="blur-sm" />
+			<Wallpaper className="blur-[6px]" />
 			<div
 				className={cn(
 					"flex size-full select-none flex-col items-center justify-center gap-10 text-white focus-visible:outline-none focus-visible:ring-0",
