@@ -4,6 +4,23 @@
  */
 
 export interface paths {
+    "/auth/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Refresh Access Token */
+        post: operations["refresh-token"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/greeting/{name}": {
         parameters: {
             query?: never;
@@ -21,15 +38,32 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/hello": {
+    "/logout": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Get hello */
-        get: operations["get-hello"];
+        get?: never;
+        put?: never;
+        /** Logout */
+        post: operations["logout"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get user info */
+        get: operations["your-operation-name"];
         put?: never;
         post?: never;
         delete?: never;
@@ -88,6 +122,31 @@ export interface components {
             /** @description Greeting message */
             message: string;
         };
+        MeBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             */
+            readonly $schema?: string;
+            AvatarURL: string;
+            Description: string;
+            FirstName: string;
+            LastName: string;
+            Location: string;
+            NickName: string;
+            email: string;
+            /** Format: int64 */
+            id: number;
+            name: string;
+        };
+        RefreshTokenOutputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             */
+            readonly $schema?: string;
+            access_token: string;
+        };
     };
     responses: never;
     parameters: never;
@@ -97,6 +156,38 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    "refresh-token": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: {
+                refresh_token?: string;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    Cookie?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RefreshTokenOutputBody"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
     "get-greeting-by-name": {
         parameters: {
             query?: never;
@@ -132,7 +223,38 @@ export interface operations {
             };
         };
     };
-    "get-hello": {
+    logout: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "your-operation-name": {
         parameters: {
             query?: never;
             header?: never;
@@ -147,7 +269,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": string;
+                    "application/json": components["schemas"]["MeBody"];
                 };
             };
             /** @description Error */
