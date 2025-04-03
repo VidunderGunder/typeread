@@ -28,9 +28,9 @@ export function AudioToggleButton({
 			{...props}
 		>
 			{mutePreference ? (
-				<Icon icon="ri:volume-mute-fill" className="size-7" />
+				<Icon icon="ri:volume-mute-fill" className="size-6" />
 			) : (
-				<Icon icon="ri:volume-up-fill" className="size-7" />
+				<Icon icon="ri:volume-up-fill" className="size-6" />
 			)}
 		</button>
 	);
