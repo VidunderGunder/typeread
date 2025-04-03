@@ -1,15 +1,15 @@
 import { useEffect } from "react";
 import { useSetAtom } from "jotai";
 import { useDocumentVisibility } from "@mantine/hooks";
-import { muteAtom } from "@/jotai";
+import { muteOverrideAtom } from "@/jotai";
 
 export function AutoMute() {
-	const setMute = useSetAtom(muteAtom);
+	const setMuteOverride = useSetAtom(muteOverrideAtom);
 	const visibility = useDocumentVisibility();
 
 	useEffect(() => {
-		setMute(visibility !== "visible");
-	}, [visibility, setMute]);
+		setMuteOverride(visibility !== "visible");
+	}, [visibility, setMuteOverride]);
 
 	return null;
 }

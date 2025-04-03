@@ -29,7 +29,19 @@ import type { WallpaperKey } from "./components/Wallpaper";
 export const disableEscapeAtom = atomWithStorage("disable-escape", false);
 export const disableTyperAtom = atom(false);
 
-export const muteAtom = atom(true);
+export const mutePreferenceAtom = atom(true);
+export const muteOverrideAtom = atom(true);
+
+export function useMute() {
+	const [mutePreference] = useAtom(mutePreferenceAtom);
+	const [muteOverride] = useAtom(muteOverrideAtom);
+
+	const mute = muteOverride || mutePreference;
+
+	return {
+		mute,
+	};
+}
 
 export const searchEngines = [
 	"Google",

@@ -1,13 +1,12 @@
 import { useRef, useEffect, useState } from "react";
-import { useAtom } from "jotai";
-import { muteAtom } from "@/jotai";
+import { useMute } from "@/jotai";
 import mp3 from "@/../assets/fireplace.mp3";
 
 const LOWPASS_FREQUENCY = 1000;
 const GAIN_FADE_TIME = 0.5;
 
 export function BackgroundAudioPlayer() {
-	const [mute] = useAtom(muteAtom);
+	const { mute } = useMute();
 	const audioContextRef = useRef<AudioContext | null>(null);
 	const sourceNodeRef = useRef<AudioBufferSourceNode | null>(null);
 	const filterNodeRef = useRef<BiquadFilterNode | null>(null);
