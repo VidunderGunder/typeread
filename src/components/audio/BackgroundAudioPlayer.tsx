@@ -4,7 +4,7 @@ import { muteAtom } from "@/jotai";
 import mp3 from "@/../assets/fireplace.mp3";
 
 const LOWPASS_FREQUENCY = 1000;
-const GAIN_FADE_TIME = 0.05;
+const GAIN_FADE_TIME = 0.5;
 
 export function BackgroundAudioPlayer() {
 	const [mute] = useAtom(muteAtom);

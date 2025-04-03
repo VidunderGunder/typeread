@@ -21,16 +21,16 @@ export function AudioToggleButton({
 				setMute(!mute);
 			}}
 			className={cn(
-				"flex cursor-pointer gap-1 rounded-xl p-1.5 hover:bg-white/10",
+				"flex size-11 cursor-pointer items-center justify-center gap-1 rounded-xl hover:bg-white/10",
 				className,
 			)}
 			title={mute ? "Unmute" : "Mute"}
 			{...props}
 		>
 			{mute ? (
-				<Icon icon="ri:volume-mute-fill" className="size-8" />
+				<Icon icon="ri:volume-mute-fill" className="size-7" />
 			) : (
-				<Icon icon="ri:volume-up-fill" className="size-8" />
+				<Icon icon="ri:volume-up-fill" className="size-7" />
 			)}
 		</button>
 	);

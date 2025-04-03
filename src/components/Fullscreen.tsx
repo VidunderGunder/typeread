@@ -14,7 +14,7 @@ export function Fullscreen({ className, ...props }: FullscreenProps) {
 		<button
 			type="button"
 			className={cn(
-				"flex cursor-pointer gap-1 rounded-xl p-1.5 hover:bg-white/10",
+				"flex size-11 cursor-pointer items-center justify-center gap-1 rounded-xl hover:bg-white/10",
 				className,
 			)}
 			title="Fullscreen"

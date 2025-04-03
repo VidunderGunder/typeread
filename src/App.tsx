@@ -10,8 +10,9 @@ import { cn } from "@/styles/utils";
 import { Wallpaper, WallpaperSelect } from "@/components/Wallpaper";
 import { Fullscreen } from "./components/Fullscreen";
 import { Logo } from "./components/Logo";
-import { AudioToggleButton } from "./components/AudioToggleButton";
-import { BackgroundAudioPlayer } from "./components/BackgroundAudioPlayer";
+import { AudioToggleButton } from "./components/audio/AudioToggleButton";
+import { BackgroundAudioPlayer } from "./components/audio/BackgroundAudioPlayer";
+import { AutoMute } from "./components/audio/AutoMute";
 
 export function App() {
 	return (
@@ -43,6 +44,7 @@ export function App() {
 			</div>
 			<UseInit />
 			<BackgroundAudioPlayer />
+			<AutoMute />
 		</>
 	);
 }
