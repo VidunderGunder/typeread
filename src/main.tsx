@@ -10,7 +10,7 @@ import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persist
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { AuthContextProvider } from "./hooks/useAuth";
 
-if (import.meta.env.DEV) {
+if (import.meta.env.DEV && import.meta.env.VITE_DEVTOOLS) {
 	import("react-scan").then(({ scan }) => {
 		scan();
 	});
@@ -39,7 +39,7 @@ if (root) {
 			>
 				<AuthContextProvider>
 					<App />
-					{import.meta.env.DEV && (
+					{import.meta.env.DEV && import.meta.env.VITE_DEVTOOLS && (
 						<div className="absolute top-16 right-[5px]">
 							<ReactQueryDevtools buttonPosition="relative" />
 						</div>

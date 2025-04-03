@@ -28,3 +28,6 @@ temp/
 *.temp
 **/tmp.*
 **/temp.*
+
+# Local files
+*.local
