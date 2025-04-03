@@ -29,7 +29,7 @@ import type { WallpaperKey } from "./components/Wallpaper";
 export const disableEscapeAtom = atomWithStorage("disable-escape", false);
 export const disableTyperAtom = atom(false);
 
-export const muteAtom = atomWithStorage("mute", false);
+export const muteAtom = atom(true);
 
 export const searchEngines = [
 	"Google",
