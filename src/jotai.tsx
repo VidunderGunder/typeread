@@ -41,7 +41,14 @@ export function useMute() {
 	const [muteOverride] = useAtom(muteOverrideAtom);
 	const [firstUserGesture] = useAtom(firstUserGestureAtom);
 
-	const mute = firstUserGesture ? muteOverride || mutePreference : false;
+	const mute = firstUserGesture ? muteOverride || mutePreference : true;
+
+	console.log({
+		mutePreference,
+		muteOverride,
+		firstUserGesture,
+		mute,
+	});
 
 	return {
 		mute,
