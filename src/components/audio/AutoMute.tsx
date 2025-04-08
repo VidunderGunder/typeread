@@ -30,11 +30,6 @@ export function AutoMute() {
 		setMuteOverride(visibility !== "visible");
 	}, [visibility, setMuteOverride, firstUserGesture]);
 
-	// Effect to set mute override based on document visibility
-	useEffect(() => {
-		setMuteOverride(visibility !== "visible");
-	}, [visibility, setMuteOverride]);
-
 	// Effect to capture the first user gesture for enabling unmute automatically
 	useEffect(() => {
 		// if a gesture has already been registered, we don't need to listen further

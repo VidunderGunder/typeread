@@ -15,8 +15,6 @@ export function BackgroundAudioPlayer() {
 	const [isReady, setIsReady] = useState(false);
 	const isInitializing = useRef(false); // To prevent double SETUP logic run
 
-	console.log({ mute });
-
 	// --- Effect 1: Setup (Keep as is, ensure logging and cleanup are correct) ---
 	// biome-ignore lint/correctness/useExhaustiveDependencies: Init only
 	useEffect(() => {

@@ -43,13 +43,6 @@ export function useMute() {
 
 	const mute = firstUserGesture ? muteOverride || mutePreference : true;
 
-	console.log({
-		mutePreference,
-		muteOverride,
-		firstUserGesture,
-		mute,
-	});
-
 	return {
 		mute,
 	};
