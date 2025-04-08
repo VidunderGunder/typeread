@@ -29,14 +29,19 @@ import type { WallpaperKey } from "./components/Wallpaper";
 export const disableEscapeAtom = atomWithStorage("disable-escape", false);
 export const disableTyperAtom = atom(false);
 
-export const mutePreferenceAtom = atom(true);
+export const mutePreferenceAtom = atomWithStorage("mute-preference", true);
 export const muteOverrideAtom = atom(true);
+/**
+ * Wether the user has interacted with the page
+ */
+export const firstUserGestureAtom = atom(false);
 
 export function useMute() {
 	const [mutePreference] = useAtom(mutePreferenceAtom);
 	const [muteOverride] = useAtom(muteOverrideAtom);
+	const [firstUserGesture] = useAtom(firstUserGestureAtom);
 
-	const mute = muteOverride || mutePreference;
+	const mute = firstUserGesture ? muteOverride || mutePreference : false;
 
 	return {
 		mute,
@@ -86,7 +91,7 @@ export const charsAtom = atom<Character[]>([]);
 export const missesAtom = atomWithReset<number>(0);
 export const problemWordsAtom = atomWithReset<string[]>([]);
 
-export const typerStateAtom = atom<"finished" | "not-started" | "in-progress">(
+export const typerStateAtom = atom<"not-started" | "in-progress" | "finished">(
 	(get) => {
 		const chars = get(charsAtom);
 
